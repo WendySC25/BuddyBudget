@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+
+  django:
+    build:
+      context: ./backend
+    container_name: django-backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    network_mode: "host"
+
+  react:
+    build:
+      context: ./frontend
+    container_name: react-frontend
+    ports:
+      - "3000:80"
+    network_mode: "host"
+
+  db:
+    image: mysql:5.7
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: mi_aplicacion_web
+      MYSQL_USER: Myp3
+      MYSQL_PASSWORD: MyPfinanzas#
+      MYSQL_ROOT_PASSWORD: MyProyecto3*
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    network_mode: "host"
+#un volumen guarda info del programa, aunque se elimine, actualice el contenedor (para la db) :)
+volumes:
+  db_data:

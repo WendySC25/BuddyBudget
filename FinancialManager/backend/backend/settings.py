@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-8xug+=2_22y$)5=38p$8!2egedbfncx!j1+&j2#xhg7if23k99
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", 'django-backend']
 
 
 # Application definition
@@ -79,11 +79,11 @@ DATABASES = {
     'default': {
         #PARA CONECTAR LA BASE DE DATOS
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mi_aplicacion_web',
-        'USER': 'Myp3',
-        'PASSWORD': 'MyPfinanzas#',
+        'NAME': 'financesDB',
+        'USER': 'MyP', 
+        'PASSWORD': 'password',
         #db from docker-compose
-        'HOST': 'db',
+        'HOST': 'db', #
         'PORT': '3306',
     }
 }

@@ -13,12 +13,14 @@ const client = axios.create({
 });
 
 const LoginRegister = () => {
-    const [action, setAction] = useState(''); // login/register
+    const [action, setAction] = useState(''); //login/register
+
     const [currentUser, setCurrentUser] = useState();
+
     const [email, setEmail] = useState(''); 
-    const [username, setUsername] = useState(''); 
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState(''); 
-    const [errorMessage, setErrorMessage] = useState(''); // error
+    const [errorMessage, setErrorMessage] = useState('');
 
     const registerLink = () => {
         setAction(' active');
@@ -36,7 +38,7 @@ const LoginRegister = () => {
             password: password
         })
         .then(res => {
-            
+           
             return client.post("/api/login", {
                 email: email,
                 password: password
@@ -44,8 +46,7 @@ const LoginRegister = () => {
         })
         .then(res => {
             console.log("Registration successful:", res.data);
-            setAction(false);   
-           
+            
         })
         .catch(error => {
             setErrorMessage("Registration failed: " + error.response.data.detail || error.message);

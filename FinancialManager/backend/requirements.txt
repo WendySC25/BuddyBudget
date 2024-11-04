@@ -1,3 +1,0 @@
-Django==4.2 
-djangorestframework==3.15.2 #para la API
-mysqlclient==2.2.5

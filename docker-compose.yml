@@ -1,0 +1,19 @@
+services:
+  django:
+    build:
+      context: ./backend
+    container_name: django-backend_0-0-1
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+
+  react:
+    build:
+      context: ./frontend
+    container_name: react-frontend_0-0-1
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/app
+    

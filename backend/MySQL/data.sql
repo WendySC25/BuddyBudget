@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS db_users;
+
+USE db_users;

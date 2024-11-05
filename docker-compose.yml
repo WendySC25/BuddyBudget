@@ -1,12 +1,15 @@
 services:
-  django:
+  django: #creo que tengo que mandar a llamar las images desde aca 
     build:
       context: ./backend
     container_name: django-backend_0-0-1
     ports:
       - "8000:8000"
+    depends_on:
+      - db
     volumes:
       - ./backend:/app
+    command: ["./wait-for-it.sh", "db:3306", "--", "python3", "manage.py", "runserver", "0.0.0.0:8000"]
 
   react:
     build:
@@ -16,4 +19,16 @@ services:
       - "80:80"
     volumes:
       - ./frontend:/app
+
+  db:
+    build:
+      context: ./backend/MySQL
+    container_name: mysql-database_0-0-1
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+volumes:
+  db_data:
+
     

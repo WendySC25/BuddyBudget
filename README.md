@@ -19,6 +19,7 @@ BuddyBudget is an application designed to help users manage their finances. The 
 2. Build and run the application using Docker Compose. Ensure you’re in the same directory as `docker-compose.yml`:
 
    docker-compose up --build
+   o docker-compose build y docker-compose up
 
 3. Once the containers are running, access the frontend of the application in your browser:
 

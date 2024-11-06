@@ -15,7 +15,7 @@
 }
 
 .wrapper.active{
-    height: 520px;
+    height: 580px;
 }
 
 
@@ -134,5 +134,14 @@ form .register-link{
     text-decoration: underline;
 }
 
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2em; 
+}
 
 

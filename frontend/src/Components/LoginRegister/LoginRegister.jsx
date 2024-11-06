@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import './LoginRegister.css';
-import { FaUser, FaLock, FaEnvelope } from "react-icons/fa";
+import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from 'axios';
 
-
+// Axios configuration for http requests
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.withCredentials = true;
@@ -14,43 +14,57 @@ const client = axios.create({
 
 const LoginRegister = () => {
     const [action, setAction] = useState(''); //login/register
-
     const [currentUser, setCurrentUser] = useState();
-
     const [email, setEmail] = useState(''); 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState(''); 
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // useState for password visibility
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Visibility for confirm password
 
     const registerLink = () => {
         setAction(' active');
+        setErrorMessage(''); // Clear error message when switching to registration
     };
 
     const loginLink = () => {
         setAction('');
+        setErrorMessage(''); // Clear error message when switching to login
     };
 
+    const togglePasswordVisibility = () => setShowPassword(!showPassword);
+    const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+
+    // Registration methods 
     const submitRegistration = (e) => {
         e.preventDefault();
+        if (password !== confirmPassword) {
+            setErrorMessage("Passwords do not match");
+            return;
+        }
+        // Password conditions
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+        if (!passwordRegex.test(password)) {
+            setErrorMessage("Password must be at least 5 characters long with letters and numbers.");
+            return;
+        }
+        // Registration request
         client.post("/api/register", {
             email: email,
             username: username,
             password: password
         })
-        .then(res => {
-           
-            return client.post("/api/login", {
-                email: email,
-                password: password
-            });
-        })
-        .then(res => {
-            console.log("Registration successful:", res.data);
+        .then(() => {
+            setErrorMessage("Registration successful");
+            loginLink(); // Switch to login forme
             
         })
         .catch(error => {
-            setErrorMessage("Registration failed: " + error.response.data.detail || error.message);
-            console.error("Registration error:", error);
+            // Handle specific registration errors
+            const errorMessage = error.response?.data?.detail || "";
+            setErrorMessage(`Registration Failed: ${errorMessage}`);
+            console.error(`Registration Failed: ${errorMessage}`);
         });
     };
 
@@ -68,8 +82,10 @@ const LoginRegister = () => {
             
         })
         .catch(error => {
-            setErrorMessage("Login failed: " + error.response.data.detail || error.message);
-            console.error("Login error:", error);
+            // Handle specific login errors
+            const errorMessage = error.response?.data?.detail || "";
+            setErrorMessage(`Login Failed: ${errorMessage}`);
+            console.error(`Login Failed: ${errorMessage}`);
         });
     };
 
@@ -79,6 +95,9 @@ const LoginRegister = () => {
             .then(res => {
                 console.log("Logout successful:", res.data);
                 setCurrentUser(false); 
+                setEmail(''); // Clear email and password on logout
+                setPassword('');
+                setErrorMessage(''); // Clear error message on logout 
             })
             .catch(error => {
                 console.error("Logout error:", error);
@@ -104,8 +123,12 @@ const LoginRegister = () => {
                         <FaEnvelope className='icon' />
                     </div>
                     <div className="input-box">
-                        <input type="password" placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} required />
-                        <FaLock className='icon' />
+                        <input type={showPassword ? "text" : "password"} placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} required />
+                        {showPassword ? (
+                            <FaEyeSlash className="toggle-password" onClick={togglePasswordVisibility} />
+                        ) : (
+                            <FaEye className="toggle-password" onClick={togglePasswordVisibility} />
+                        )}
                     </div>
                     {errorMessage && <p className="error-message">{errorMessage}</p>}
                     <button type="submit">Login</button>
@@ -128,8 +151,20 @@ const LoginRegister = () => {
                         <FaEnvelope className='icon' />
                     </div>
                     <div className="input-box">
-                        <input type="password" placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} required />
-                        <FaLock className='icon' />
+                        <input type={showPassword ? "text" : "password"} placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} required />
+                        {showPassword ? (
+                            <FaEyeSlash className="toggle-password" onClick={togglePasswordVisibility} />
+                        ) : (
+                            <FaEye className="toggle-password" onClick={togglePasswordVisibility} />
+                        )}
+                    </div>
+                    <div className="input-box">
+                        <input type={showConfirmPassword ? "text" : "password"} placeholder='Confirm Password' value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+                        {showConfirmPassword ? (
+                            <FaEyeSlash className="toggle-password" onClick={toggleConfirmPasswordVisibility} />
+                        ) : (
+                            <FaEye className="toggle-password" onClick={toggleConfirmPasswordVisibility} />
+                        )}
                     </div>
                     {errorMessage && <p className="error-message">{errorMessage}</p>}
                     <button type="submit">Register</button>

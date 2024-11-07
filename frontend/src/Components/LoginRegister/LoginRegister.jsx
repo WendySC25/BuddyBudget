@@ -12,7 +12,7 @@ const client = axios.create({
     baseURL: "http://127.0.0.1:8000"
 });
 
-const LoginRegister = () => {
+const LoginRegister = ({ handleLogin }) => {
     const [action, setAction] = useState(''); //login/register
     const [currentUser, setCurrentUser] = useState();
     const [email, setEmail] = useState(''); 
@@ -78,8 +78,7 @@ const LoginRegister = () => {
         })
         .then(res => {
             console.log("Login successful:", res.data);
-            setCurrentUser(true);   
-            
+            handleLogin(username); // Change authentication state  
         })
         .catch(error => {
             // Handle specific login errors
@@ -88,30 +87,6 @@ const LoginRegister = () => {
             console.error(`Login Failed: ${errorMessage}`);
         });
     };
-
-    const submitLogout = (e) => {
-        e.preventDefault();
-        client.post("/api/logout", { withCredentials: true })
-            .then(res => {
-                console.log("Logout successful:", res.data);
-                setCurrentUser(false); 
-                setEmail(''); // Clear email and password on logout
-                setPassword('');
-                setErrorMessage(''); // Clear error message on logout 
-            })
-            .catch(error => {
-                console.error("Logout error:", error);
-            });
-    };
-
-    if (currentUser) {
-        return (
-            <div>
-                <h1 style={{ color: 'white' }}>You're logged in!</h1>
-                <button onClick={submitLogout}>Logout</button> 
-            </div>
-        );
-    }
 
     return (
         <div className={`wrapper${action}`}>

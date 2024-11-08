@@ -1,5 +1,6 @@
 // Navbar.jsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Navbar.css';
 import logo__light from '../Assets/BuddyBudget_black.png';
 
@@ -13,11 +14,11 @@ const Navbar = ({ handleLogout }) => {
                 &#9776; {/* Hamburguer Icon */}
             </div>
             <ul className={menuOpen ? 'open' : ''}>
-                <li>Home</li>
-                <li>Transactions</li>
-                <li>Profile</li>
-                <li>Reports</li>
-                <li>Configuration</li>
+                <li><Link to="/home">Home</Link></li>
+                <li><Link to="/transactions">Transactions</Link></li>
+                <li><Link to="/profile">Profile</Link></li>
+                <li><Link to="/reports">Reports</Link></li>
+                <li><Link to="/configuration">Configuration</Link></li>
                 <li onClick={handleLogout} style={{ cursor: 'pointer', color: 'red' }}>Logout</li>
             </ul>
         </div>

@@ -16,9 +16,6 @@ COPY ./requirements.txt .
 RUN pip3 install -r requirements.txt
 COPY ./wait-for-it.sh /wait-for-it.sh
 
-
 COPY . .
 
-CMD python3 manage.py makemigrations && \
-python3 manage.py migrate --no-input && \
-python3 manage.py runserver 0.0.0.0:8000
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]

@@ -4,7 +4,7 @@ FROM node:18.19.0 AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm config set fetch-retry-maxtimeout 120000 && npm install
+RUN npm config set fetch-retry-maxtimeout 120000 && npm install --prefer-offline
 
 COPY . .
 RUN npm run build

@@ -50,6 +50,13 @@ class UserView(APIView):
 		serializer = UserSerializer(request.user)
 		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
+	def put(self, request):
+		serializer = UserSerializer(profile, data=request.data, partial=True)
+		if serializer.is_valid(raise_exception=True):
+			serializer.save()
+			return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class ProfileView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	authentication_classes = (SessionAuthentication,)

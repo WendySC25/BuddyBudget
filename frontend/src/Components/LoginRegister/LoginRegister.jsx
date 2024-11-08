@@ -100,9 +100,9 @@ const LoginRegister = ({ handleLogin }) => {
                     <div className="input-box">
                         <input type={showPassword ? "text" : "password"} placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} required />
                         {showPassword ? (
-                            <FaEyeSlash className="toggle-password" onClick={togglePasswordVisibility} />
-                        ) : (
                             <FaEye className="toggle-password" onClick={togglePasswordVisibility} />
+                        ) : (
+                            <FaEyeSlash className="toggle-password" onClick={togglePasswordVisibility} />
                         )}
                     </div>
                     {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -128,17 +128,17 @@ const LoginRegister = ({ handleLogin }) => {
                     <div className="input-box">
                         <input type={showPassword ? "text" : "password"} placeholder='Password' value={password} onChange={e => setPassword(e.target.value)} required />
                         {showPassword ? (
-                            <FaEyeSlash className="toggle-password" onClick={togglePasswordVisibility} />
-                        ) : (
                             <FaEye className="toggle-password" onClick={togglePasswordVisibility} />
+                        ) : (
+                            <FaEyeSlash className="toggle-password" onClick={togglePasswordVisibility} />
                         )}
                     </div>
                     <div className="input-box">
                         <input type={showConfirmPassword ? "text" : "password"} placeholder='Confirm Password' value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
                         {showConfirmPassword ? (
-                            <FaEyeSlash className="toggle-password" onClick={toggleConfirmPasswordVisibility} />
-                        ) : (
                             <FaEye className="toggle-password" onClick={toggleConfirmPasswordVisibility} />
+                        ) : (
+                            <FaEyeSlash className="toggle-password" onClick={toggleConfirmPasswordVisibility} />
                         )}
                     </div>
                     {errorMessage && <p className="error-message">{errorMessage}</p>}

@@ -7,7 +7,7 @@ const Home = ({ username, handleLogout }) => {
     return (
         <div className="home">
             <Navbar handleLogout={handleLogout} />
-            <h1>Welcome Seldon {username}!</h1>
+            <h1>Welcome {username}!</h1>
             <p>This is the Home page.</p>
         </div>
     );

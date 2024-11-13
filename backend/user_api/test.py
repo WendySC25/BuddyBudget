@@ -169,7 +169,7 @@ class IncomeExpenseTests(APITestCase):
         url = reverse('expense-list-create')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Verify one expense exists
+        self.assertEqual(len(response.data), 1)
 
     def test_update_expense(self):
         expense = Expense.objects.create(

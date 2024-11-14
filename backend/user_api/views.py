@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model, login, logout
-from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer
@@ -23,7 +23,7 @@ class UserRegister(APIView):
 
 class UserLogin(APIView):
 	permission_classes = (permissions.AllowAny,)
-	authentication_classes = (SessionAuthentication,)
+	authentication_classes = (JWTAuthentication,)
 	##
 	def post(self, request):
 		data = request.data
@@ -46,7 +46,7 @@ class UserLogout(APIView):
 
 class UserView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
-	authentication_classes = (SessionAuthentication,)
+	authentication_classes = (JWTAuthentication,)
 	
 	def get(self, request):
 		serializer = UserSerializer(request.user)
@@ -61,7 +61,7 @@ class UserView(APIView):
 
 class ProfileView(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
-	authentication_classes = (SessionAuthentication,)
+	authentication_classes = (JWTAuthentication,)
 	
 	def get(self, request):
 		profile = request.user.profile
@@ -79,7 +79,7 @@ class ProfileView(APIView):
 
 class IncomeListCreateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
         incomes = Income.objects.filter(user=request.user)
@@ -96,7 +96,7 @@ class IncomeListCreateView(APIView):
 
 class IncomeDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
 
     def get_object(self, pk):
         try:
@@ -125,7 +125,7 @@ class IncomeDetailView(APIView):
 
 class ExpenseListCreateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
         expenses = Expense.objects.filter(user=request.user)
@@ -142,7 +142,7 @@ class ExpenseListCreateView(APIView):
 
 class ExpenseDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    authentication_classes = (JWTAuthentication,)
 
     def get_object(self, pk):
         try:

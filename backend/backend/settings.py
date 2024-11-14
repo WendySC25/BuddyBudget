@@ -113,6 +113,11 @@ REST_FRAMEWORK = {
     ),
 }
 
+## JSON Web Token
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'user_id',
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 

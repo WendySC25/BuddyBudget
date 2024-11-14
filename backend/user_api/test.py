@@ -98,7 +98,17 @@ class IncomeExpenseTests(APITestCase):
             'date': '2024-11-02'
         }
         
-        self.client.login(email='testuser@example.com', password='password123')
+        self.authenticate()
+
+    def authenticate(self):
+        response = self.client.post(reverse('token_obtain_pair'), {
+            'email': 'testuser@example.com',
+            'password': 'password123'
+        })
+        if 'access' in response.data:
+            token = response.data['access']
+            self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+
 
     def test_create_income(self):
         url = reverse('income-list-create')

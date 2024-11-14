@@ -1,12 +1,13 @@
 // Transactions.jsx
 import React,{ useState } from 'react';
 import Navbar from '../NavBar/Navbar';
-import './Home.css'
+import './Transactions.css'
+
 const Transactions = ({ handleLogout }) => {
 
     const [category, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState([]);
-    const [account, setAccount] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [account, setAccount] = useState([]);
     const [selectedAccount, setSelectedAccount] = useState('');
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
@@ -41,8 +42,8 @@ const Transactions = ({ handleLogout }) => {
       <Navbar handleLogout={handleLogout} />
       <h1>Transactions Page</h1>
       <form onSubmit={handleSubmit}>
-
-                <div className="profile-field">
+            <div className="transaction-form">
+                <div className="category-dropdown">
                     <label htmlFor="category">Category</label>
                     <select
                         id="category"
@@ -54,7 +55,7 @@ const Transactions = ({ handleLogout }) => {
                                 setSelectedCategory(e.target.value);
                             }
                         }}
-                        className="category-dropdown"
+                        
                     >
                         {category.map((category, index) => (
                             <option key={index} value={category}>{category}</option>
@@ -63,7 +64,7 @@ const Transactions = ({ handleLogout }) => {
                     </select>
                 </div>
 
-                <div className="profile-field">
+                <div className="account-dropdown">
                     <label htmlFor="account">Account</label>
                     <select
                         id="account"
@@ -75,7 +76,7 @@ const Transactions = ({ handleLogout }) => {
                                 setSelectedAccount(e.target.value);
                             }
                         }}
-                        className="account-dropdown"
+                        
                     >
                         {account.map((account, index) => (
                             <option key={index} value={account}>{account}</option>
@@ -84,7 +85,7 @@ const Transactions = ({ handleLogout }) => {
                     </select>
                 </div>
 
-                <div className="profile-field">
+                <div className="transaction-field">
                     <label htmlFor="amount">Amount</label>
                     <input
                         type="number"
@@ -95,7 +96,7 @@ const Transactions = ({ handleLogout }) => {
                     />
                 </div>
 
-                <div className="profile-field">
+                <div className="transaction-field">
                     <label htmlFor="description">Tag</label>
                     <input
                         type="text"
@@ -106,7 +107,7 @@ const Transactions = ({ handleLogout }) => {
                     />
                 </div>
 
-                <div className="profile-field">
+                <div className="transaction-field">
                     <label htmlFor="date">Date</label>
                     <input
                         type="date"
@@ -116,6 +117,7 @@ const Transactions = ({ handleLogout }) => {
                         required
                     />
                 </div>
+            </div>
 
                 <button type="submit">Add Transaction</button>
                 {message && <p className="message">{message}</p>}

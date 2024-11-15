@@ -63,7 +63,7 @@ function App() {
           element={isAuthenticated ? <Configuration handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
 
-        {/* Página de login */}
+        {/* Página de login, Redirección Inicial */}
         <Route
           path="/login"
           element={isAuthenticated ? <Navigate to="/home" /> : <LoginRegister handleLogin={handleLogin} />}
@@ -74,3 +74,4 @@ function App() {
 }
 
 export default App;
+

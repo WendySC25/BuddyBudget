@@ -14,7 +14,7 @@ html, body {
   color: #333;
   padding: 20px;
   width:100vw;
-  padding-top: 570px;  /*Ajuste del espaciado para la barra de navegación */
+  padding-top: 200px;  /*Ajuste del espaciado para la barra de navegación */
   min-height: 100vh;
   display: flex;
   flex-direction: column;

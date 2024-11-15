@@ -69,13 +69,9 @@ const LoginRegister = ({ handleLogin }) => {
     };
 
 
-
     const submitLogin = (e) => {
         e.preventDefault();
-        client.post("/api/login", {
-            email: email,
-            password: password
-        })
+        client.post("/api/login", { email, password })
         .then(res => {
             console.log("Login successful:", res.data);
             handleLogin(username); // Change authentication state  

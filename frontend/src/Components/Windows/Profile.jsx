@@ -3,15 +3,12 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../NavBar/Navbar';
 import axios from 'axios';
 import './Profile.css';
+import client from '../../apiClient.jsx';
 
 // Configuración de axios para solicitudes con CSRF
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.withCredentials = true;
-
-const client = axios.create({
-    baseURL: "http://127.0.0.1:8000" // Base URL de tu API
-});
 
 const Profile = ({ user = {}, handleLogout }) => {
   const [formData, setFormData] = useState({
@@ -28,20 +25,21 @@ const Profile = ({ user = {}, handleLogout }) => {
   useEffect(() => {
     client.get('/api/profile')
       .then((response) => {
-        const profileData = response.data;
+        const profileData = response.data.profile; // Acceder a `profile` dentro de la respuesta
         setFormData({
           name: profileData.name,
           last_name: profileData.last_name,
           phone_number: profileData.phone_number,
           RFC: profileData.RFC,
-          aboutMe: profileData.bio,
-        }); 
+          bio: profileData.bio, // Asegúrate de que el campo sea correcto
+        });
       })
       .catch((error) => {
         console.error('Error loading profile data:', error);
         setErrorMessage('Failed to load profile data. Please log in again.');
       });
   }, []);
+  
 
   // Función para manejar cambios en los campos del formulario
   const handleChange = (e) => {

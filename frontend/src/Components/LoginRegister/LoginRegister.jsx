@@ -71,16 +71,19 @@ const LoginRegister = ({ handleLogin }) => {
 
     const submitLogin = (e) => {
         e.preventDefault();
-        client.post("/api/login", { email, password })
+        console.log("Login try...");
+        client.post("/api/token/", { email, password })
         .then(res => {
-            console.log("Login successful:", res.data);
-            handleLogin(username); // Change authentication state  
+            console.log("Server Answer:", res);  // Verify the server answer
+            const token = res.data.access;
+            console.log("Acces Token:", token); // print token in console
+            localStorage.setItem('token', token);
+            handleLogin(token); // Pass username and token
         })
         .catch(error => {
             // Handle specific login errors
             const errorMessage = error.response?.data?.detail || "";
             setErrorMessage(`Login Failed: ${errorMessage}`);
-            console.error(`Login Failed: ${errorMessage}`);
         });
     };
 

@@ -10,22 +10,20 @@ import client from './apiClient';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
-  const [username, setUsername] = useState('');  // state for save username
 
   // Function to handle login
-  const handleLogin = (username) => {
+  const handleLogin = (token) => {
     setIsAuthenticated(true);
-    setUsername(username);
   };
 
   // Function to handle logout
   const handleLogout = (e) => {
     e.preventDefault();
-    client.post("/api/logout", { withCredentials: true })
+    localStorage.removeItem("authToken");
+    setIsAuthenticated(false);
+    client.post("/api/logout", {}, { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } })
         .then(res => {
             console.log("Logout successful:", res.data);
-            setIsAuthenticated(false);
-            setUsername(''); // clean username when close
         })
         .catch(error => {
             console.error("Logout error:", error);
@@ -44,7 +42,7 @@ function App() {
         {/* Rutas protegidas que verifican la autenticación */}
         <Route
           path="/home"
-          element={isAuthenticated ? <Home username={username} handleLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <Home handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
         <Route
           path="/transactions"

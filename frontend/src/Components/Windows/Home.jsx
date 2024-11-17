@@ -3,11 +3,11 @@ import React from 'react';
 import Navbar from '../NavBar/Navbar';
 import './Home.css';
 
-const Home = ({ username, handleLogout }) => {
+const Home = ({ handleLogout }) => {
     return (
         <div className="home">
             <Navbar handleLogout={handleLogout} />
-            <h1>Welcome {username}!</h1>
+            <h1>Welcome!</h1>
             <p>This is the Home page.</p>
         </div>
     );

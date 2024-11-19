@@ -12,7 +12,9 @@ axios.defaults.withCredentials = true;
 
 const Transactions = ({ handleLogout }) => {
 
-    const [transactions, setTransactions] = useState([]); // State to hold transactions
+    const [transactions, setTransactions] = useState([]); // State to hold all transactions
+    const [incomes,setIncomes] = useState([]);
+    const [expenses, setExpenses] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [transactionType, setTransactionType] = useState('');
     const [category, setCategories] = useState([]); //array for options *they must come from db*
@@ -46,8 +48,36 @@ const Transactions = ({ handleLogout }) => {
         setIsAddingAccount(false);
     };
 
-    //fetch transactions
+    //fetch transactions //might be better if we change the table 
+    useEffect(() =>{ 
+        const fetchAllT = async () => {
+            const token = localStorage.getItem('authToken');
+            try{
+                const responseI = await client.get('/api/incomes', {
+                    headers: {Authorization: 'Bearer ${token}'},
+                });
+                setIncomes(responseI.data);
+            }catch(error){
+                console.error('Error while fetching incomes', error);
+            }
 
+            try{
+                const responseE = await client.get('/api/expenses',{
+                    headers: {Authorization: 'Bearer ${token}'},
+                });
+                setExpenses(responseE.data);
+            }catch(error){
+                console.error('Error while fetching expenses', error);
+            }
+        };
+
+        fetchAllT();
+    }, []);
+
+    const allTransactions = [
+        ...incomes.map((income) => ({ ...income, type: 'Income' })),
+        ...expenses.map((expense) => ({ ...expense, type: 'Expense' })),
+      ];
     //fetch categories
 
     //fetch accounts
@@ -61,7 +91,7 @@ const Transactions = ({ handleLogout }) => {
             amount: amount,
             description: description,
             date: date,
-            type: transactionType, //maybe delete this, might interfere with db
+            //type: transactionType, //maybe delete this, might interfere with db
         };
         setTransactions([...transactions, data]);
 
@@ -100,7 +130,7 @@ const Transactions = ({ handleLogout }) => {
           <table className="transaction-table">
         <thead>
           <tr>
-            <th>Type</th>
+            
             <th>Amount</th>
             <th>Description</th>
             <th>Date</th>
@@ -109,10 +139,10 @@ const Transactions = ({ handleLogout }) => {
           </tr>
         </thead>
         <tbody>
-          {transactions.length > 0 ? (
-            transactions.map((transaction, index) => (
+          {allTransactions.length > 0 ? (
+            allTransactions.map((transaction, index) => (
               <tr key={index}>
-                <td>{transaction.type}</td>
+
                 <td>{transaction.amount}</td>
                 <td>{transaction.description}</td>
                 <td>{transaction.date}</td>

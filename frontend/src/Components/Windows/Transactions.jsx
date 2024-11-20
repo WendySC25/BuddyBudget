@@ -121,10 +121,16 @@ const Transactions = ({ handleLogout }) => {
           <Navbar handleLogout={handleLogout} />
           <h1>Transactions Page</h1>
 
-          {/* Button to Show/Hide Form */}
-            <button onClick={() => setShowForm(!showForm)}>
+          <div className="table-container">
+            <div className="table-header">
+                {/* Button aligned to the top left */}
+                <button
+                className="add-transaction"
+                onClick={() => setShowForm(!showForm)}
+                >
                 {showForm ? 'Cancel' : '+ Add Transaction'}
-            </button>
+                </button>
+            </div>
 
           {/* Table */}
           <table className="transaction-table">
@@ -152,11 +158,12 @@ const Transactions = ({ handleLogout }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="6">No transactions yet</td>
+              <td colSpan="5">No transactions yet</td>
             </tr>
           )}
         </tbody>
       </table>
+    </div>
 
       {showForm && (   
         

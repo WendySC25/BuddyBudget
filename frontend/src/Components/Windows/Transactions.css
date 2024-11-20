@@ -157,4 +157,57 @@
     margin-top: 15px;
     text-align: center;
   }
+
+  .table-container {
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .table-header {
+    display: flex;
+    justify-content: flex-start; /* Align button to the left */
+    align-items: center;
+    margin-bottom: 10px; /* Add space between button and table */
+  }
+  
+  .add-transaction {
+    background-color: #2b6cb0; /* Button color */
+    color: white; /* Text color */
+    padding: 5px 10px; /* Compact padding for smaller button */
+    font-size: 0.9rem; /* Slightly smaller font size */
+    border-radius: 3px; /* Rounded corners */
+    border: none; /* No border */
+    cursor: pointer; /* Pointer on hover */
+    text-align: center;
+  }
+  
+  .add-transaction:hover {
+    background-color: #4A5568; /* Darker color on hover */
+  }
+  
+  .transaction-table {
+    width: 100%; /* Table spans full width */
+    border-collapse: collapse; /* Collapsed borders */
+  }
+  
+  .transaction-table th,
+  .transaction-table td {
+    border: 1px solid #ddd; /* Add borders */
+    padding: 8px; /* Cell padding */
+    text-align: left; /* Align text to the left */
+  }
+  
+  .transaction-table th {
+    background-color: #2b6cb0; /* Header background color */
+    color: white; /* Header text color */
+  }
+  
+  .transaction-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Zebra striping */
+  }
+  
+  .transaction-table tr:hover {
+    background-color: #f1f1f1; /* Highlight row on hover */
+  }
+  
   

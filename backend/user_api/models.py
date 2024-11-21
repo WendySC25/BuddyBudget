@@ -87,26 +87,23 @@ class Category(models.Model):
 	def __str__(self):
 		return self.category_name
 
+class TransactionType(models.TextChoices):
+    INCOME  = 'ING', 'Ingreso'
+    EXPENSE = 'EXP', 'Egreso'
 
-class Income(models.Model):
-    user 		= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='incomes')
-    category 	= models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='incomes')
-    account 	= models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='incomes')
-    amount 		= models.DecimalField(max_digits=10, decimal_places=2)
+class Transaction(models.Model):
+    user     	= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='transactions')
+    category 	= models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, related_name='transactions')
+    account  	= models.ForeignKey('Account', on_delete=models.SET_NULL, null=True, related_name='transactions')
+    amount 	 	= models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
     date 		= models.DateField()
+    type 		= models.CharField(
+        max_length=3,
+        choices=TransactionType.choices,
+        default=TransactionType.INCOME
+    )
 
     def __str__(self):
-        return f"{self.amount} - {self.category.name} ({self.account.account_name})"
-
-
-class Expense(models.Model):
-    user 		= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expenses')
-    category 	= models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='expenses')
-    account 	= models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='expenses')
-    amount 		= models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.TextField(blank=True, null=True)
-    date 		= models.DateField()
-
-    def __str__(self):
-        return f"{self.amount} - {self.category.name} ({self.account.account_name})"
+        return f"{self.amount} - {self.category.name} ({self.account.account_name}) - {self.get_type_display()}"
+	

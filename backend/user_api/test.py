@@ -3,7 +3,7 @@ from decimal import Decimal
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from .models import Income, Expense, Account, Category, AccountType 
+from .models import Transaction, Account, Category, AccountType 
 
 User = get_user_model()
 
@@ -75,29 +75,31 @@ class UserTests(APITestCase):
         self.assertEqual(response.data['profile']['name'], data['name'])
 
 
-class IncomeExpenseTests(APITestCase):
+class TransactionTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(email='testuser@example.com', username='testuser', password='password123')
         self.account_type = AccountType.objects.create(type_name='Efectivo')
         self.account = Account.objects.create(user=self.user, account_type=self.account_type, account_name='Wallet')
         self.category = Category.objects.create(user=self.user, category_name='Salary')
-        
+
         self.income_data = {
             'category': self.category.id,
             'account': self.account.id,
             'amount': 1000.00,
             'description': 'Monthly salary',
-            'date': '2024-11-01'
+            'date': '2024-11-01',
+            'type': 'ING'  
         }
-        
+
         self.expense_data = {
             'category': self.category.id,
             'account': self.account.id,
             'amount': 100.00,
             'description': 'Grocery shopping',
-            'date': '2024-11-02'
+            'date': '2024-11-02',
+            'type': 'EXP'  
         }
-        
+
         self.authenticate()
 
     def authenticate(self):
@@ -109,104 +111,103 @@ class IncomeExpenseTests(APITestCase):
             token = response.data['access']
             self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
 
-
     def test_create_income(self):
-        url = reverse('income-list-create')
+        url = reverse('transaction-list-create')  
         response = self.client.post(url, self.income_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Decimal(response.data['amount']), Decimal(str(self.income_data['amount'])))
+        self.assertEqual(response.data['type'], 'ING') 
 
-    def test_get_all_incomes(self):
-        Income.objects.create(
+    def test_create_expense(self):
+        url = reverse('transaction-list-create') 
+        response = self.client.post(url, self.expense_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Decimal(response.data['amount']), Decimal(str(self.expense_data['amount'])))
+        self.assertEqual(response.data['type'], 'EXP') 
+
+    def test_get_all_transactions(self):
+        Transaction.objects.create(
             user=self.user,
             category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
-            date=self.income_data['date']
+            date=self.income_data['date'],
+            type='ING'
         )
-        url = reverse('income-list-create')
+        Transaction.objects.create(
+            user=self.user,
+            category=self.category, 
+            account=self.account,    
+            amount=self.expense_data['amount'],
+            description=self.expense_data['description'],
+            date=self.expense_data['date'],
+            type='EXP'
+        )
+        url = reverse('transaction-list-create')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1) 
+        self.assertEqual(len(response.data), 2)  
 
-    def test_update_income(self):
-        income =  Income.objects.create(
+    def test_update_transaction(self):
+
+        transaction = Transaction.objects.create(
             user=self.user,
             category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
-            date=self.income_data['date']
+            date=self.income_data['date'],
+            type='ING'
         )
-        url = reverse('income-detail', kwargs={'pk': income.id})
+        url = reverse('transaction-detail', kwargs={'pk': transaction.id})
         updated_data = {'amount': 1200.00, 'description': 'Updated salary'}
         response = self.client.put(url, updated_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Decimal(response.data['amount']), Decimal(str(updated_data['amount'])))
         self.assertEqual(response.data['description'], updated_data['description'])
 
-    def test_delete_income(self):
-        income = Income.objects.create(
+    def test_delete_transaction(self):
+        transaction = Transaction.objects.create(
             user=self.user,
             category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
-            date=self.income_data['date']
+            date=self.income_data['date'],
+            type='ING'
         )
-        url = reverse('income-detail', kwargs={'pk': income.id})
+        url = reverse('transaction-detail', kwargs={'pk': transaction.id})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Income.objects.filter(id=income.id).exists())
+        self.assertFalse(Transaction.objects.filter(id=transaction.id).exists())
 
-    def test_create_expense(self):
-        url = reverse('expense-list-create')
-        response = self.client.post(url, self.expense_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Decimal(response.data['amount']), Decimal(str(self.expense_data['amount'])))
+    def test_get_all_transactions_by_type(self):
 
-    def test_get_all_expenses(self):
-        # Create an expense first
-        Expense.objects.create(
+        Transaction.objects.create(
             user=self.user,
             category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
-            date=self.income_data['date']
+            date=self.income_data['date'],
+            type='ING'
         )
-        url = reverse('expense-list-create')
+        Transaction.objects.create(
+            user=self.user,
+            category=self.category, 
+            account=self.account,    
+            amount=self.expense_data['amount'],
+            description=self.expense_data['description'],
+            date=self.expense_data['date'],
+            type='EXP'
+        )
+        url = reverse('transaction-list-create') + '?type=ING'  
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1) 
+
+        url = reverse('transaction-list-create') + '?type=EXP'  
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-
-    def test_update_expense(self):
-        expense = Expense.objects.create(
-            user=self.user,
-            category=self.category, 
-            account=self.account,    
-            amount=self.income_data['amount'],
-            description=self.income_data['description'],
-            date=self.income_data['date']
-        )
-        url = reverse('expense-detail', kwargs={'pk': expense.id})
-        updated_data = {'amount': 150.00, 'description': 'Updated grocery expense'}
-        response = self.client.put(url, updated_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Decimal(response.data['amount']), Decimal(str(updated_data['amount'])))
-        self.assertEqual(response.data['description'], updated_data['description'])
-
-    def test_delete_expense(self):
-        expense = Expense.objects.create(
-            user=self.user,
-            category=self.category, 
-            account=self.account,    
-            amount=self.income_data['amount'],
-            description=self.income_data['description'],
-            date=self.income_data['date']
-        )
-        url = reverse('expense-detail', kwargs={'pk': expense.id})
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Expense.objects.filter(id=expense.id).exists())    

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from .models import Profile
-from .models import AccountType, Account, Category, Income, Expense
+from .models import AccountType, Account, Category, Transaction, TransactionType
 
 UserModel = get_user_model()
 
@@ -56,21 +56,11 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
 
-class IncomeSerializer(serializers.ModelSerializer):
+class TransactionSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     account = AccountSerializer(read_only=True)
 
     class Meta:
-        model = Income
-        fields = ['id', 'user', 'category', 'account', 'amount', 'description', 'date']
-        read_only_fields = ['user']
-
-
-class ExpenseSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    account = AccountSerializer(read_only=True)
-
-    class Meta:
-        model = Expense
-        fields = ['id', 'user', 'category', 'account', 'amount', 'description', 'date']
+        model = Transaction
+        fields = ['id', 'user', 'category', 'account', 'amount', 'description', 'date', 'type']
         read_only_fields = ['user']

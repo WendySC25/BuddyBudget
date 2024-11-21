@@ -3,10 +3,10 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer
-from .serializers import IncomeSerializer, ExpenseSerializer
+from .serializers import TransactionSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
-from .models import Income, Expense
+from .models import TransactionType, Transaction
 
 
 class UserRegister(APIView):
@@ -76,94 +76,53 @@ class ProfileView(APIView):
 			return Response({'profile': serializer.data}, status=status.HTTP_200_OK)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
       
-
-class IncomeListCreateView(APIView):
+	
+class TransactionListCreateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
-        incomes = Income.objects.filter(user=request.user)
-        serializer = IncomeSerializer(incomes, many=True)
+        transaction_type = request.query_params.get('type', None)
+        if transaction_type:
+            transactions = Transaction.objects.filter(user=request.user, type=transaction_type)
+        else:
+            transactions = Transaction.objects.filter(user=request.user)
+        
+        serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = IncomeSerializer(data=request.data)
+        serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class IncomeDetailView(APIView):
+class TransactionDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
     def get_object(self, pk):
         try:
-            return Income.objects.get(pk=pk, user=self.request.user)
-        except Income.DoesNotExist:
+            return Transaction.objects.get(pk=pk, user=self.request.user)
+        except Transaction.DoesNotExist:
             raise Response(status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, pk):
-        income = self.get_object(pk)
-        serializer = IncomeSerializer(income)
+        transaction = self.get_object(pk)
+        serializer = TransactionSerializer(transaction)
         return Response(serializer.data)
 
     def put(self, request, pk):
-        income = self.get_object(pk)
-        serializer = IncomeSerializer(income, data=request.data, partial=True)
+        transaction = self.get_object(pk)
+        serializer = TransactionSerializer(transaction, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        income = self.get_object(pk)
-        income.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ExpenseListCreateView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (JWTAuthentication,)
-
-    def get(self, request):
-        expenses = Expense.objects.filter(user=request.user)
-        serializer = ExpenseSerializer(expenses, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        serializer = ExpenseSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ExpenseDetailView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (JWTAuthentication,)
-
-    def get_object(self, pk):
-        try:
-            return Expense.objects.get(pk=pk, user=self.request.user)
-        except Expense.DoesNotExist:
-            raise Response(status=status.HTTP_404_NOT_FOUND)
-
-    def get(self, request, pk):
-        expense = self.get_object(pk)
-        serializer = ExpenseSerializer(expense)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        expense = self.get_object(pk)
-        serializer = ExpenseSerializer(expense, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        expense = self.get_object(pk)
-        expense.delete()
+        transaction = self.get_object(pk)
+        transaction.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

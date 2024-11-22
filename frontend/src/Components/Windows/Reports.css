@@ -2,55 +2,94 @@
 
 /* General */
 html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    font-family: Arial, sans-serif;
-    background-color: #F4F7FA; /* Fondo claro y limpio */
-    color: #333;
-  }
-  
-  .reports-page {
-    background-color: #E8F0F2; /* Fondo suave y profesional */
-    color: #333;
-    padding: 20px;
-    width:100vw;
-    padding-top: 20px;  /*Ajuste del espaciado para la barra de navegación */
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .reports-title {
-    text-align: left;
-    font-size: 28px;
-    margin-top: 40px;
-    color: #1A202C; /* Azul oscuro */
-    margin-bottom: 40px;
-  }
-  
-  /* Contenedor de la gráfica */
-  .chart-container {
-    max-width: 600px;
-    margin: 0 left; 
-    margin-top: 200px;
-    padding: 20px;
-    background-color: #FFFFFF; /* Fondo blanco */
-    border: 1px solid #E2E8F0; /* Borde suave */
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-  }
-  
-  /* Efecto al pasar el mouse sobre el contenedor */
-  .chart-container:hover {
-    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.15);
-    transform: scale(1.03); /* Ligera ampliación */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  /* Ajustes adicionales */
-  .reports-page h1 {
-    margin-top: 0;
-  }
-  
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-color: #F4F7FA;
+  color: #333;
+}
+
+.reports-page {
+  background-color: #E8F0F2; 
+  color: #333;
+  padding: 20px;
+  width:100vw;
+  padding-top: 250px;
+  margin-top: 400px;  /*Adjusting the spacing for the navigation bar */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.reports-title {
+  text-align: left;
+  font-size: 28px;
+  margin-top: 40px;
+  color: #1A202C; /* Dark blue */
+}
+
+/* Chart container */
+.chart-container {
+  max-width: 600px;
+  margin: 0 left; 
+  margin-top: 150px;
+  padding: 20px;
+  background-color: #FFFFFF; /* white background */
+  border: 1px solid #E2E8F0; 
+  border-radius: 10px; /* rounded edges */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); 
+}
+
+/* Container hover */
+.chart-container:hover {
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.15);
+  transform: scale(1.03); /* slight enlargement */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.reports-page h1 {
+  margin-top: 0;
+}
+
+
+/* space between charts */
+.chart-container {
+display: flex;
+flex-direction: column;
+gap: 40px; /* space */
+margin: 20px 0; /* space around the container*/
+}
+
+/* Background and border of charts */
+.chart {
+background-color: #f9f9f9; 
+padding: 20px; /* internal space */
+border-radius: 10px; /* rounded edges */
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+/* Buttons */
+.button-container {
+display: flex;
+gap: 10px; 
+margin: 20px 0; 
+}
+
+.button-container button {
+padding: 10px 20px; 
+font-size: 16px; 
+cursor: pointer;
+border: none;
+border-radius: 5px; 
+background-color: #007bff; 
+color: white; 
+transition: background-color 0.3s ease;
+}
+
+.button-container button:hover {
+background-color: #0056b3; 
+}
+

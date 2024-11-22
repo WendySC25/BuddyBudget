@@ -52,7 +52,7 @@ class AccountSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'user', 'category_name', 'description']
+        fields = ['id', 'user', 'category_name', 'description', 'type']
         read_only_fields = ['user']
 
 

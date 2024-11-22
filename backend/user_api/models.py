@@ -78,18 +78,22 @@ class Account(models.Model):
     def __str__(self):
         return f"{self.account_name} ({self.account_type.type_name})"
 
+class TransactionType(models.TextChoices):
+    INCOME  = 'ING', 'Ingreso'
+    EXPENSE = 'EXP', 'Egreso'
 
 class Category(models.Model):
 	user 			= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='categories')
 	category_name 	= models.CharField(max_length=50)
 	description 	= models.TextField(blank=True, null=True)
+	type 			= models.CharField(
+        max_length=3,
+        choices=TransactionType.choices,
+        default=TransactionType.INCOME
+    )
 
 	def __str__(self):
 		return self.category_name
-
-class TransactionType(models.TextChoices):
-    INCOME  = 'ING', 'Ingreso'
-    EXPENSE = 'EXP', 'Egreso'
 
 class Transaction(models.Model):
     user     	= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='transactions')

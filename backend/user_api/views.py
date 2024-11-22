@@ -83,6 +83,17 @@ class TransactionListCreateView(APIView):
 
     def get(self, request):
         transaction_type = request.query_params.get('type', None)
+        only_categories  = request.query_params.get('only_categories', 'false').lower() == 'true'
+        category_id = request.query_params.get('category', None)
+
+        if only_categories:
+            if transaction_type and transaction_type in dict(CategoryType.choices):
+                categories = Category.objects.filter(user=request.user, type=transaction_type)
+            else:
+                categories = Category.objects.filter(user=request.user)
+            serializer = CategorySerializer(categories, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         if transaction_type:
             transactions = Transaction.objects.filter(user=request.user, type=transaction_type)
         else:

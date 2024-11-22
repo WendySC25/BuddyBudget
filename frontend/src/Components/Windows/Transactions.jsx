@@ -13,75 +13,43 @@ axios.defaults.withCredentials = true;
 const Transactions = ({ handleLogout }) => {
 
     const [transactions, setTransactions] = useState([]); // State to hold all transactions
-    const [incomes,setIncomes] = useState([]);
-    const [expenses, setExpenses] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [transactionType, setTransactionType] = useState('');
-    const [category, setCategories] = useState([]); //array for options *they must come from db*
-    const [selectedCategory, setSelectedCategory] = useState('');
+    const [showForm, setShowForm] = useState(false); //state for showing transactions form
+    const [showFormC, setShowFormC] = useState(false); //state for showing categories form
+    const [transactionType, setTransactionType] = useState(''); //TYPE
+    const [category, setCategories] = useState([]); //array for options *they must come from db* *distingued by type*
+    const [selectedCategory, setSelectedCategory] = useState(''); //CATEGORIES
     const [isAddingCategory, setIsAddingCategory] = useState(false); //for tracking if its dropdown or field
-    const [account, setAccount] = useState([]); //array for options
-    const [selectedAccount, setSelectedAccount] = useState('');
+    const [account, setAccount] = useState([]); //array for options *they must come from db*
+    const [selectedAccount, setSelectedAccount] = useState(''); //ACCOUNTS
     const [isAddingAccount, setIsAddingAccount] = useState(false);//for tracking if its dropdown or field
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
+    const [category_name,setCategory_name] = useState('');
     const [date, setDate] = useState('');
     const [message, setMessage] = useState('');
 
-    //adding new category
-    const handleAddCategory = () => {
-        const newCategory = prompt("Enter the new category name:");
-        if (newCategory && !category.includes(newCategory)) {
-            setCategories([...category, newCategory]);
-            setSelectedCategory(newCategory);
-        }
-        setIsAddingCategory(false); 
-    };
-
-    //adding new account
-    const handleAddAccount = () => {
-        const newAccount = prompt("Enter the new account name:");
-        if (newAccount && !account.includes(newAccount)) {
-            setAccount([...account, newAccount]);
-            setSelectedAccount(newAccount);
-        }
-        setIsAddingAccount(false);
-    };
-
-    //fetch transactions //might be better if we change the table 
+    //fetch transactions
     useEffect(() =>{ 
         const fetchAllT = async () => {
             const token = localStorage.getItem('authToken');
             try{
-                const responseI = await client.get('/api/incomes', {
+                const responseT = await client.get('/api/transactions', {
                     headers: {Authorization: 'Bearer ${token}'},
                 });
-                setIncomes(responseI.data);
+                setTransactions(responseT.data);
             }catch(error){
-                console.error('Error while fetching incomes', error);
-            }
-
-            try{
-                const responseE = await client.get('/api/expenses',{
-                    headers: {Authorization: 'Bearer ${token}'},
-                });
-                setExpenses(responseE.data);
-            }catch(error){
-                console.error('Error while fetching expenses', error);
+                console.error('Error while fetching transactions', error);
             }
         };
 
         fetchAllT();
     }, []);
 
-    const allTransactions = [
-        ...incomes.map((income) => ({ ...income, type: 'Income' })),
-        ...expenses.map((expense) => ({ ...expense, type: 'Expense' })),
-      ];
     //fetch categories
 
     //fetch accounts
 
+    //submit for transactions
     const handleSubmit = (e) => { 
         e.preventDefault();
 
@@ -91,11 +59,11 @@ const Transactions = ({ handleLogout }) => {
             amount: amount,
             description: description,
             date: date,
-            //type: transactionType, //maybe delete this, might interfere with db
+            type: transactionType,
         };
         setTransactions([...transactions, data]);
 
-        const endpoint = transactionType === 'income' ? '/api/incomes' : '/api/expenses';
+        const endpoint = '/api/transactions';
         client.post(endpoint,data)
         .then(() => {
             setTransactionType('');
@@ -115,7 +83,55 @@ const Transactions = ({ handleLogout }) => {
           
     };
 
-    
+    //submit for categories //JUST NAME
+    const handleAddCategory = () => {
+        //missing logic for the type 
+        const newCategory = prompt("Enter the new category name:");
+        if (newCategory && !category.includes(newCategory)) {
+            setCategories([...category, newCategory]);
+            setSelectedCategory(newCategory);
+        }
+        setIsAddingCategory(false); 
+    };
+    //WHOLE FORM
+    const handleSubmitC = (e) => { 
+        e.preventDefault();
+
+        const data = {
+           isAddingCategory: true, 
+           category_name: category_name,
+           description: description,
+           type: transactionType, 
+        };
+        setCategories([...category, data]);
+
+        const endpoint = '/api/';
+        client.post(endpoint,data)
+        .then(() => {
+            setCategory_name('');
+            setDescription('');
+            setMessage(`Category for ${transactionType} added successfully!`);
+            setShowForm(false);
+            setMessage('');
+          })
+          .catch((error) => {
+            console.error('Error while creating category:', error);
+            setMessage('Failed to add category');
+          });
+          
+    };
+
+    //submit for accounts //JUST NAME
+    const handleAddAccount = () => {
+        //missing logic for 
+        const newAccount = prompt("Enter the new account name:");
+        if (newAccount && !account.includes(newAccount)) {
+            setAccount([...account, newAccount]);
+            setSelectedAccount(newAccount);
+        }
+        setIsAddingAccount(false);
+    };
+
     return (
         <div className="transaction">
           <Navbar handleLogout={handleLogout} />
@@ -131,12 +147,21 @@ const Transactions = ({ handleLogout }) => {
                 {showForm ? 'Cancel' : '+ Add Transaction'}
                 </button>
             </div>
+            <div className="table-header">
+                {/* Button aligned to the top left */}
+                <button
+                className="add-category"
+                onClick={() => setShowFormC(!showFormC)}
+                >
+                {showFormC ? 'Cancel' : '+ Add Category'}
+                </button>
+            </div>
 
           {/* Table */}
           <table className="transaction-table">
         <thead>
           <tr>
-            
+            <th>Type</th>
             <th>Amount</th>
             <th>Description</th>
             <th>Date</th>
@@ -145,10 +170,10 @@ const Transactions = ({ handleLogout }) => {
           </tr>
         </thead>
         <tbody>
-          {allTransactions.length > 0 ? (
-            allTransactions.map((transaction, index) => (
+          {transactions.length > 0 ? (
+            transactions.map((transaction, index) => (
               <tr key={index}>
-
+                <td>{transaction.type}</td>
                 <td>{transaction.amount}</td>
                 <td>{transaction.description}</td>
                 <td>{transaction.date}</td>
@@ -158,27 +183,26 @@ const Transactions = ({ handleLogout }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="5">No transactions yet</td>
+              <td colSpan="6">No transactions yet</td>
             </tr>
           )}
         </tbody>
       </table>
     </div>
-
-      {showForm && (   
+        {showForm && (   
         
-        <><div className="transaction-type-buttons">
+            <><div className="transaction-type-buttons">
                 <button
                     type="button"
-                    onClick={() => setTransactionType('income')}
-                    className={transactionType === 'income' ? 'active-income' : ''}
+                    onClick={() => setTransactionType('ING')}
+                    className={transactionType === 'ING' ? 'active-income' : ''}
                 >
                     Income
                 </button>
                 <button
                     type="button"
-                    onClick={() => setTransactionType('expense')}
-                    className={transactionType === 'expense' ? 'active-expense' : ''}
+                    onClick={() => setTransactionType('EXP')}
+                    className={transactionType === 'EXP' ? 'active-expense' : ''}
                 >
                     Expense
                 </button>
@@ -288,8 +312,11 @@ const Transactions = ({ handleLogout }) => {
                     {message && <p className="message">{message}</p>}
                 </form></>
             )}
+
         </div>
+
     );
+
 };
 
 export default Transactions;

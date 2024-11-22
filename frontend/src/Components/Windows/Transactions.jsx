@@ -15,12 +15,12 @@ const Transactions = ({ handleLogout }) => {
     const [transactions, setTransactions] = useState([]); // State to hold all transactions
     const [showForm, setShowForm] = useState(false); //state for showing transactions form
     const [showFormC, setShowFormC] = useState(false); //state for showing categories form
-    const [transactionType, setTransactionType] = useState(''); //TYPE
+    const [transactionType, setTransactionType] = useState('');
     const [category, setCategories] = useState([]); //array for options *they must come from db* *distingued by type*
-    const [selectedCategory, setSelectedCategory] = useState(''); //CATEGORIES
+    const [selectedCategory, setSelectedCategory] = useState(category[0] || ''); //CATEGORIES
     const [isAddingCategory, setIsAddingCategory] = useState(false); //for tracking if its dropdown or field
     const [account, setAccount] = useState([]); //array for options *they must come from db*
-    const [selectedAccount, setSelectedAccount] = useState(''); //ACCOUNTS
+    const [selectedAccount, setSelectedAccount] = useState(category[0] || ''); //ACCOUNTS
     const [isAddingAccount, setIsAddingAccount] = useState(false);//for tracking if its dropdown or field
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
@@ -34,7 +34,7 @@ const Transactions = ({ handleLogout }) => {
             const token = localStorage.getItem('authToken');
             try{
                 const responseT = await client.get('/api/transactions', {
-                    headers: {Authorization: 'Bearer ${token}'},
+                    headers: {Authorization: `Bearer ${token}`},
                 });
                 setTransactions(responseT.data);
             }catch(error){
@@ -74,7 +74,8 @@ const Transactions = ({ handleLogout }) => {
             setSelectedAccount('');
             setMessage(`${transactionType} added successfully!`);
             setShowForm(false);
-            setMessage('');
+            setTimeout(() => setMessage(''), 3000);
+
           })
           .catch((error) => {
             console.error('Error while creting transaction:', error);
@@ -95,7 +96,7 @@ const Transactions = ({ handleLogout }) => {
     };
     //WHOLE FORM
     const handleSubmitC = (e) => { 
-        e.preventDefault();
+        e.preventDefault();  //THERES A BIG BUG IN HERE
 
         const data = {
            isAddingCategory: true, 
@@ -115,7 +116,7 @@ const Transactions = ({ handleLogout }) => {
             setMessage('');
           })
           .catch((error) => {
-            console.error('Error while creating category:', error);
+            console.error('Error while creating category:', error.response?.data || error.message);
             setMessage('Failed to add category');
           });
           
@@ -351,7 +352,7 @@ const Transactions = ({ handleLogout }) => {
                                     required />
                             </div>
                         </div>
-                        <button type="submit" disabled={!transactionType}>Add Transactions</button>
+                        <button type="submit" disabled={!transactionType}>Add Category</button>
                         {message && <p className="message">{message}</p>}
                     </form></>
                 )}

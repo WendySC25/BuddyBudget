@@ -105,7 +105,7 @@ const Transactions = ({ handleLogout }) => {
         };
         setCategories([...category, data]);
 
-        const endpoint = '/api/';
+        const endpoint = '/api/transactions';
         client.post(endpoint,data)
         .then(() => {
             setCategory_name('');
@@ -313,6 +313,48 @@ const Transactions = ({ handleLogout }) => {
                 </form></>
             )}
 
+            {showFormC && (     
+                <><div className="transaction-type-buttons">
+                    <button
+                        type="button"
+                        onClick={() => setTransactionType('ING')}
+                        className={transactionType === 'ING' ? 'active-income' : ''}
+                    >
+                        Income
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setTransactionType('EXP')}
+                        className={transactionType === 'EXP' ? 'active-expense' : ''}
+                    >
+                        Expense
+                    </button>
+                    </div><form onSubmit={handleSubmitC}>
+                        <div className="transaction-form">
+                            <div className="transaction-field">
+                                <label htmlFor="name">Name</label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    value={category_name}
+                                    onChange={(e) => setCategory_name(e.target.value)}
+                                    required />
+                            </div>
+
+                            <div className="transaction-field">
+                                <label htmlFor="description">Description</label>
+                                <input
+                                    type="text"
+                                    id="description"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    required />
+                            </div>
+                        </div>
+                        <button type="submit" disabled={!transactionType}>Add Transactions</button>
+                        {message && <p className="message">{message}</p>}
+                    </form></>
+                )}
         </div>
 
     );

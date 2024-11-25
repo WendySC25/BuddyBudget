@@ -22,7 +22,7 @@ const Reports = ({ handleLogout }) => {
         const transactions = response.data;
 
         // Filter transactions by type
-        const incomes = transactions.filter((item) => item.type === 'ING');
+        const incomes = transactions.filter((item) => item.type === 'INC');
         const expenses = transactions.filter((item) => item.type === 'EXP');
 
         // Process data for charts
@@ -90,10 +90,10 @@ const Reports = ({ handleLogout }) => {
       labels,
       datasets: [
         {
-          label: items[0]?.type === 'ING' ? 'Incomes' : 'Expenses',
+          label: items[0]?.type === 'INC' ? 'Incomes' : 'Expenses',
           data: dataByQuincena,
-          backgroundColor: items[0]?.type === 'ING' ? 'rgba(75, 192, 192, 0.5)' : 'rgba(255, 99, 132, 0.5)',
-          borderColor: items[0]?.type === 'ING' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
+          backgroundColor: items[0]?.type === 'INC' ? 'rgba(75, 192, 192, 0.5)' : 'rgba(255, 99, 132, 0.5)',
+          borderColor: items[0]?.type === 'INC' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
           borderWidth: 1,
         },
       ],
@@ -128,10 +128,10 @@ const Reports = ({ handleLogout }) => {
       labels: days.map((day) => day.date.toLocaleDateString()),
       datasets: [
         {
-          label: items[0]?.type === 'ING' ? 'Incomes' : 'Expenses',
+          label: items[0]?.type === 'INC' ? 'Incomes' : 'Expenses',
           data: days.map((day) => day.amount),
-          backgroundColor: items[0]?.type === 'ING' ? 'rgba(75, 192, 192, 0.5)' : 'rgba(255, 99, 132, 0.5)',
-          borderColor: items[0]?.type === 'ING' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
+          backgroundColor: items[0]?.type === 'INC' ? 'rgba(75, 192, 192, 0.5)' : 'rgba(255, 99, 132, 0.5)',
+          borderColor: items[0]?.type === 'INC' ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)',
           borderWidth: 1,
         },
       ],

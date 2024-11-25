@@ -195,8 +195,8 @@ const Transactions = ({ handleLogout }) => {
             <><div className="transaction-type-buttons">
                 <button
                     type="button"
-                    onClick={() => setTransactionType('ING')}
-                    className={transactionType === 'ING' ? 'active-income' : ''}
+                    onClick={() => setTransactionType('INC')}
+                    className={transactionType === 'INC' ? 'active-income' : ''}
                 >
                     Income
                 </button>
@@ -318,8 +318,8 @@ const Transactions = ({ handleLogout }) => {
                 <><div className="transaction-type-buttons">
                     <button
                         type="button"
-                        onClick={() => setTransactionType('ING')}
-                        className={transactionType === 'ING' ? 'active-income' : ''}
+                        onClick={() => setTransactionType('INC')}
+                        className={transactionType === 'INC' ? 'active-income' : ''}
                     >
                         Income
                     </button>

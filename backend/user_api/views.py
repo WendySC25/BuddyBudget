@@ -2,14 +2,14 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer, CategorySerializer
 from .serializers import TransactionSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
-from .models import TransactionType, Transaction
+from .models import Transaction, Category
 
 
-class UserRegister(APIView):
+class UserRegister(APIView):    
     permission_classes = (permissions.AllowAny,)
     def post(self, request):
         clean_data = custom_validation(request.data)
@@ -145,4 +145,59 @@ class TransactionDetailView(APIView):
     def delete(self, request, pk):
         transaction = self.get_object(pk)
         transaction.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class CategoryListCreateView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        transaction_type = request.query_params.get('type', None)
+        if transaction_type:
+            categories = Category.objects.filter(user=request.user, type=transaction_type)
+        else:
+            categories = Category.objects.filter(user=request.user)
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get_object(self, pk, user):
+        try:
+            return Category.objects.get(pk=pk, user=user)
+        except Category.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        category = self.get_object(pk, request.user)
+        if not category:
+            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CategorySerializer(category)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        category = self.get_object(pk, request.user)
+        if not category:
+            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CategorySerializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        category = self.get_object(pk, request.user)
+        if not category:
+            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+        category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -83,16 +83,15 @@ class TransactionTests(APITestCase):
         self.category = Category.objects.create(user=self.user, category_name='Salary')
 
         self.income_data = {
-            'category': self.category.id,
             'account': self.account.id,
             'amount': 1000.00,
             'description': 'Monthly salary',
             'date': '2024-11-01',
-            'type': 'ING'  
+            'type': 'INC'  
         }
 
+
         self.expense_data = {
-            'category': self.category.id,
             'account': self.account.id,
             'amount': 100.00,
             'description': 'Grocery shopping',
@@ -116,7 +115,7 @@ class TransactionTests(APITestCase):
         response = self.client.post(url, self.income_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Decimal(response.data['amount']), Decimal(str(self.income_data['amount'])))
-        self.assertEqual(response.data['type'], 'ING') 
+        self.assertEqual(response.data['type'], 'INC') 
 
     def test_create_expense(self):
         url = reverse('transaction-list-create') 
@@ -128,16 +127,14 @@ class TransactionTests(APITestCase):
     def test_get_all_transactions(self):
         Transaction.objects.create(
             user=self.user,
-            category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
             date=self.income_data['date'],
-            type='ING'
+            type='INC'
         )
         Transaction.objects.create(
             user=self.user,
-            category=self.category, 
             account=self.account,    
             amount=self.expense_data['amount'],
             description=self.expense_data['description'],
@@ -153,12 +150,11 @@ class TransactionTests(APITestCase):
 
         transaction = Transaction.objects.create(
             user=self.user,
-            category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
             date=self.income_data['date'],
-            type='ING'
+            type='INC'
         )
         url = reverse('transaction-detail', kwargs={'pk': transaction.id})
         updated_data = {'amount': 1200.00, 'description': 'Updated salary'}
@@ -170,12 +166,11 @@ class TransactionTests(APITestCase):
     def test_delete_transaction(self):
         transaction = Transaction.objects.create(
             user=self.user,
-            category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
             date=self.income_data['date'],
-            type='ING'
+            type='INC'
         )
         url = reverse('transaction-detail', kwargs={'pk': transaction.id})
         response = self.client.delete(url)
@@ -186,23 +181,22 @@ class TransactionTests(APITestCase):
 
         Transaction.objects.create(
             user=self.user,
-            category=self.category, 
             account=self.account,    
             amount=self.income_data['amount'],
             description=self.income_data['description'],
             date=self.income_data['date'],
-            type='ING'
+            type='INC'
         )
         Transaction.objects.create(
             user=self.user,
-            category=self.category, 
+
             account=self.account,    
             amount=self.expense_data['amount'],
             description=self.expense_data['description'],
             date=self.expense_data['date'],
             type='EXP'
         )
-        url = reverse('transaction-list-create') + '?type=ING'  
+        url = reverse('transaction-list-create') + '?type=INC'  
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1) 

@@ -53,7 +53,6 @@ class Profile(models.Model):
 	last_name 		= models.CharField(max_length=50, blank=True, null=True)
 	RFC 			= models.CharField(max_length=13, blank=True, null=True)
 	bio 			= models.TextField(blank=True, null=True)
-	# avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
 	phone_number	= models.CharField(max_length=20, blank=True, null=True)
 
 	def __str__(self):
@@ -79,13 +78,12 @@ class Account(models.Model):
         return f"{self.account_name} ({self.account_type.type_name})"
 
 class TransactionType(models.TextChoices):
-    INCOME  = 'ING', 'Ingreso'
+    INCOME  = 'INC', 'Ingreso'
     EXPENSE = 'EXP', 'Egreso'
 
 class Category(models.Model):
 	user 			= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='categories')
 	category_name 	= models.CharField(max_length=50)
-	description 	= models.TextField(blank=True, null=True)
 	type 			= models.CharField(
         max_length=3,
         choices=TransactionType.choices,
@@ -97,7 +95,7 @@ class Category(models.Model):
 
 class Transaction(models.Model):
     user     	= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='transactions')
-    category 	= models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, related_name='transactions')
+    category 	= models.ManyToManyField('Category', related_name='transactions')
     account  	= models.ForeignKey('Account', on_delete=models.SET_NULL, null=True, related_name='transactions')
     amount 	 	= models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)

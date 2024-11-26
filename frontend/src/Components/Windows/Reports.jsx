@@ -1,38 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../NavBar/Navbar';
 import { Bar, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, BarElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, BarElement, PointElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
 import client from '../../apiClient.jsx'; // Client
 import './Reports.css';
 
-// Chart.js configuration
-ChartJS.register(BarElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
+// Registro de elementos de Chart.js
+ChartJS.register(BarElement, PointElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 const Reports = ({ handleLogout }) => {
   const [chartDataIncomes, setChartDataIncomes] = useState(null);
   const [chartDataExpenses, setChartDataExpenses] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [view, setView] = useState('quincenas');
+  const [chartType, setChartType] = useState('Bar'); // Variable para el tipo de gráfico
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch transactions from endpoint
         const response = await client.get('/api/transactions');
         const transactions = response.data;
 
-        // Filter transactions by type
         const incomes = transactions.filter((item) => item.type === 'INC');
         const expenses = transactions.filter((item) => item.type === 'EXP');
 
-        // Process data for charts
-        const quincenasDataIncomes = groupByQuincenas(incomes);
-        const dailyDataIncomes = groupByDays(incomes);
-        setChartDataIncomes({ quincenas: quincenasDataIncomes, daily: dailyDataIncomes });
+        console.log("All Transactions:", transactions); // print transactions from json
+        console.log("Incomes:", incomes);             
+        console.log("Expenses:", expenses);          
 
-        const quincenasDataExpenses = groupByQuincenas(expenses);
-        const dailyDataExpenses = groupByDays(expenses);
-        setChartDataExpenses({ quincenas: quincenasDataExpenses, daily: dailyDataExpenses });
+        setChartDataIncomes({
+          quincenas: groupByQuincenas(incomes),
+          daily: groupByDays(incomes),
+        });
+
+        setChartDataExpenses({
+          quincenas: groupByQuincenas(expenses),
+          daily: groupByDays(expenses),
+        });
       } catch (error) {
         console.error('Error fetching data:', error);
         setErrorMessage('Failed to load data. Please try again later.');
@@ -113,6 +117,7 @@ const Reports = ({ handleLogout }) => {
 
     items.forEach((item) => {
       const date = new Date(item.date);
+      date.setDate(date.getDate() + 1);
       days.forEach((day) => {
         if (
           date.getFullYear() === day.date.getFullYear() &&
@@ -138,8 +143,10 @@ const Reports = ({ handleLogout }) => {
     };
   };
 
+
   const combinedChartData = () => {
     if (!chartDataIncomes || !chartDataExpenses) return null;
+
     const selectedDataIncomes = view === 'quincenas' ? chartDataIncomes.quincenas : chartDataIncomes.daily;
     const selectedDataExpenses = view === 'quincenas' ? chartDataExpenses.quincenas : chartDataExpenses.daily;
 
@@ -163,30 +170,36 @@ const Reports = ({ handleLogout }) => {
     },
   };
 
+  const ChartComponent = chartType === 'Bar' ? Bar : Line;
+
   return (
     <div className="reports-page">
       <Navbar handleLogout={handleLogout} />
       <h1 className="reports-title">Reports Page</h1>
       {errorMessage && <p className="error">{errorMessage}</p>}
       <div className="button-container">
+        <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
+          <option value="Bar">Bar Chart</option>
+          <option value="Line">Line Chart</option>
+        </select>
         <button onClick={() => setView('quincenas')}>Last 4 fortnights</button>
         <button onClick={() => setView('daily')}>Diary (This Week)</button>
       </div>
       <div className="chart-container">
         {chartDataIncomes && (
           <div className="chart">
-            <Bar data={chartDataIncomes[view]} options={options} />
+            <ChartComponent data={chartDataIncomes[view]} options={options} />
           </div>
         )}
-        {chartDataExpenses && (
+        {chartDataIncomes && (
           <div className="chart">
-            <Bar data={chartDataExpenses[view]} options={options} />
+            <ChartComponent data={chartDataExpenses[view]} options={options} />
           </div>
         )}
         {combinedChartData() && (
           <div className="chart">
-            <Bar data={combinedChartData()} options={options} />
-            </div>
+            <ChartComponent data={combinedChartData()} options={options} />
+          </div>
         )}
       </div>
     </div>
@@ -194,3 +207,6 @@ const Reports = ({ handleLogout }) => {
 };
 
 export default Reports;
+
+
+

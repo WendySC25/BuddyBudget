@@ -7,17 +7,17 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: Arial, sans-serif;
-  background-color: #f7f7f7;
+  background-color: #F4F7FA;
   color: #333;
 }
 
 .reports-page {
-  background-color: #ffffff; 
+  background-color: #E8F0F2; 
   color: #333;
   padding: 20px;
   width:100vw;
-  padding-top: 250px;
-  margin-top: 400px;  /*Adjusting the spacing for the navigation bar */
+  padding-top: 200px;
+  margin-top: 500px;  /*Adjusting the spacing for the navigation bar */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -93,3 +93,23 @@ transition: background-color 0.3s ease;
 background-color: #0056b3; 
 }
 
+/* Select */
+.button-container select {
+  padding: 10px 20px; 
+  font-size: 16px; 
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: white; 
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.button-container select:hover {
+  border-color: #007bff;
+}
+
+.button-container select:focus {
+  outline: none;
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 91, 179, 0.5);
+}

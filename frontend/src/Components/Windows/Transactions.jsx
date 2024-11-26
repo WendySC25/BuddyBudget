@@ -32,6 +32,7 @@ const Transactions = ({ handleLogout }) => {
     useEffect(() =>{ 
         fetchAllT();
         fetchAllC();
+        fetchAllA();
     }, []);
 
     const fetchAllT = async () => {
@@ -41,7 +42,7 @@ const Transactions = ({ handleLogout }) => {
                 headers: {Authorization: `Bearer ${token}`},
             });
             setTransactions(responseT.data);
-            console.log('Fetched Trasacins:', responseT.data);
+            console.log('Fetched transaciones:', responseT.data);
 
         }catch(error){
             console.error('Error while fetching transactions', error);
@@ -50,18 +51,27 @@ const Transactions = ({ handleLogout }) => {
 
     const fetchAllC = async () => {
         try {   
-            const response = await client.get('/api/categories/', {
+            const responseC = await client.get('/api/categories/', {
                 headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             });
-            setCategories(response.data);
-            console.log('Fetched categories:', response.data);
+            setCategories(responseC.data);
+            console.log('Fetched categories:', responseC.data);
         } catch (error) {
             console.error('Error fetching categories:', error);
         }
     };
 
-
-    //fetch accounts
+    const fetchAllA = async () => {
+        try {   
+            const responseA = await client.get('/api/accounts/', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+            });
+            setAccount(responseA.data);
+            console.log('Fetched accounts:', responseA.data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
 
     //submit for transactions
     const handleSubmit = (e) => { 
@@ -195,7 +205,11 @@ const Transactions = ({ handleLogout }) => {
                     ? transaction.category.map(cat => cat.category_name).join(', ')
                     : 'No category'}
                 </td>
-                <td>{transaction.account}</td>
+                <td>
+                {transaction.account && typeof transaction.account === 'object'
+                    ? transaction.account.account_name || 'Unnamed Account'
+                    : 'No account'}
+                </td>
               </tr>
             ))
           ) : (
@@ -297,14 +311,15 @@ const Transactions = ({ handleLogout }) => {
                             {isAddingAccount ? (
                                 <input
                                     type="text"
-                                    placeholder="Enter new category"
+                                    placeholder="Enter new account"
                                     onBlur={(e) => handleAddAccount(e.target.value)}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             handleAddAccount(e.target.value);
                                             e.preventDefault();
                                         }
-                                    } } />
+                                    }}
+                                />
                             ) : (
                                 <select
                                     id="account"
@@ -315,16 +330,19 @@ const Transactions = ({ handleLogout }) => {
                                         } else {
                                             setSelectedAccount(e.target.value);
                                         }
-                                    } }
-
+                                    }}
                                 >
-                                    {account.map((acc, index) => (
-                                        <option key={index} value={acc}>{acc}</option>
+                                    <option value="" disabled>Select an account</option>
+                                    {account.map((acc) => (
+                                        <option key={acc.id} value={acc.id}>
+                                            {acc.account_name}
+                                        </option>
                                     ))}
                                     <option value="add_new">+ Add New Account</option>
                                 </select>
                             )}
                         </div>
+
                     </div>
 
                     <button type="submit" disabled={!transactionType}>Add Transactions</button>

@@ -17,6 +17,19 @@ class AppUserManager(BaseUserManager):
 
 		Profile.objects.get_or_create(user=user)
 
+
+		default_categories = [
+            {"category_name": "Groceries", "type": TransactionType.EXPENSE},
+			{"category_name": "Tranport", "type": TransactionType.EXPENSE},
+			{"category_name": "Housing", "type": TransactionType.EXPENSE},
+            {"category_name": "Salary", "type": TransactionType.INCOME},
+            {"category_name": "Savings", "type": TransactionType.INCOME},
+			{"category_name": "Scholarship", "type": TransactionType.INCOME},
+        ]
+		
+		for category_data in default_categories:
+			Category.objects.create(user=user, **category_data)
+
 		return user
 	
 

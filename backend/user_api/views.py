@@ -20,7 +20,6 @@ class UserRegister(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-
 class UserLogin(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (JWTAuthentication,)
@@ -35,14 +34,12 @@ class UserLogin(APIView):
             login(request, user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 class UserLogout(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
-
 
 class UserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -76,7 +73,6 @@ class ProfileView(APIView):
             return Response({'profile': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
       
-    
 class TransactionListCreateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
@@ -118,7 +114,6 @@ class TransactionListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
 class TransactionDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
@@ -167,7 +162,6 @@ class CategoryListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class CategoryDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
@@ -201,7 +195,6 @@ class CategoryDetailView(APIView):
             return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class AccountListCreateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)

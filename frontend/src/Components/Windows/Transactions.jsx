@@ -30,22 +30,36 @@ const Transactions = ({ handleLogout }) => {
 
     //fetch transactions
     useEffect(() =>{ 
-        const fetchAllT = async () => {
-            const token = localStorage.getItem('authToken');
-            try{
-                const responseT = await client.get('/api/transactions', {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
-                setTransactions(responseT.data);
-            }catch(error){
-                console.error('Error while fetching transactions', error);
-            }
-        };
-
         fetchAllT();
+        fetchAllC();
     }, []);
 
-    //fetch categories
+    const fetchAllT = async () => {
+        const token = localStorage.getItem('authToken');
+        try{
+            const responseT = await client.get('/api/transactions', {
+                headers: {Authorization: `Bearer ${token}`},
+            });
+            setTransactions(responseT.data);
+            console.log('Fetched Trasacins:', responseT.data);
+
+        }catch(error){
+            console.error('Error while fetching transactions', error);
+        }
+    };  
+
+    const fetchAllC = async () => {
+        try {   
+            const response = await client.get('/api/categories/', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+            });
+            setCategories(response.data);
+            console.log('Fetched categories:', response.data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
+
 
     //fetch accounts
 
@@ -54,14 +68,13 @@ const Transactions = ({ handleLogout }) => {
         e.preventDefault();
 
         const data = {
-            category: selectedCategory,
+            category: [selectedCategory],
             account: selectedAccount,
             amount: amount,
             description: description,
             date: date,
             type: transactionType,
         };
-        setTransactions([...transactions, data]);
 
         const endpoint = '/api/transactions';
         client.post(endpoint,data)
@@ -74,7 +87,9 @@ const Transactions = ({ handleLogout }) => {
             setSelectedAccount('');
             setMessage(`${transactionType} added successfully!`);
             setShowForm(false);
+            fetchAllT();    
             setTimeout(() => setMessage(''), 3000);
+            
 
           })
           .catch((error) => {
@@ -101,17 +116,15 @@ const Transactions = ({ handleLogout }) => {
         const data = {
            isAddingCategory: true, 
            category_name: category_name,
-           description: description,
-           type: transactionType, 
         };
         setCategories([...category, data]);
 
-        const endpoint = '/api/transactions';
+        const endpoint = '/api/categories/';
         client.post(endpoint,data)
         .then(() => {
             setCategory_name('');
             setDescription('');
-            setMessage(`Category for ${transactionType} added successfully!`);
+            setMessage(`Category added successfully!`);
             setShowForm(false);
             setMessage('');
           })
@@ -178,7 +191,10 @@ const Transactions = ({ handleLogout }) => {
                 <td>{transaction.amount}</td>
                 <td>{transaction.description}</td>
                 <td>{transaction.date}</td>
-                <td>{transaction.category}</td>
+                <td>{Array.isArray(transaction.category) && transaction.category.length > 0
+                    ? transaction.category.map(cat => cat.category_name).join(', ')
+                    : 'No category'}
+                </td>
                 <td>{transaction.account}</td>
               </tr>
             ))
@@ -265,8 +281,10 @@ const Transactions = ({ handleLogout }) => {
                                         }
                                     } }
                                 >
-                                    {category.map((cat, index) => (
-                                        <option key={index} value={cat}>{cat}</option>
+                                    {category.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.category_name}
+                                        </option>
                                     ))}
                                     <option value="add_new">+ Add New Category</option>
                                 </select>
@@ -342,17 +360,8 @@ const Transactions = ({ handleLogout }) => {
                                     required />
                             </div>
 
-                            <div className="transaction-field">
-                                <label htmlFor="description">Description</label>
-                                <input
-                                    type="text"
-                                    id="description"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    required />
-                            </div>
                         </div>
-                        <button type="submit" disabled={!transactionType}>Add Category</button>
+                        <button type="submit">Add Category</button>
                         {message && <p className="message">{message}</p>}
                     </form></>
                 )}

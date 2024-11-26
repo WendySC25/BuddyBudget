@@ -84,6 +84,7 @@ class TransactionTests(APITestCase):
 
         self.income_data = {
             'account': self.account.id,
+            'category' : [self.category.id],
             'amount': 1000.00,
             'description': 'Monthly salary',
             'date': '2024-11-01',
@@ -93,6 +94,7 @@ class TransactionTests(APITestCase):
 
         self.expense_data = {
             'account': self.account.id,
+            'category' : [self.category.id],
             'amount': 100.00,
             'description': 'Grocery shopping',
             'date': '2024-11-02',

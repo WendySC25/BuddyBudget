@@ -57,10 +57,19 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(many=True, read_only=True)
+    category = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Category.objects.all()
+    )
+
     account = AccountSerializer(read_only=True)
 
     class Meta:
         model = Transaction
         fields = ['id', 'user', 'category', 'account', 'amount', 'description', 'date', 'type']
         read_only_fields = ['user']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['category'] = CategorySerializer(instance.category.all(), many=True).data
+        return representation

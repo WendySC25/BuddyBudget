@@ -2,11 +2,11 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer, CategorySerializer
-from .serializers import TransactionSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer 
+from .serializers import TransactionSerializer, CategorySerializer, AccountSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
-from .models import Transaction, Category
+from .models import Transaction, Category, Account
 
 
 class UserRegister(APIView):    
@@ -200,4 +200,55 @@ class CategoryDetailView(APIView):
         if not category:
             return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
         category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AccountListCreateView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        accounts = Account.objects.filter(user=request.user)
+        serializer = AccountSerializer(accounts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = AccountSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)  # Asigna automáticamente el usuario
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AccountDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get_object(self, pk, user):
+        try:
+            return Account.objects.get(pk=pk, user=user)
+        except Account.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        account = self.get_object(pk, request.user)
+        if not account:
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AccountSerializer(account)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        account = self.get_object(pk, request.user)
+        if not account:
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AccountSerializer(account, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        account = self.get_object(pk, request.user)
+        if not account:
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+        account.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

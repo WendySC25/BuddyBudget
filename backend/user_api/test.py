@@ -78,8 +78,12 @@ class UserTests(APITestCase):
 class TransactionTests(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(email='testuser@example.com', username='testuser', password='password123')
-        self.account_type = AccountType.objects.create(type_name='Efectivo')
-        self.account = Account.objects.create(user=self.user, account_type=self.account_type, account_name='Wallet')
+        self.account = Account.objects.create(
+            user=self.user,
+            account_type=AccountType.CASH,  # Usar directamente el valor de la enumeración
+            account_name='Wallet',
+        )
+
         self.category = Category.objects.create(user=self.user, category_name='Salary')
 
         self.income_data = {

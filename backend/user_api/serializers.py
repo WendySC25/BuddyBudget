@@ -34,15 +34,8 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['name', 'last_name', 'RFC', 'bio', 'phone_number']
 
-class AccountTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AccountType
-        fields = ['id', 'type_name', 'description']
-
 
 class AccountSerializer(serializers.ModelSerializer):
-    account_type = AccountTypeSerializer(read_only=True)
-
     class Meta:
         model = Account
         fields = ['id', 'user', 'account_type', 'account_name', 'bank_name', 'account_number', 'expiry_date']
@@ -61,8 +54,10 @@ class TransactionSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Category.objects.all()
     )
-
-    account = AccountSerializer(read_only=True)
+    
+    account = serializers.PrimaryKeyRelatedField(
+        queryset=Account.objects.all()
+    )
 
     class Meta:
         model = Transaction
@@ -72,4 +67,5 @@ class TransactionSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['category'] = CategorySerializer(instance.category.all(), many=True).data
+        representation['account'] = AccountSerializer(instance.account).data
         return representation

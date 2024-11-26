@@ -30,6 +30,14 @@ class AppUserManager(BaseUserManager):
 		for category_data in default_categories:
 			Category.objects.create(user=user, **category_data)
 
+		default_accounts = [
+			{ "account_name": "Cash Wallet", "account_type": AccountType.CASH, "bank_name": "", "account_number": "", "expiry_date": None, },
+			{ "account_name": "Savings Account", "account_type": AccountType.CREDIT, "bank_name": "My Bank", "account_number": "", "expiry_date": None, },
+		]
+
+		for account_data in default_accounts:
+			Account.objects.create(user=user, **account_data)
+
 		return user
 	
 
@@ -71,24 +79,25 @@ class Profile(models.Model):
 	def __str__(self):
 		return f"Profile of {self.user.username}"
 	
-class AccountType(models.Model):
-    type_name 	= models.CharField(max_length=50)  # "Crédito", "Débito", "Efectivo"
-    description = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.type_name
+class AccountType(models.TextChoices):
+    CREDIT = 'CREDIT', 'Crédito'
+    DEBIT  = 'DEBIT', 'Débito'
+    CASH   = 'CASH', 'Efectivo'
 
 
 class Account(models.Model):
-    user 			= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='accounts')
-    account_type 	= models.ForeignKey(AccountType, on_delete=models.SET_NULL, null=True, related_name='accounts')
-    account_name 	= models.CharField(max_length=100)  # Alias de la cuenta
-    bank_name 		= models.CharField(max_length=50, blank=True, null=True)
-    account_number 	= models.CharField(max_length=20, blank=True, null=True)
-    expiry_date 	= models.DateField(blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.account_name} ({self.account_type.type_name})"
+	user 			= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='accounts')
+	account_type = models.CharField(
+		max_length=10,
+		choices=AccountType.choices,
+		default=AccountType.CASH 
+    )
+	account_name 	= models.CharField(max_length=100)  # Alias de la cuenta
+	bank_name 		= models.CharField(max_length=50, blank=True, null=True)
+	account_number 	= models.CharField(max_length=20, blank=True, null=True)
+	expiry_date 	= models.DateField(blank=True, null=True)
+	def __str__(self):
+		return f"{self.account_name} ({self.account_type.type_name})"
 
 class TransactionType(models.TextChoices):
     INCOME  = 'INC', 'Ingreso'

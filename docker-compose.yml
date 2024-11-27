@@ -17,9 +17,12 @@ services:
       context: ./frontend
     container_name: react-frontend_0-0-1
     ports:
-      - "80:80"
+      - "3000:3000"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
 
   db:
     build:

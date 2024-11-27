@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LoginRegister from './Components/LoginRegister/LoginRegister';
 import Home from './Components/Windows/Home';
@@ -10,9 +10,11 @@ import client from './apiClient';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
+  const [loading, setLoading] = useState(true);
 
   // Function to handle login
   const handleLogin = (token) => {
+    localStorage.setItem('token', token)
     setIsAuthenticated(true);
   };
 
@@ -30,13 +32,39 @@ function App() {
         });
 };
 
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    client
+      .get('/api/user', { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        console.log('User validated:', res.data);
+        setIsAuthenticated(true);
+      })
+      .catch((error) => {
+        console.error('Token validation failed:', error);
+        setIsAuthenticated(false);
+        localStorage.removeItem('token');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  } else {
+    setLoading(false);
+  }
+}, []);
+
+if (loading) {
+  return <div>Loading...</div>;
+}
+
   return (
     <Router>
       <Routes>
         {/* Redirige a /home si el usuario está autenticado, si no, a login */}
         <Route
           path="/"
-          element={isAuthenticated ? <Navigate to="/home" /> : <Navigate to="/login" />}
+          element={loading?<div>Loading...</div>:isAuthenticated ? <Navigate to="/home" /> : <Navigate to="/login" />}
         />
         
         {/* Rutas protegidas que verifican la autenticación */}
@@ -72,4 +100,3 @@ function App() {
 }
 
 export default App;
-

@@ -14,11 +14,26 @@
     display: flex;
     flex-direction: column;
   }
+
+  .table-header-buttons {
+    display: flex;
+    justify-content: flex-start; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+  }
   
-  .transaction h1 {
-    color: #2a4365; 
-    font-size: 2em;
-    margin-bottom: 20px;
+  .table-header-buttons button {
+    background-color: #2b6cb0; 
+    color: white;
+    padding: 10px 15px; 
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .table-header-buttons button:hover {
+    background-color: #4a5568; 
   }
   
   .transaction form {
@@ -51,11 +66,6 @@
     transform: translateY(-2px);
   }
   
-  .transaction button:active {
-    background-color: #a6c6e9;
-    transform: translateY(0);
-  }
- 
   .transaction-form {
     display: flex;
     flex-direction: column;
@@ -69,7 +79,7 @@
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s;
-}
+  }
 
 .transaction-type-buttons .active-income {
     background-color: #4CAF50; 
@@ -123,7 +133,6 @@
   .account-dropdown {
     background-color: #1A202C;
     font-size: 1em;
-    padding: 10px;
     border: 1px solid #1A202C;
     border-radius: 5px;
   }
@@ -171,43 +180,53 @@
   }
   
   .add-transaction {
-    background-color: #2b6cb0; /* Button color */
-    color: white; /* Text color */
-    padding: 5px 10px; /* Compact padding for smaller button */
-    font-size: 0.9rem; /* Slightly smaller font size */
-    border-radius: 3px; /* Rounded corners */
-    border: none; /* No border */
-    cursor: pointer; /* Pointer on hover */
+    background-color: #2b6cb0;
+    color: white; 
+    padding: 5px 10px; 
+    font-size: 0.9rem; 
+    border-radius: 3px; 
+    border: none;
+    cursor: pointer; 
     text-align: center;
   }
   
   .add-transaction:hover {
-    background-color: #4A5568; /* Darker color on hover */
+    background-color: #4A5568;
   }
   
-  .transaction-table {
-    width: 100%; /* Table spans full width */
-    border-collapse: collapse; /* Collapsed borders */
-  }
-  
-  .transaction-table th,
-  .transaction-table td {
-    border: 1px solid #ddd; /* Add borders */
-    padding: 8px; /* Cell padding */
-    text-align: left; /* Align text to the left */
-  }
-  
-  .transaction-table th {
-    background-color: #2b6cb0; /* Header background color */
-    color: white; /* Header text color */
-  }
-  
-  .transaction-table tr:nth-child(even) {
-    background-color: #f9f9f9; /* Zebra striping */
-  }
-  
-  .transaction-table tr:hover {
-    background-color: #f1f1f1; /* Highlight row on hover */
-  }
+
+/********************
+
+  /* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+}
+
+/* Modal content */
+.modal-content {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+  color: #333;
+}
+
+/* Blur effect for background */
+.blurred {
+  filter: blur(5px); /* blur */
+  pointer-events: none; 
+}
+
   
   

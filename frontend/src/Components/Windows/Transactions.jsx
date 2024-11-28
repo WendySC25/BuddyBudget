@@ -32,6 +32,10 @@
         const [date, setDate] = useState('');
         const [message, setMessage] = useState('');
 
+        const [selectedCategories, setSelectedCategories] = useState([]);
+        const [category_color, setCategory_color] = useState("#ffffff");
+
+
         //fetch transactions
         useEffect(() =>{ 
             fetchAllT();
@@ -94,7 +98,7 @@
             e.preventDefault();
 
             const data = {
-                category: [selectedCategory],
+                category: selectedCategories,
                 account: selectedAccount,
                 amount: amount,
                 description: description,
@@ -113,7 +117,8 @@
                 setSelectedAccount('');
                 setMessage(`${transactionType} added successfully!`);
                 setShowForm(false);
-                fetchAllT();    
+                fetchAllT(); 
+                setSelectedCategories([]);   
                 setTimeout(() => setMessage(''), 3000);
                 
 
@@ -142,6 +147,8 @@
             const data = {
             isAddingCategory: true, 
             category_name: category_name,
+            type: transactionType,
+            color: category_color,
             };
             setCategories([...category, data]);
 
@@ -150,9 +157,11 @@
             .then(() => {
                 setCategory_name('');
                 setDescription('');
+                setCategory_color('#ffffff');   
                 setMessage(`Category added successfully!`);
-                setShowForm(false);
+                setShowFormC(false);
                 setMessage('');
+                setSelectedCategories([]);
             })
             .catch((error) => {
                 console.error('Error while creating category:', error.response?.data || error.message);
@@ -192,7 +201,7 @@
                 setAmount('');
                 setDate('');
                 setMessage(`Account added successfully!`);
-                setShowForm(false);
+                setShowFormA(false);
                 setMessage('');
             })
             .catch((error) => {
@@ -200,6 +209,14 @@
                 setMessage('Failed to add account');
             });
             
+        };
+
+        const handleCategoryChange = (categoryId) => {
+            if (selectedCategories.includes(categoryId)) {
+                setSelectedCategories(selectedCategories.filter((id) => id !== categoryId));
+            } else {
+                setSelectedCategories([...selectedCategories, categoryId]);
+            }
         };
 
         return (
@@ -210,12 +227,12 @@
             <div className="table-container">
                 <div className="table-header-buttons">
                 <button
-                    onClick={() => setShowForm(!showForm)}
+                    onClick={() => {setTransactionType(''); setShowForm(!showForm);} }
                 >
                     {showForm ? 'Cancel' : '+ Add Transaction'}
                 </button>
                 <button
-                    onClick={() => setShowFormC(!showFormC)}
+                    onClick={() => {setTransactionType(''); setShowFormC(!showFormC);}}
                 >
                     {showFormC ? 'Cancel' : '+ Add Category'}
                 </button>
@@ -246,6 +263,14 @@
                                     Expense
                                 </button>
                             </div>
+
+                            {/* Form (conditionally rendered) */}
+                            <div
+                            className={`transaction-form-container ${
+                                transactionType ? 'show-form' : ''
+                            }`}
+                            >
+                            {transactionType && (
                             <form onSubmit={handleSubmit}>
                                 <div className="transaction-form">
                                     {/* Amount Field */}
@@ -287,38 +312,23 @@
                                     {/* Category Dropdown */}
                                     <div className="category-dropdown">
                                         <label htmlFor="category">Category</label>
-                                        {isAddingCategory ? (
-                                            <input
-                                                type="text"
-                                                placeholder="Enter new category"
-                                                onBlur={(e) => handleAddCategory(e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        handleAddCategory(e.target.value);
-                                                        e.preventDefault();
-                                                    }
-                                                }}
-                                            />
-                                        ) : (
-                                            <select
-                                                id="category"
-                                                value={selectedCategory}
-                                                onChange={(e) => {
-                                                    if (e.target.value === "add_new") {
-                                                        setIsAddingCategory(true);
-                                                    } else {
-                                                        setSelectedCategory(e.target.value);
-                                                    }
-                                                }}
-                                            >
-                                                {category.map((cat) => (
-                                                    <option key={cat.id} value={cat.id}>
-                                                        {cat.category_name}
-                                                    </option>
-                                                ))}
-                                                <option value="add_new">+ Add New Category</option>
-                                            </select>
-                                        )}
+                                        <div className="categories-container">
+                                            {category
+                                            .filter((cat) => cat.type === transactionType) // Show only relevant categories
+                                            .map((filteredCategory) => (
+                                                <div key={filteredCategory.id} className="category-item">
+                                                <label>
+                                                    <input
+                                                    type="checkbox"
+                                                    value={filteredCategory.id}
+                                                    checked={selectedCategories.includes(filteredCategory.id)}
+                                                    onChange={() => handleCategoryChange(filteredCategory.id)}
+                                                    />
+                                                    {filteredCategory.category_name}
+                                                </label>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     {/* Account Dropdown */}
@@ -374,6 +384,8 @@
                                 </button>
                                 {message && <p className="message">{message}</p>}
                             </form>
+                            )}
+                        </div>
                         </div>
                     </div>
                 )}
@@ -397,10 +409,17 @@
                                     Expense
                                 </button>
                             </div>
-                            <form onSubmit={handleSubmitC}>
+
+                            
+                            <div
+                            className={`transaction-form-container ${
+                                transactionType ? 'show-form' : ''
+                            }`}
+                            >
+                            {transactionType && ( <form onSubmit={handleSubmitC}>
                                 <div className="transaction-form">
                                     <div className="transaction-field">
-                                        <label htmlFor="name">Name</label>
+                                        <label htmlFor="name">Category name</label>
                                         <input
                                             type="text"
                                             id="name"
@@ -409,6 +428,22 @@
                                             required
                                         />
                                     </div>
+
+                                     {/* Color Picker */}
+                                     <div className="transaction-field color-picker-field">
+                                        <label htmlFor="color">Category Color</label>
+                                        <div className="color-picker-container">
+                                            <input
+                                                type="color"
+                                                id="color"
+                                                value={category_color} // State variable for color
+                                                onChange={(e) => setCategory_color(e.target.value)}
+                                                className="color-picker"
+                                            />
+                                            <span className="color-preview" style={{ backgroundColor: category_color }}></span>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <button type="submit">Add Category</button>
                                 <button
@@ -418,7 +453,8 @@
                                     Cancel
                                 </button>
                                 {message && <p className="message">{message}</p>}
-                            </form>
+                            </form>)}
+                            </div>
                         </div>
                     </div>
                 )}

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../NavBar/Navbar';
-import { Bar, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, BarElement, PointElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, BarElement, ArcElement, PointElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
 import client from '../../apiClient.jsx'; // Client
 import './Reports.css';
 
 // Registro de elementos de Chart.js
-ChartJS.register(BarElement, PointElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
+ChartJS.register(BarElement, PointElement, LineElement, CategoryScale, LinearScale, Title,ArcElement, Tooltip, Legend);
 
 const Reports = ({ handleLogout }) => {
   const [chartDataIncomes, setChartDataIncomes] = useState(null);
@@ -14,6 +14,8 @@ const Reports = ({ handleLogout }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [view, setView] = useState('quincenas');
   const [chartType, setChartType] = useState('Bar'); // Variable para el tipo de gráfico
+  const [chartDataCategories, setChartDataCategories] = useState(null); // Variable para los datos de la grafica de categoria Incomes
+  const [chartDataCategories1, setChartDataCategories1] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +39,19 @@ const Reports = ({ handleLogout }) => {
           quincenas: groupByQuincenas(expenses),
           daily: groupByDays(expenses),
         });
+
+        // grafica de pastel Incomes
+        setChartDataCategories({
+          quincenas: groupByCategory(incomes, 'quincenas'),
+          daily: groupByCategory(incomes, 'daily'),
+        });
+
+        // grafica de pastel Expenses
+        setChartDataCategories1({
+          quincenas: groupByCategory(expenses, 'quincenas'),
+          daily: groupByCategory(expenses, 'daily'),
+        });
+
       } catch (error) {
         console.error('Error fetching data:', error);
         setErrorMessage('Failed to load data. Please try again later.');
@@ -46,6 +61,8 @@ const Reports = ({ handleLogout }) => {
     fetchData();
   }, []);
 
+  // El metodo agrupa los ítems de un conjunto de datos (ingresos o gastos) en intervalos de quincenas dentro del mes actual y el mes anterior, proporcionando el total de cada quincena para su visualización en un gráfico de línea o barra.
+  // La función retorna un objeto con la estructura necesaria para ser utilizado en bibliotecas de gráficos como Chart.js. 
   const groupByQuincenas = (items) => {
     const today = new Date();
     const currentMonth = today.getMonth();
@@ -104,6 +121,7 @@ const Reports = ({ handleLogout }) => {
     };
   };
 
+  // Agrupa los ítems de ingresos o gastos por cada día de la semana, calculando el total por día.
   const groupByDays = (items) => {
     const today = new Date();
     const startOfWeek = new Date(today);
@@ -143,7 +161,7 @@ const Reports = ({ handleLogout }) => {
     };
   };
 
-
+  // Combina los datos de ingresos y gastos seleccionados según la vista (quincenas o diaria) para crear los datos finales del gráfico.
   const combinedChartData = () => {
     if (!chartDataIncomes || !chartDataExpenses) return null;
 
@@ -159,6 +177,132 @@ const Reports = ({ handleLogout }) => {
     };
   };
 
+  // Filtra los ingresos que caen dentro de las últimas 4 quincenas (últimas dos del mes pasado y las dos del mes actual).
+  const getItemsFromLast4Quincenas = (incomes) => {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+  
+    // Definir las quincenas (últimas 4 quincenas)
+    const quincenas = [
+      {
+        start: new Date(today.getFullYear(), currentMonth - 1, 1), // Primer quincena del mes pasado
+        end: new Date(today.getFullYear(), currentMonth - 1, 15),
+      },
+      {
+        start: new Date(today.getFullYear(), currentMonth - 1, 16), // Segunda quincena del mes pasado
+        end: new Date(today.getFullYear(), currentMonth, 0), // Último día del mes pasado
+      },
+      {
+        start: new Date(today.getFullYear(), currentMonth, 1), // Primera quincena del mes actual
+        end: new Date(today.getFullYear(), currentMonth, 15),
+      },
+      {
+        start: new Date(today.getFullYear(), currentMonth, 16), // Segunda quincena del mes actual
+        end: new Date(today.getFullYear(), currentMonth + 1, 0), // Último día del mes actual
+      },
+    ];
+  
+    // Normalizar las fechas de las quincenas (ajustar a medianoche y fin de día)
+    const normalizedQuincenas = quincenas.map((period) => ({
+      start: new Date(period.start.setHours(0, 0, 0, 0)),
+      end: new Date(period.end.setHours(23, 59, 59, 999)),
+    }));
+  
+    // Filtrar los ingresos que caen dentro de las últimas 4 quincenas
+    return incomes.filter((income) => {
+      const incomeDate = new Date(income.date);
+      return normalizedQuincenas.some(
+        (period) => incomeDate >= period.start && incomeDate <= period.end
+      );
+    });
+  };
+  
+  // Filtra los items que caen dentro de la semana actual, desde el lunes hasta el domingo.
+  const getItemsFromLastWeek = (items) => {
+    const today = new Date();
+    
+    // Calcular el lunes de esta semana (inicio de la semana)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lunes de esta semana
+    
+    // Calcular el domingo de esta semana (final de la semana)
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() - today.getDay() + 7); // Domingo de esta semana
+    
+    // Normalizar las fechas para comparación
+    const start = new Date(startOfWeek.setHours(0, 0, 0, 0)); // Medianoche del lunes
+    const end = new Date(endOfWeek.setHours(23, 59, 59, 999)); // Último segundo del domingo
+    
+    // Filtrar los items dentro de este rango
+    return items.filter((item) => {
+      const itemDate = new Date(item.date);
+      itemDate.setDate(itemDate.getDate() + 1);
+      return itemDate >= start && itemDate <= end;
+    });
+  };
+  
+  // Agrupa los items por categoría y suma el monto total por categoría, según el periodo (quincenas o diario).
+  // No hay un buen manejo de las categorias cuando un item tiene multiples, sera lo siguiente a modificar
+  const groupByCategory = (items, period) => {
+  
+    const categoryTotals = {};
+  
+    if (period === 'quincenas') {
+      const quincenas = getItemsFromLast4Quincenas(items); // Obtener items agrupados por quincenas
+      quincenas.forEach((quincenas) => {
+        quincenas.category.forEach((cat) => {
+          if (!categoryTotals[cat.category_name]) {
+            categoryTotals[cat.category_name] = 0;
+          }
+          categoryTotals[cat.category_name] += parseFloat(quincenas.amount);
+        });
+      });
+    } else if (period === 'daily') {
+      const daily = getItemsFromLastWeek(items); // Obtener items agrupados por días
+      console.log("Daily items:", daily);
+      daily.forEach((daily) => {
+        daily.category.forEach((cat) => {
+          if (!categoryTotals[cat.category_name]) {
+            categoryTotals[cat.category_name] = 0;
+          }
+          categoryTotals[cat.category_name] += parseFloat(daily.amount);
+        });
+      });
+    }
+  
+    const labels = Object.keys(categoryTotals);
+    const data = Object.values(categoryTotals);
+  
+    return {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: labels.map(
+            (_, index) => `hsl(${(index * 360) / labels.length}, 70%, 50%)`
+          ),
+          borderColor: 'rgba(255, 255, 255, 0.7)',
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
+  
+
+  // Opciones de configuración para el gráfico de pastel (Pie).
+  const pieOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom' },
+      title: {
+        display: true,
+        text: 'Category Distribution',
+      },
+    },
+  };
+  
+
+  // Opciones de configuración para los gráficos de barras y líneas.
   const options = {
     responsive: true,
     plugins: {
@@ -170,8 +314,10 @@ const Reports = ({ handleLogout }) => {
     },
   };
 
+  // Selección entre gráfico de barras o de líneas.
   const ChartComponent = chartType === 'Bar' ? Bar : Line;
 
+  // Renderiza la página de reportes con selección de gráficos, botones para elegir periodos de visualización y los gráficos correspondientes.
   return (
     <div className="reports-page">
       <Navbar handleLogout={handleLogout} />
@@ -201,12 +347,19 @@ const Reports = ({ handleLogout }) => {
             <ChartComponent data={combinedChartData()} options={options} />
           </div>
         )}
+        {chartDataCategories && (
+          <div className="chart">
+            <Pie data={view === 'quincenas' ? chartDataCategories.quincenas : chartDataCategories.daily} options={pieOptions}/>
+          </div>
+        )}
+        {chartDataCategories1 && (
+          <div className="chart">
+            <Pie data={view === 'quincenas' ? chartDataCategories1.quincenas : chartDataCategories1.daily} options={pieOptions}/>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default Reports;
-
-
-

@@ -162,6 +162,7 @@
                 setShowFormC(false);
                 setMessage('');
                 setSelectedCategories([]);
+                fetchAllC();
             })
             .catch((error) => {
                 console.error('Error while creating category:', error.response?.data || error.message);
@@ -203,6 +204,7 @@
                 setMessage(`Account added successfully!`);
                 setShowFormA(false);
                 setMessage('');
+                fetchAllA();
             })
             .catch((error) => {
                 console.error('Error while creating account:', error.response?.data || error.message);

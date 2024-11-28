@@ -19,13 +19,13 @@ class AppUserManager(BaseUserManager):
 
 
 		default_categories = [
-            {"category_name": "Groceries", "type": TransactionType.EXPENSE},
-			{"category_name": "Tranport", "type": TransactionType.EXPENSE},
-			{"category_name": "Housing", "type": TransactionType.EXPENSE},
-            {"category_name": "Salary", "type": TransactionType.INCOME},
-            {"category_name": "Savings", "type": TransactionType.INCOME},
-			{"category_name": "Scholarship", "type": TransactionType.INCOME},
-        ]
+			{"category_name": "Groceries", "type": "EXP", "color": "#FFE4E1"},
+			{"category_name": "Transport", "type": "EXP", "color": "#E0F7FA"},
+			{"category_name": "Housing", "type": "EXP", "color": "#FFF9C4"},
+			{"category_name": "Salary", "type": "INC", "color": "#DFF8EB"},
+			{"category_name": "Savings", "type": "INC", "color": "#E8EAF6"},
+			{"category_name": "Scholarship", "type": "INC", "color": "#FFECB3"},
+		]
 		
 		for category_data in default_categories:
 			Category.objects.create(user=user, **category_data)
@@ -111,6 +111,8 @@ class Category(models.Model):
         choices=TransactionType.choices,
         default=TransactionType.INCOME
     )
+	
+	color = models.CharField(max_length=7, default="#ffffff")
 
 	def __str__(self):
 		return self.category_name

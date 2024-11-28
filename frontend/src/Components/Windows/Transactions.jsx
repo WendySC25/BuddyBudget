@@ -210,19 +210,16 @@
             <div className="table-container">
                 <div className="table-header-buttons">
                 <button
-                    className="add-transaction"
                     onClick={() => setShowForm(!showForm)}
                 >
                     {showForm ? 'Cancel' : '+ Add Transaction'}
                 </button>
                 <button
-                    className="add-category"
                     onClick={() => setShowFormC(!showFormC)}
                 >
                     {showFormC ? 'Cancel' : '+ Add Category'}
                 </button>
                 <button
-                    className="add-account"
                     onClick={() => setShowFormA(!showFormA)}
                 >
                     {showFormA ? 'Cancel' : '+ Add Account'}
@@ -432,7 +429,7 @@
                             <form onSubmit={handleSubmitA}>
                                 <div className="transaction-form">
                                     <div className="transaction-field">
-                                        <label htmlFor="name">Name</label>
+                                        <label htmlFor="name">Account Name</label>
                                         <input
                                             type="text"
                                             id="name"
@@ -452,7 +449,7 @@
                                         />
                                     </div>
                                     <div className="transaction-field">
-                                        <label htmlFor="amount">Amount</label>
+                                        <label htmlFor="amount">Account number</label>
                                         <input
                                             type="number"
                                             id="amount"
@@ -462,7 +459,7 @@
                                         />
                                     </div>
                                     <div className="transaction-field">
-                                        <label htmlFor="date">Date</label>
+                                        <label htmlFor="date">Expiring Date</label>
                                         <input
                                             type="date"
                                             id="date"

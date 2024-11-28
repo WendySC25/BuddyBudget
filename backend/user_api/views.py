@@ -7,6 +7,7 @@ from .serializers import TransactionSerializer, CategorySerializer, AccountSeria
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
 from .models import Transaction, Category, Account
+import random
 
 
 class UserRegister(APIView):    
@@ -245,3 +246,41 @@ class AccountDetailView(APIView):
             return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
         account.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ExpenseChartDataView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        user = request.user
+
+        expenses = Transaction.objects.filter(user=user, type="EXP")
+
+        category_combinations = {}
+        combination_colors = {}
+
+        for transaction in expenses:
+            categories = transaction.category.all()
+
+            #Crear la combinación de categorías como una cadena ordenada
+            category_names = sorted([cat.category_name for cat in categories])
+            category_combination = " & ".join(category_names)
+
+            # Sumar el monto de la transacción a la combinación de categorías
+            if category_combination in category_combinations:
+                category_combinations[category_combination] += transaction.amount
+            else:
+                category_combinations[category_combination] = transaction.amount
+
+                if len(categories) == 1:
+                    combination_colors[category_combination] = categories[0].color
+                else:
+                    combination_colors[category_combination] = "#{:06x}".format(random.randint(0, 0xFFFFFF))
+
+        data = {
+            "categories": list(category_combinations.keys()),
+            "totals": list(category_combinations.values()),
+            "colors": [combination_colors[cat] for cat in category_combinations.keys()],
+        }
+
+        return Response(data, status=status.HTTP_200_OK)

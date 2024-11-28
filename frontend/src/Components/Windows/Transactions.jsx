@@ -34,10 +34,26 @@
 
         //fetch transactions
         useEffect(() =>{ 
+            fetchAll();
             fetchAllT();
             fetchAllC();
             fetchAllA();
+            
         }, []);
+
+        const fetchAll = async () => {
+            const token = localStorage.getItem('authToken');
+            try{
+                const responseT = await client.get('/api/expchartdata/', {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
+    
+                console.log('VIVAAAA:', responseT.data);
+
+            }catch(error){
+                console.error('Error: ashjhajs', error);
+            }
+        };  
 
         useEffect(() => {
             const background = document.querySelector('.table-container');

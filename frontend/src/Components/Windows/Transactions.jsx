@@ -314,8 +314,9 @@
                                         <label htmlFor="category">Category</label>
                                         <div className="categories-container">
                                             {category
-                                            .filter((cat) => cat.type === transactionType) // Show only relevant categories
+                                            .filter((cat) => cat.type === transactionType) 
                                             .map((filteredCategory) => (
+                                                // This line
                                                 <div key={filteredCategory.id} className="category-item">
                                                 <label>
                                                     <input

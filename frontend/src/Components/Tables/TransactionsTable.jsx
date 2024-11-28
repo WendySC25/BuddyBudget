@@ -19,7 +19,10 @@ const TransactionsTable = ({ transactions }) => {
                         </div>
                         {/* Body */}
                         {transactions.length > 0 ? (
-                            transactions.map((transaction, index) => (
+                            transactions
+                            .slice() // Creates a shallow copy of the array
+                            .reverse() // Reverses the order to show the last added first
+                            .map((transaction, index) => (
                                 <div className="row" key={index}>
                                     <div className="cell" data-title="Type">
                                         {transaction.type === 'INC' ? (
@@ -43,7 +46,16 @@ const TransactionsTable = ({ transactions }) => {
                                     <div className="cell" data-title="Date">{transaction.date}</div>
                                     <div className="cell" data-title="Category">
                                         {Array.isArray(transaction.category) && transaction.category.length > 0
-                                            ? transaction.category.map(cat => cat.category_name).join(', ')
+                                            ? transaction.category.map((cat, idx) => (
+                                                <span
+                                                    className="tag"
+                                                    style={{
+                                                        backgroundColor: cat.color,
+                                                        color: "black", // Ensure text is readable on light backgrounds
+                                                    }}
+                                                >
+                                                    {cat.category_name}
+                                                </span> ))
                                             : 'No category'}
                                     </div>
                                     <div className="cell" data-title="Account">
@@ -56,6 +68,11 @@ const TransactionsTable = ({ transactions }) => {
                         ) : (
                             <div className="row">
                                 <div className="cell" colSpan="6">No transactions yet</div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
                             </div>
                         )}
                     </div>

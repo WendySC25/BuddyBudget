@@ -132,9 +132,14 @@ class TransactionDetailView(APIView):
     def put(self, request, pk):
         transaction = self.get_object(pk)
         serializer = TransactionSerializer(transaction, data=request.data, partial=True)
+
+        print(f"Received PUT data: {request.data}")
+        
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
+        
+        print(f"Validation failed: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):

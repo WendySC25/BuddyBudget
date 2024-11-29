@@ -484,7 +484,7 @@
                                             id="bank"
                                             value={bank_name}
                                             onChange={(e) => setBank_name(e.target.value)}
-                                            required
+                                            
                                         />
                                     </div>
                                     <div className="transaction-field">
@@ -494,7 +494,7 @@
                                             id="amount"
                                             value={amount}
                                             onChange={(e) => setAmount(e.target.value)}
-                                            required
+                                            
                                         />
                                     </div>
                                     <div className="transaction-field">
@@ -504,7 +504,7 @@
                                             id="date"
                                             value={date}
                                             onChange={(e) => setDate(e.target.value)}
-                                            required
+                                            
                                         />
                                     </div>
                                 </div>

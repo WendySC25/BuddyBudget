@@ -63,6 +63,19 @@
     transition: background-color 0.3s, transform 0.2s;
   }
 
+  .transaction button.icon-button {
+    background: transparent;  
+    border: none;            
+    padding: 10;             
+    cursor: pointer;        
+  } 
+  
+  .icon-button img {
+      display: block;           /* Evita el espacio debajo de la imagen */
+      margin: 0;                /* Elimina márgenes */
+  }
+
+
   .transaction button:hover {
     background-color: #83b0e0; 
     transform: translateY(-2px);

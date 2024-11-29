@@ -20,20 +20,13 @@
         const [showFormA, setShowFormA] = useState(false); //state for showing categories form
         const [transactionType, setTransactionType] = useState('');
         const [category, setCategories] = useState([]); //array for options *they must come from db* *distingued by type*
-        const [selectedCategory, setSelectedCategory] = useState(category[0] || ''); //CATEGORIES
-        const [isAddingCategory, setIsAddingCategory] = useState(false); //for tracking if its dropdown or field
         const [account, setAccount] = useState([]); //array for options *they must come from db*
-        const [selectedAccount, setSelectedAccount] = useState(category[0] || ''); //ACCOUNTS
-        const [isAddingAccount, setIsAddingAccount] = useState(false);//for tracking if its dropdown or field
         const [amount, setAmount] = useState('');
-        const [description, setDescription] = useState('');
         const [category_name,setCategory_name] = useState('');
         const [account_name,setAccount_name] = useState('');
         const [bank_name,setBank_name] = useState('');
         const [date, setDate] = useState('');
         const [message, setMessage] = useState('');
-
-        const [selectedCategories, setSelectedCategories] = useState([]);
         const [category_color, setCategory_color] = useState("#ffffff");
         const [transactionToEdit, setTransactionToEdit] = useState(null);
 
@@ -43,9 +36,7 @@
             fetchAllT();
             fetchAllC();
             fetchAllA();
-        }, [showForm, showFormC, showFormA]);
 
-        useEffect(() => {
             const background = document.querySelector('.table-container');
             if (background) {
                 if (showForm || showFormC) {
@@ -54,8 +45,8 @@
                     background.classList.remove('blurred');
                 }
             }
+
         }, [showForm, showFormC, showFormA]);
-        
 
         const fetchAllT = async () => {
             const token = localStorage.getItem('authToken');
@@ -101,6 +92,32 @@
             setShowForm(false);  
         };
 
+        const handleEditTransaction = (transaction) => {
+            setTransactionToEdit(transaction);
+            setShowForm(true);
+            fetchAllT();
+        };
+
+        const handleEndEdit = () => {
+            setTransactionToEdit(null);
+            setShowForm(false);
+        };
+
+        const handleDeleteTransaction = (transactionToDelete) => {
+            const endpoint = `/api/transactions/${transactionToDelete.id}/`;
+            client.delete(endpoint)
+            .then(()=> {
+                setMessage(`${transactionType} deleted successfully!`); 
+                setTimeout(() => setMessage(''), 3000);
+                
+            })
+            .catch(error => {
+                console.error('Error deleating transaction:', error);
+                setMessage('Error deleating transaction');
+            });
+            setShowForm(false);
+        }
+
         //WHOLE FORM
         const handleSubmitC = (e) => { 
             e.preventDefault();  //THERES A BIG BUG IN HERE
@@ -117,12 +134,10 @@
             client.post(endpoint,data)
             .then(() => {
                 setCategory_name('');
-                setDescription('');
                 setCategory_color('#ffffff');   
                 setMessage(`Category added successfully!`);
                 setShowFormC(false);
                 setMessage('');
-                setSelectedCategories([]);
                 fetchAllC();
             })
             .catch((error) => {
@@ -131,17 +146,7 @@
             });
             
         };
-
-        //submit for accounts //JUST NAME
-        const handleAddAccount = () => {
-            //missing logic for 
-            const newAccount = prompt("Enter the new account name:");
-            if (newAccount && !account.includes(newAccount)) {
-                setAccount([...account, newAccount]);
-                setSelectedAccount(newAccount);
-            }
-            setIsAddingAccount(false);
-        };
+    
         //WHOLE FORM
         const handleSubmitA = (e) => { 
             e.preventDefault();  //THERES A BIG BUG IN HERE
@@ -174,31 +179,6 @@
             
         };
 
-        const handleEditTransaction = (transaction) => {
-            setTransactionToEdit(transaction);
-            setShowForm(true);
-            fetchAllT();
-        };
-
-        const handleEndEdit = () => {
-            setTransactionToEdit(null);
-            setShowForm(false);
-        };
-
-        const handleDeleteTransaction = (transactionToDelete) => {
-            const endpoint = `/api/transactions/${transactionToDelete.id}/`;
-            client.delete(endpoint)
-            .then(()=> {
-                setMessage(`${transactionType} deleted successfully!`); 
-                setTimeout(() => setMessage(''), 3000);
-                
-            })
-            .catch(error => {
-                console.error('Error deleating transaction:', error);
-                setMessage('Error deleating transaction');
-            });
-            setShowForm(false);
-        }
 
         return (
             <div className="transaction">
@@ -232,10 +212,10 @@
             </div>
 
             {showForm && <TransactionForm
-                        onSaveTransaction={handleSaveTransaction}
-                        transactionToEdit={transactionToEdit} 
-                    />}
-
+                            onSaveTransaction={handleSaveTransaction}
+                            transactionToEdit={transactionToEdit} 
+                        />
+            }
 
             {showFormC && (
                     <div className="modal-overlay">

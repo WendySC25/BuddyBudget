@@ -2,7 +2,7 @@
 import React from 'react';
 import './TransactionsTable.css';
 
-const TransactionsTable = ({ transactions }) => {
+const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransaction }) => {
     return (
         <div className="limiter">
             <div className="container-table100">
@@ -16,6 +16,8 @@ const TransactionsTable = ({ transactions }) => {
                             <div className="cell">Date</div>
                             <div className="cell">Category</div>
                             <div className="cell">Account</div>
+                            <div className="cell"></div>
+                            <div className="cell"></div>
                         </div>
                         {/* Body */}
                         {transactions.length > 0 ? (
@@ -23,7 +25,7 @@ const TransactionsTable = ({ transactions }) => {
                             .slice() // Creates a shallow copy of the array
                             .reverse() // Reverses the order to show the last added first
                             .map((transaction, index) => (
-                                <div className="row" key={index}>
+                                <div className="row" key={transaction.id}>
                                     <div className="cell" data-title="Type">
                                         {transaction.type === 'INC' ? (
                                             <img
@@ -63,11 +65,32 @@ const TransactionsTable = ({ transactions }) => {
                                             ? transaction.account.account_name || 'Unnamed Account'
                                             : 'No account'}
                                     </div>
+
+                                    <div className="cell" data-title="Button"> 
+                                        <button onClick={() => onEditTransaction(transaction)} className="icon-button">
+                                            <img
+                                                src="https://img.icons8.com/?size=100&id=AuMLFRmG95tQ&format=png&color=000000" 
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        </button>  
+                                    </div>
+
+                                    <div className="cell" data-title="Button"> 
+                                        <button onClick={() => onDeleteTransaction(transaction) } className="icon-button">
+                                            <img
+                                                src="https://img.icons8.com/?size=100&id=68064&format=png&color=000000" 
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        </button>  
+                                    </div>
+                                    
                                 </div>
                             ))
                         ) : (
                             <div className="row">
                                 <div className="cell" colSpan="6">No transactions yet</div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
                                 <div className="cell"></div>
                                 <div className="cell"></div>
                                 <div className="cell"></div>

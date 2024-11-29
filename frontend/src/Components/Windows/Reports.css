@@ -17,7 +17,7 @@ html, body {
   padding: 20px;
   width:100vw;
   padding-top: 200px;
-  margin-top: 500px;  /*Adjusting the spacing for the navigation bar */
+  margin-top: 750px;  /*Adjusting the spacing for the navigation bar */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -28,6 +28,13 @@ html, body {
   font-size: 28px;
   margin-top: 40px;
   color: #1A202C; /* Dark blue */
+}
+
+.charts-wrapper {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los gráficos se acomoden en filas si no hay suficiente espacio */
+  gap: 20px; /* Espacio entre los contenedores */
+  margin: 20px 0;
 }
 
 /* Chart container */
@@ -55,12 +62,24 @@ html, body {
 }
 
 
-/* space between charts */
 .chart-container {
-display: flex;
-flex-direction: column;
-gap: 40px; /* space */
-margin: 20px 0; /* space around the container*/
+  display: flex;
+  flex-wrap: wrap; /* Permite que los elementos se acomoden en filas si no hay suficiente espacio */
+  gap: 20px; /* Espacio entre los gráficos */
+  margin: 20px 0; /* espacio alrededor del contenedor */
+}
+
+/* Cada gráfico */
+.chart {
+  flex: 1 1 calc(50% - 20px); /* Por defecto, cada gráfico ocupará el 50% del espacio */
+  min-width: 300px; /* Establecer un ancho mínimo para los gráficos */
+}
+
+/* En pantallas pequeñas (por debajo de 768px), los gráficos se apilarán verticalmente */
+@media (max-width: 768px) {
+  .chart {
+    flex: 1 1 100%; /* Los gráficos ocuparán el 100% del ancho */
+  }
 }
 
 /* Background and border of charts */
@@ -69,6 +88,15 @@ background-color: #f9f9f9;
 padding: 20px; /* internal space */
 border-radius: 10px; /* rounded edges */
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+/* Estilo para los títulos de los gráficos */
+.chart h1 {
+  font-size: 18px; /* Título más pequeño */
+  text-align: center; /* Centra el texto */
+  color: #333; /* Color de texto oscuro */
+  margin: 10px 0; /* Espaciado arriba y abajo */
+  font-weight: bold; /* Hacer que el texto sea negrita */
 }
 
 /* Buttons */
@@ -113,3 +141,4 @@ background-color: #0056b3;
   border-color: #0056b3;
   box-shadow: 0 0 5px rgba(0, 91, 179, 0.5);
 }
+

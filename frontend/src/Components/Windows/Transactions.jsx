@@ -18,6 +18,7 @@
         const [showForm, setShowForm] = useState(false); //state for showing transactions form
         const [showFormC, setShowFormC] = useState(false); //state for showing categories form
         const [showFormA, setShowFormA] = useState(false); //state for showing categories form
+        
         const [transactionType, setTransactionType] = useState('');
         const [category, setCategories] = useState([]); //array for options *they must come from db* *distingued by type*
         const [account, setAccount] = useState([]); //array for options *they must come from db*
@@ -115,6 +116,7 @@
                 console.error('Error deleating transaction:', error);
                 setMessage('Error deleating transaction');
             });
+            fetchAllT();
             setShowForm(false);
         }
 

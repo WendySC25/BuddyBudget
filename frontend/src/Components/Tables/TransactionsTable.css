@@ -42,12 +42,15 @@
         list-style-type: none;
     }
     
-    
     /* ------------------------------------ */
     input {
         display: block;
         outline: none;
         border: none !important;
+        padding: 25px;
+        font-family: sans-serif;
+        font-size: 20px;
+
     }
     
     textarea {
@@ -85,7 +88,7 @@
     
     .container-table100 {
         width: 100%;
-        max-height: auto;
+        max-height: 300px;
     
         display: -webkit-box;
         display: -webkit-flex;
@@ -157,7 +160,7 @@
     }
     
     .cell {
-        display: table-cell;
+        display: table-cell;     
     }
     
     @media screen and (max-width: 768px) {
@@ -223,10 +226,11 @@
         width: 100% !important;
     }
     
-    .row:hover {
-        background-color: #e0e4e6;
+    /* .cell:hover {
+        background-color: #e6e0e0;
         cursor: pointer;
-    }
+    } */
+
     
     @media (max-width: 768px) {
         .row {
@@ -263,18 +267,17 @@
     /* Tag styles */
     .tag {
         display: inline-block;  
-        color: #000000; /* Dark teal text */
-        padding: 5px 10px; /* Add some padding */
-        margin: 2px; /* Spacing between tags */
-        font-size: 14px; /* Font size for the tags */
-        border-radius: 15px; /* Rounded corners */
-        font-weight: 500; /* Slightly bold text */
-        white-space: nowrap; /* Prevent text from wrapping */
+        color: #000000;
+        padding: 5px 10px; 
+        margin: 2px; 
+        font-size: 14px; 
+        border-radius: 15px; 
+        font-weight: 500; 
+        white-space: nowrap; 
         text-align: center;
     }
 
-    /* Optional: Adjust hover effect for tags */
     .tag:hover {
-        background-color: #b2ebf2; /* Slightly darker blue on hover */
+        background-color: #b2ebf2; 
         cursor: default;
     }

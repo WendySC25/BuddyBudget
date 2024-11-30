@@ -1,29 +1,105 @@
 // TransactionsTable.jsx
-import React from 'react';
+import React, {useState} from 'react';
 import './TransactionsTable.css';
 
 const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransaction }) => {
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState(""); 
+    const [sortOrder, setSortOrder] = useState("asc");
+    
+    const handleSort = (key) => {
+        if (sortBy === key) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortBy(key);
+            setSortOrder("asc");
+        }
+    };
+
+    const sortedData = [...transactions].sort((a, b) => {
+        if (sortBy === "") {
+            return sortOrder === "asc" ? -1 : 1;
+        }
+
+        const aValue = a[sortBy];
+        const bValue = b[sortBy];
+
+        if (sortOrder === "asc") {
+            return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        } else {
+            return bValue < aValue ? -1 : bValue > aValue ? 1 : 0;
+        }
+    });
+
     return (
         <div className="limiter">
             <div className="container-table100">
                 <div className="wrap-table100">
                     <div className="table">
-                        {/* Header */}
-                        <div className="row header">
-                            <div className="cell">Type</div>
-                            <div className="cell">Amount</div>
-                            <div className="cell">Description</div>
-                            <div className="cell">Date</div>
-                            <div className="cell">Category</div>
-                            <div className="cell">Account</div>
+                         <div className="row">
+                            <div className="cell">
+                                <img 
+                                    src="https://img.icons8.com/?size=100&id=7695&format=png&color=000000"
+                                    style={{ width: '24px', height: '24px' }}
+                                />
+                            </div>
+                            <div className="cell">
+                                <input 
+                                    type="text" 
+                                    placeholder="Search by description"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="serchbar"
+                                />
+                            </div>
+                            <div className="cell"></div>
+                            <div className="cell"></div>
+                            <div className="cell"></div>
+                            <div className="cell"></div>
                             <div className="cell"></div>
                             <div className="cell"></div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="container-table100">
+                <div className="wrap-table100">
+                    <div className="table">
+                        {/* Header */}
+
+                        <div className="row header">
+                            <div className="cell" onClick={() => handleSort("type")}> 
+                                Type  {sortBy === "type" && (sortOrder === "asc" ? "↑" : "↓")}
+                            </div>
+
+                            <div className="cell" onClick={() => handleSort("amount")}>
+                                Amount {sortBy === "amount" && (sortOrder === "asc" ? "↑" : "↓")}
+                            </div>
+
+                            <div className="cell" onClick={() => handleSort("description")}>
+                                Description {sortBy === "description" && (sortOrder === "asc" ? "↑" : "↓")}
+                            </div>
+
+                            <div className="cell" onClick={() => handleSort("date") }>
+                                Date {sortBy === "date" && (sortOrder === "asc" ? "↑" : "↓")}
+                            </div>
+
+                            <div className="cell" >Category</div>
+
+                            <div className="cell" onClick={() => handleSort("account")}>
+                                Account {sortBy === "account.name" && (sortOrder === "asc" ? "↑" : "↓")}
+                            </div>
+                            
+                            <div className="cell"></div>
+                            <div className="cell"></div>
+                        </div>
+                        
                         {/* Body */}
-                        {transactions.length > 0 ? (
-                            transactions
-                            .slice() // Creates a shallow copy of the array
-                            .reverse() // Reverses the order to show the last added first
+                        {sortedData.length > 0 ? (
+                            sortedData
+                            .filter(item => item.description.includes(searchTerm))
                             .map((transaction, index) => (
                                 <div className="row" key={transaction.id}>
                                     <div className="cell" data-title="Type">

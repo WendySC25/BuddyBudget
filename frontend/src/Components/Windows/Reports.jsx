@@ -431,6 +431,16 @@ const Reports = ({ handleLogout }) => {
             <ChartComponent data={combinedChartData()} options={options} />
           </div>
         )}
+        {chartDataCategories && (
+          <div className="chart">
+            <Pie data={view === 'quincenas' ? chartDataCategories.quincenas : chartDataCategories.daily} options={pieOptions}/>
+          </div>
+        )}
+        {chartDataCategories1 && (
+          <div className="chart">
+            <Pie data={view === 'quincenas' ? chartDataCategories1.quincenas : chartDataCategories1.daily} options={pieOptions}/>
+          </div>
+        )}
       </div>
       <div className="chart-container">
         {chartDataCategories && (

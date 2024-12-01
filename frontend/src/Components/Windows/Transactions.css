@@ -71,8 +71,8 @@
   } 
   
   .icon-button img {
-      display: block;           /* Evita el espacio debajo de la imagen */
-      margin: 0;                /* Elimina márgenes */
+      display: block;           
+      margin: 0;               
   }
 
 

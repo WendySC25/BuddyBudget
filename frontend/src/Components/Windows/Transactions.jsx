@@ -3,6 +3,7 @@
     import Navbar from '../NavBar/Navbar';
     import TransactionsTable from '../Tables/TransactionsTable';
     import TransactionForm from '../Forms/TransactionForm.jsx';
+    import CategoryForm from '../Forms/CategoryForm.jsx';
     import './Transactions.css'
     import axios from 'axios';
     import client from '../../apiClient.jsx';
@@ -14,28 +15,27 @@
 
     const Transactions = ({ handleLogout }) => {
 
-        const [transactions, setTransactions] = useState([]); // State to hold all transactions
-        const [showForm, setShowForm] = useState(false); //state for showing transactions form
-        const [showFormC, setShowFormC] = useState(false); //state for showing categories form
-        const [showFormA, setShowFormA] = useState(false); //state for showing categories form
+        const [transactions, setTransactions] = useState([]); 
         
+        const [showForm, setShowForm] = useState(false); 
+        const [showFormC, setShowFormC] = useState(false); 
+        const [showFormA, setShowFormA] = useState(false); 
+
         const [transactionType, setTransactionType] = useState('');
-        const [category, setCategories] = useState([]); //array for options *they must come from db* *distingued by type*
         const [account, setAccount] = useState([]); //array for options *they must come from db*
         const [amount, setAmount] = useState('');
-        const [category_name,setCategory_name] = useState('');
+        
         const [account_name,setAccount_name] = useState('');
         const [bank_name,setBank_name] = useState('');
         const [date, setDate] = useState('');
         const [message, setMessage] = useState('');
-        const [category_color, setCategory_color] = useState("#ffffff");
+        
         const [transactionToEdit, setTransactionToEdit] = useState(null);
 
 
         //fetch transactions
         useEffect(() =>{ 
             fetchAllT();
-            fetchAllC();
             fetchAllA();
 
             const background = document.querySelector('.table-container');
@@ -63,18 +63,6 @@
             }
         };  
 
-        const fetchAllC = async () => {
-            try {   
-                const responseC = await client.get('/api/categories/', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
-                });
-                setCategories(responseC.data);
-                console.log('Fetched categories:', responseC.data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-
         const fetchAllA = async () => {
             try {   
                 const responseA = await client.get('/api/accounts/', {
@@ -86,6 +74,10 @@
                 console.error('Error fetching categories:', error);
             }
         };
+
+        const handleSaveCategory = () => {
+            setShowFormC(false);  
+        }
 
         const handleSaveTransaction = () => {
             fetchAllT();
@@ -119,35 +111,6 @@
             fetchAllT();
             setShowForm(false);
         }
-
-        //WHOLE FORM
-        const handleSubmitC = (e) => { 
-            e.preventDefault();  //THERES A BIG BUG IN HERE
-
-            const data = {
-            isAddingCategory: true, 
-            category_name: category_name,
-            type: transactionType,
-            color: category_color,
-            };
-            setCategories([...category, data]);
-
-            const endpoint = '/api/categories/';
-            client.post(endpoint,data)
-            .then(() => {
-                setCategory_name('');
-                setCategory_color('#ffffff');   
-                setMessage(`Category added successfully!`);
-                setShowFormC(false);
-                setMessage('');
-                fetchAllC();
-            })
-            .catch((error) => {
-                console.error('Error while creating category:', error.response?.data || error.message);
-                setMessage('Failed to add category');
-            });
-            
-        };
     
         //WHOLE FORM
         const handleSubmitA = (e) => { 
@@ -189,103 +152,39 @@
 
             <div className="table-container">
                 <div className="table-header-buttons">
-                    <button
-                        onClick={() => {setTransactionType(''); setShowForm(!showForm);} }
-                    >
+                    <button onClick={() => {setTransactionType(''); setShowForm(!showForm);} }>
                         {showForm ? 'Cancel' : '+ Add Transaction'}
                     </button>
-                    <button
-                        onClick={() => {setTransactionType(''); setShowFormC(!showFormC);}}
-                    >
+
+                    <button onClick={() => {setTransactionType(''); setShowFormC(!showFormC);}}>
                         {showFormC ? 'Cancel' : '+ Add Category'}
                     </button>
-                    <button
-                        onClick={() => setShowFormA(!showFormA)}
-                    >
+
+                    <button onClick={() => setShowFormA(!showFormA)}>
                         {showFormA ? 'Cancel' : '+ Add Account'}
                     </button>
                 </div> 
-                {/* Table */} <TransactionsTable
-                                transactions={transactions}
-                                onEditTransaction={handleEditTransaction}
-                                onDeleteTransaction={handleDeleteTransaction}
-                                onEdit={handleEndEdit}  
-                              />
+
+                {/* Table */} 
+                <TransactionsTable
+                    transactions={transactions}
+                    onEditTransaction={handleEditTransaction}
+                    onDeleteTransaction={handleDeleteTransaction}
+                    onEdit={handleEndEdit}  
+                />
             </div>
 
             {showForm && <TransactionForm
                             onSaveTransaction={handleSaveTransaction}
                             transactionToEdit={transactionToEdit} 
-                        />
+                         />
             }
 
-            {showFormC && (
-                    <div className="modal-overlay">
-                        <div className="modal-content">
-                            <div className="transaction-type-buttons">
-                                <button
-                                    type="button"
-                                    onClick={() => setTransactionType('INC')}
-                                    className={transactionType === 'INC' ? 'active-income' : ''}
-                                >
-                                    Income
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setTransactionType('EXP')}
-                                    className={transactionType === 'EXP' ? 'active-expense' : ''}
-                                >
-                                    Expense
-                                </button>
-                            </div>
- 
-                            <div
-                            className={`transaction-form-container ${
-                                transactionType ? 'show-form' : ''
-                            }`}
-                            >
-                            {transactionType && ( <form onSubmit={handleSubmitC}>
-                                <div className="transaction-form">
-                                    <div className="transaction-field">
-                                        <label htmlFor="name">Category name</label>
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            value={category_name}
-                                            onChange={(e) => setCategory_name(e.target.value)}
-                                            required
-                                        />
-                                    </div>
+            {showFormC && <CategoryForm
+                            onSaveCategory={handleSaveCategory}
 
-                                     {/* Color Picker */}
-                                     <div className="transaction-field color-picker-field">
-                                        <label htmlFor="color">Category Color</label>
-                                        <div className="color-picker-container">
-                                            <input
-                                                type="color"
-                                                id="color"
-                                                value={category_color} // State variable for color
-                                                onChange={(e) => setCategory_color(e.target.value)}
-                                                className="color-picker"
-                                            />
-                                            <span className="color-preview" style={{ backgroundColor: category_color }}></span>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <button type="submit">Add Category</button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowFormC(!showFormC)}
-                                >
-                                    Cancel
-                                </button>
-                                {message && <p className="message">{message}</p>}
-                            </form>)}
-                            </div>
-                        </div>
-                    </div>
-            )}
+                          />
+            }
 
             {showFormA && (
                     <div className="modal-overlay">

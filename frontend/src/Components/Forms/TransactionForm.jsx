@@ -33,7 +33,7 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
             setDate(transactionToEdit.date);
         }
     }, [transactionToEdit]);
- 
+
     const fetchAllC = async () => {
         try {   
             const responseC = await client.get('/api/categories/', {
@@ -129,6 +129,7 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
                     >
                         Income
                     </button>
+
                     <button
                         type="button"
                         onClick={() => setTransactionType('EXP')}
@@ -138,7 +139,6 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
                     </button>
                 </div>
 
-                {/* Form (conditionally rendered) */}
                 <div className={`transaction-form-container ${ transactionType ? 'show-form' : ''}`}>
                     {transactionType && (
                         <form onSubmit={handleSubmit}>

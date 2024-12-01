@@ -41,6 +41,7 @@ const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransactio
                             <div className="cell">
                                 <img 
                                     src="https://img.icons8.com/?size=100&id=7695&format=png&color=000000"
+                                    alt="Serch icon"
                                     style={{ width: '24px', height: '24px' }}
                                 />
                             </div>
@@ -146,6 +147,7 @@ const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransactio
                                         <button onClick={() => onEditTransaction(transaction)} className="icon-button">
                                             <img
                                                 src="https://img.icons8.com/?size=100&id=AuMLFRmG95tQ&format=png&color=000000" 
+                                                alt="Edit icon"
                                                 style={{ width: '24px', height: '24px' }}
                                             />
                                         </button>  
@@ -155,6 +157,7 @@ const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransactio
                                         <button onClick={() => onDeleteTransaction(transaction) } className="icon-button">
                                             <img
                                                 src="https://img.icons8.com/?size=100&id=68064&format=png&color=000000" 
+                                                alt="Trash can icon "
                                                 style={{ width: '24px', height: '24px' }}
                                             />
                                         </button>  

@@ -1,13 +1,7 @@
 // CategoryForm.jsx
-import React,{ useState} from 'react';
+import React, {useState} from 'react';
 import '../Windows/Transactions.css';
-import axios from 'axios';
 import client from '../../apiClient.jsx';
-
-axios.defaults.xsrfCookieName = 'csrftoken';
-axios.defaults.xsrfHeaderName = 'X-CSRFToken';
-axios.defaults.withCredentials = true;
-
 const CategoryForm = ({ onSaveCategory }) => {
 
     const [category_name,setCategory_name] = useState('');
@@ -20,8 +14,8 @@ const CategoryForm = ({ onSaveCategory }) => {
 
         const data = {
             category_name: category_name,
-            type: transactionType,
-            color: category_color,
+            type:          transactionType,
+            color:         category_color,
         };
 
         const endpoint = '/api/categories/';
@@ -75,7 +69,6 @@ const CategoryForm = ({ onSaveCategory }) => {
                                         />
                                 </div>
 
-                                {/* Color Picker */}
                                 <div className="transaction-field color-picker-field">
                                     <label htmlFor="color">Category Color</label>
                                         <div className="color-picker-container">

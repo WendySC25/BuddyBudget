@@ -1,12 +1,8 @@
 // TransactionForm.jsx
 import React,{ useState, useEffect } from 'react';
 import '../Windows/Transactions.css';
-import axios from 'axios';
 import client from '../../apiClient.jsx';
 
-axios.defaults.xsrfCookieName = 'csrftoken';
-axios.defaults.xsrfHeaderName = 'X-CSRFToken';
-axios.defaults.withCredentials = true;
 
 const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
     const [categories, setCategories] = useState([]);

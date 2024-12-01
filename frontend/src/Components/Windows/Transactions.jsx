@@ -54,16 +54,15 @@
         const handleDeleteTransaction = (transactionToDelete) => {
             const endpoint = `/api/transactions/${transactionToDelete.id}/`;
             client.delete(endpoint)
-            .then(()=> {
-                // setMessage(`${transactionType} deleted successfully!`); 
-                // setTimeout(() => setMessage(''), 3000);
-                
-            })
+            .then(
+                //There is a bug here!  
+               
+            )
             .catch(error => {
                 console.error('Error deleating transaction:', error);
-                // setMessage('Error deleating transaction');
             });
-            fetchAllT();
+            fetchAllT()
+            
         }
 
         const handleSaveCategory = () => {

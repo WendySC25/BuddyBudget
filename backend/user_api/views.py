@@ -9,6 +9,13 @@ from .validations import custom_validation, validate_email, validate_password
 from .models import Transaction, Category, Account, Debt
 import random
 
+#REPORT LAB thinguies
+from django.http import FileResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+
 
 class UserRegister(APIView):    
     permission_classes = (permissions.AllowAny,)
@@ -340,3 +347,37 @@ class DebtDetailView(APIView):
             return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
         debt.delete()
         return Response({'message': 'Debt deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    
+class PDFgeneration(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def transactions_pdf(self, request):
+        buf = io.BytesIO()
+        c = canvas.Canvas(buf, pagesize=letter,bottomup=0)
+        textob = c.beginText()
+        textob.setTextOrigin(inch,inch)
+        textob.setFont("Times-Roman",14)
+
+        transactions = Transaction.objects.all() #model where we attain info for the doc
+        lines = []
+
+        for transaction in transactions:
+            lines.append(transaction.category)
+            lines.append(transaction.account)
+            lines.append(transaction.amount)
+            lines.append(transaction.description)
+            lines.append(transaction.date)
+            lines.append(transaction.type)
+            lines.append(" ")
+        
+        for line in lines:
+            textob.textLine(line)
+        
+        c.drawText(textob)
+        c.showPage()
+        c.save()
+        buf.seek(0)
+
+        return FileResponse(buf,as_attachment=True, filename="MyTransactions.pdf")
+

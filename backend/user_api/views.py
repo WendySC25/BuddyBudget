@@ -323,3 +323,20 @@ class DebtDetailView(APIView):
             return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
         serializer = DebtSerializer(debt)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        debt = self.get_object(pk)
+        if not debt:
+            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = DebtSerializer(debt, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        debt = self.get_object(pk)
+        if not debt:
+            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
+        debt.delete()
+        return Response({'message': 'Debt deleted successfully'}, status=status.HTTP_204_NO_CONTENT)

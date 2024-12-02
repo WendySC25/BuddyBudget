@@ -290,19 +290,7 @@ class ExpenseChartDataView(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
     
-class DebtCreateView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (JWTAuthentication,)
-
-    def post(self, request):
-        data = request.data
-        serializer = DebtSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class DebtListView(APIView):
+class DebtListCreateView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
@@ -310,6 +298,14 @@ class DebtListView(APIView):
         debts = Debt.objects.filter(user=request.user)
         serializer = DebtSerializer(debts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+        serializer = DebtSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
 
 class DebtDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)

@@ -1,13 +1,22 @@
 // CategoryForm.jsx
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import '../Windows/Transactions.css';
 import client from '../../apiClient.jsx';
-const CategoryForm = ({ onSaveCategory }) => {
 
+const CategoryForm = ({ onSaveCategory, categoryToEdit }) => {
+    
     const [category_name,setCategory_name] = useState('');
     const [transactionType, setTransactionType] = useState('');
     const [category_color, setCategory_color] = useState("#ffffff");
     const [message, setMessage] = useState('');
+
+    useEffect(() => {
+        if(categoryToEdit){
+            setCategory_name(categoryToEdit.category_name);
+            setTransactionType(categoryToEdit.type)
+            setCategory_color(categoryToEdit.color);
+        }
+    }, [categoryToEdit]);
 
     const handleSubmitC = (e) => { 
         e.preventDefault(); 
@@ -18,26 +27,37 @@ const CategoryForm = ({ onSaveCategory }) => {
             color:         category_color,
         };
 
-        const endpoint = '/api/categories/';
-        client.post(endpoint,data)
-        .then(() => {
-            setCategory_name('');
-            setCategory_color('#ffffff');   
-            setMessage(`Category added successfully!`);
-            setMessage('');
-        })
-        .catch((error) => {
-            console.error('Error while creating category:', error.response?.data || error.message);
-            setMessage('Failed to add category');
-        });
+        if(categoryToEdit){
+            const endpoint = `/api/categories/${categoryToEdit.id}/`;
+            client.put(endpoint, data)
+            .then(() => { })
+            .catch((error) => {
+                console.error('Error while updating category:', error.response?.data || error.message);
+                setMessage('Failed to add category');
+            });
 
+        } else {
+            const endpoint = '/api/categories/';
+            client.post(endpoint,data)
+            .then(() => {})
+            .catch((error) => {
+                console.error('Error while creating category:', error.response?.data || error.message);
+                setMessage('Failed to add category');
+            });
+
+        }
+        setCategory_name('');
+        setCategory_color('#ffffff');   
+        setMessage(`Category added successfully!`);
+        setMessage('');
         onSaveCategory();
-        
+         
     };
     
     return (
         <div className="modal-overlay">
             <div className="modal-content">
+ 
                 <div className="transaction-type-buttons">
                     <button
                         type="button"
@@ -86,7 +106,7 @@ const CategoryForm = ({ onSaveCategory }) => {
                             </div>
 
                             <button type="submit">
-                                Add Category
+                                {categoryToEdit ? 'Update Category' : 'Add Category'}
                             </button>
 
                             <button type="button" onClick={() =>  onSaveCategory()}>

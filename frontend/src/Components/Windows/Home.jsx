@@ -9,7 +9,7 @@ const Home = ({ handleLogout }) => {
     return (
         <div className="home">
             <Navbar handleLogout={handleLogout} />
-            <CardItem />
+            {/* <CardItem /> */}
         </div>
     );
 };

@@ -7,6 +7,7 @@ import Profile from './Components/Windows/Profile';
 import Reports from './Components/Windows/Reports';
 import Configuration from './Components/Windows/Configuration';
 import client from './apiClient'; 
+import Categories from './Components/Windows/Categories';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
@@ -87,6 +88,10 @@ if (loading) {
         <Route
           path="/configuration"
           element={isAuthenticated ? <Configuration handleLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
+         <Route
+          path="/categories"
+          element={isAuthenticated ? <Categories handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
 
         {/* Página de login, Redirección Inicial */}

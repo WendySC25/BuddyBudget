@@ -12,6 +12,7 @@
     padding: 15px 7%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for greater contrast */
     z-index: 2; /* Place the navbar on top of Home */
+    font-weight: 500;
   }
 
 .logo {
@@ -25,6 +26,7 @@ ul {
     gap: 20px;
     margin: 0;
     padding: 0;
+    
 }
 
 ul li {
@@ -35,8 +37,8 @@ ul li a {
     text-decoration: none;
     color: #000000; 
     font-size: 18px;
-    font-weight: 500;
     transition: color 0.3s ease;
+    font-weight: 500;
 }
 
 ul li a:hover {

@@ -19,6 +19,7 @@ const Navbar = ({ handleLogout }) => {
                 <li><Link to="/profile">Profile</Link></li>
                 <li><Link to="/reports">Reports</Link></li>
                 <li><Link to="/configuration">Configuration</Link></li>
+                <li><Link to="/categories">Categories</Link></li>
                 <li onClick={handleLogout} style={{ cursor: 'pointer', color: 'red' }}>Logout</li>
             </ul>
         </div>

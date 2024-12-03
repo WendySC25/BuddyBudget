@@ -3,10 +3,10 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer 
-from .serializers import TransactionSerializer, CategorySerializer, AccountSerializer
+from .serializers import TransactionSerializer, CategorySerializer, AccountSerializer, DebtSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
-from .models import Transaction, Category, Account
+from .models import Transaction, Category, Account, Debt
 import random
 
 
@@ -289,3 +289,54 @@ class ExpenseChartDataView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
+    
+class DebtListCreateView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        debts = Debt.objects.filter(user=request.user)
+        serializer = DebtSerializer(debts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+        serializer = DebtSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+
+class DebtDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get_object(self, pk):
+        try:
+            return Debt.objects.get(pk=pk, user=self.request.user)
+        except Debt.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        debt = self.get_object(pk)
+        if not debt:
+            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = DebtSerializer(debt)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        debt = self.get_object(pk)
+        if not debt:
+            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = DebtSerializer(debt, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        debt = self.get_object(pk)
+        if not debt:
+            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
+        debt.delete()
+        return Response({'message': 'Debt deleted successfully'}, status=status.HTTP_204_NO_CONTENT)

@@ -385,8 +385,8 @@ class PDFgeneration(APIView):
 
         print("PDF generation complete")
 
-        #return FileResponse(buf,as_attachment=False, filename="MyTransactions.pdf")
-        response = FileResponse(buf, as_attachment=False, filename="MyTransactions.pdf")
+        #return FileResponse
+        response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
         response['Content-Type'] = 'application/pdf'
         return response
 

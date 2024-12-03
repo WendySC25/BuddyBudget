@@ -9,12 +9,12 @@ html, body {
 }
 
 .home {
-  background-color: #ffffff;
+  background-color: #b9daeb;
   color: white;
   padding: 20px;
-  padding-top: 100px; /* extra padding for navBar*/
+  padding-top: 100px;
   min-height: 100vh;
-  width: 100vw; /* Width for the window */
+  width: 100vw;
   display: flex;
   flex-direction: column;
   justify-content: left;

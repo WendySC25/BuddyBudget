@@ -25,15 +25,22 @@ const CardItem = ({ image, thumb, title, status, description, onClick }) => (
 const Card = () => {
   const cardsData = [
     {
-      image: 'Assets/wallpaper2.png',
-      thumb: 'https://i.imgur.com/7D7I6dI.png',
+      image: 'https://www.aestheticnursing.co.uk/media/s3cfbfyo/joan-2021-10-10-478_f02.jpg',
+      thumb: 'https://www.aestheticnursing.co.uk/media/s3cfbfyo/joan-2021-10-10-478_f02.jpg',
       title: 'Panque',
       status:  'panque',
       description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores, blanditiis?',
     },
     {
-      image: 'Assets/wallpaper2.png',
-      thumb: 'https://i.imgur.com/7D7I6dI.png',
+      image: 'https://www.aestheticnursing.co.uk/media/s3cfbfyo/joan-2021-10-10-478_f02.jpg',
+      thumb: 'https://www.aestheticnursing.co.uk/media/s3cfbfyo/joan-2021-10-10-478_f02.jpg',
+      title: 'Panque',
+      status:  'panque',
+      description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores, blanditiis?',
+    },
+    {
+      image: 'https://www.aestheticnursing.co.uk/media/s3cfbfyo/joan-2021-10-10-478_f02.jpg',
+      thumb: 'https://www.aestheticnursing.co.uk/media/s3cfbfyo/joan-2021-10-10-478_f02.jpg',
       title: 'Panque',
       status:  'panque',
       description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores, blanditiis?',

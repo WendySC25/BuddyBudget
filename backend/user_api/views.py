@@ -352,7 +352,8 @@ class PDFgeneration(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
-    def transactions_pdf(self, request):
+    def get(self, request):
+        print("iniciando")
         buf = io.BytesIO()
         c = canvas.Canvas(buf, pagesize=letter,bottomup=0)
         textob = c.beginText()
@@ -360,15 +361,18 @@ class PDFgeneration(APIView):
         textob.setFont("Times-Roman",14)
 
         transactions = Transaction.objects.all() #model where we attain info for the doc
+        print("db fetched")
         lines = []
 
         for transaction in transactions:
-            lines.append(transaction.category)
-            lines.append(transaction.account)
-            lines.append(transaction.amount)
-            lines.append(transaction.description)
-            lines.append(transaction.date)
-            lines.append(transaction.type)
+            print(f"Procesando transaction: {transaction}")
+            categories = ",".join([cat.category_name for cat in transaction.category.all()])
+            lines.append(f"Category: {categories}")
+            lines.append(f"Account: {transaction.account}")
+            lines.append(f"Amount: {transaction.amount}")
+            lines.append(f"Description: {transaction.description}")
+            lines.append(f"Date: {transaction.date}")
+            lines.append(f"Type: {transaction.type}")
             lines.append(" ")
         
         for line in lines:
@@ -379,5 +383,10 @@ class PDFgeneration(APIView):
         c.save()
         buf.seek(0)
 
-        return FileResponse(buf,as_attachment=True, filename="MyTransactions.pdf")
+        print("PDF generation complete")
+
+        #return FileResponse(buf,as_attachment=False, filename="MyTransactions.pdf")
+        response = FileResponse(buf, as_attachment=False, filename="MyTransactions.pdf")
+        response['Content-Type'] = 'application/pdf'
+        return response
 

@@ -96,7 +96,7 @@ class Account(models.Model):
 	account_number 	= models.CharField(max_length=20, blank=True, null=True)
 	expiry_date 	= models.DateField(blank=True, null=True)
 	def __str__(self):
-		return f"{self.account_name} ({self.account_type.type_name})"
+		return f"{self.account_name} ({self.account_type})" 
 
 class TransactionType(models.TextChoices):
     INCOME  = 'INC', 'Ingreso'

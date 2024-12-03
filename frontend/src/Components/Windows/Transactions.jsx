@@ -20,6 +20,7 @@
 
         useEffect(() =>{ 
             fetchAllT();
+            fetchPDF();
             const background = document.querySelector('.table-container');
             if (background) {
                 if (showForm || showFormC) {
@@ -44,6 +45,19 @@
                 console.error('Error while fetching transactions', error);
             }
         };  
+
+        const fetchPDF = async () => {
+            const token = localStorage.getItem('authToken');
+            try{
+                const responseT = await client.get('/api/transactions_pdf', {
+                    headers: {Authorization: `Bearer ${token}`},
+                });
+                console.log('Fetched doc:', responseT.data);
+
+            }catch(error){
+                console.error('Error while fetching doc', error);
+            }
+        };
 
         const handleSaveTransaction = () => {
             fetchAllT();
@@ -102,6 +116,9 @@
 
                         <button onClick={() => setShowFormA(!showFormA)}>
                             {showFormA ? 'Cancel' : '+ Add Account'}
+                        </button>
+                        <button onClick={() => fetchPDF}>
+                            {showFormA ? 'Cancel' : 'PDF'}
                         </button>
                     </div> 
 

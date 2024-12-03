@@ -12,9 +12,12 @@ import random
 #REPORT LAB thinguies
 from django.http import FileResponse
 import io
+import base64
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter
+
+
 
 
 class UserRegister(APIView):    
@@ -348,12 +351,12 @@ class DebtDetailView(APIView):
         debt.delete()
         return Response({'message': 'Debt deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     
-class PDFgeneration(APIView):
+class PDFgeneration(APIView, canvas.Canvas):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request):
-        print("iniciando")
+
         buf = io.BytesIO()
         c = canvas.Canvas(buf, pagesize=letter,bottomup=0)
         textob = c.beginText()
@@ -361,11 +364,10 @@ class PDFgeneration(APIView):
         textob.setFont("Times-Roman",14)
 
         transactions = Transaction.objects.all() #model where we attain info for the doc
-        print("db fetched")
         lines = []
 
         for transaction in transactions:
-            print(f"Procesando transaction: {transaction}")
+
             categories = ",".join([cat.category_name for cat in transaction.category.all()])
             lines.append(f"Category: {categories}")
             lines.append(f"Account: {transaction.account}")
@@ -379,14 +381,22 @@ class PDFgeneration(APIView):
             textob.textLine(line)
         
         c.drawText(textob)
+
+        if 'chart_image' in request.data: 
+            chart_image_base64 = request.data['chart_image']
+            chart_image_data = base64.b64decode(chart_image_base64)
+            image_buf = io.BytesIO(chart_image_data)
+
+            c.drawImage(image_buf, x=100, y=400, width=400, height=300)
+
         c.showPage()
         c.save()
         buf.seek(0)
-
-        print("PDF generation complete")
 
         #return FileResponse
         response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
         response['Content-Type'] = 'application/pdf'
         return response
+    
+
 

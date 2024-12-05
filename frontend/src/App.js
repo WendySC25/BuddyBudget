@@ -6,6 +6,7 @@ import Transactions from './Components/Windows/Transactions';
 import Profile from './Components/Windows/Profile';
 import Reports from './Components/Windows/Reports';
 import Configuration from './Components/Windows/Configuration';
+import Debts from './Components/Windows/Debts';
 import client from './apiClient'; 
 import Categories from './Components/Windows/Categories';
 
@@ -76,6 +77,10 @@ if (loading) {
         <Route
           path="/transactions"
           element={isAuthenticated ? <Transactions handleLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/debts"
+          element={isAuthenticated ? <Debts handleLogout={handleLogout} /> : <Navigate to="/debts" />}
         />
         <Route
           path="/profile"

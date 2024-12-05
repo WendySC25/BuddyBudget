@@ -16,6 +16,7 @@ const Navbar = ({ handleLogout }) => {
             <ul className={menuOpen ? 'open' : ''}>
                 <li><Link to="/home">Home</Link></li>
                 <li><Link to="/transactions">Transactions</Link></li>
+                <li><Link to="/debts">Debts</Link></li>
                 <li><Link to="/profile">Profile</Link></li>
                 <li><Link to="/reports">Reports</Link></li>
                 <li><Link to="/configuration">Configuration</Link></li>

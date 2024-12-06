@@ -15,6 +15,10 @@ import random
 from django.http import FileResponse
 import io
 import base64
+from django.http import JsonResponse
+from django.conf import settings
+import os
+from urllib.request import urlopen
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter
@@ -372,3 +376,64 @@ class DebtDetailView(BaseModelMixin, APIView):
         debt = self.get_object(pk)
         debt.delete()
         return Response({"message": "Debt deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+class PDFgeneration(APIView, canvas.Canvas):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+
+        buf = io.BytesIO()
+        c = canvas.Canvas(buf, pagesize=letter,bottomup=0)
+        textob = c.beginText()
+        textob.setTextOrigin(inch,inch)
+        textob.setFont("Times-Roman",14)
+
+        transactions = Transaction.objects.all() #model where we attain info for the doc
+        lines = []
+
+        for transaction in transactions:
+
+            categories = ",".join([cat.category_name for cat in transaction.category.all()])
+            lines.append(f"Category: {categories}")
+            lines.append(f"Account: {transaction.account}")
+            lines.append(f"Amount: {transaction.amount}")
+            lines.append(f"Description: {transaction.description}")
+            lines.append(f"Date: {transaction.date}")
+            lines.append(f"Type: {transaction.type}")
+            lines.append(" ")
+        
+        for line in lines:
+            textob.textLine(line)
+        
+        c.drawText(textob)
+        c.showPage()
+        c.save()
+        buf.seek(0)
+
+        #return FileResponse
+        response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
+        response['Content-Type'] = 'application/pdf'
+        return response
+
+class UploadChart(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def post(self, request):
+        graphIm = request.data.get('image') #imagen de la request
+        
+        if graphIm.startswith('data:image/'):
+            header, graphIm = graphIm.split(',', 1)
+
+        dataIm = base64.b64decode(graphIm)
+
+        imagePath = os.path.join(settings.MEDIA_ROOT, 'charts', 'chart.png')
+        os.makedirs(os.path.dirname(imagePath), exist_ok=True)
+        with open(imagePath, 'wb') as f:
+            f.write(dataIm)
+
+        #url for image
+        imageURL= f"{settings.MEDIA_URL}charts/chart.png"
+        return JsonResponse({'url': imageURL})
+    

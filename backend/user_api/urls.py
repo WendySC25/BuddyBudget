@@ -19,7 +19,7 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('expchartdata/', views.ExpenseChartDataView.as_view(), name='expchartdata'),
-
     path('userlist/', views.UserList.as_view(), name='userlist/'),
-    path('transactions_pdf', views.PDFgeneration.as_view(), name= 'PDFgeneration')
+    path('transactions_pdf', views.PDFgeneration.as_view(), name= 'PDFgeneration'),
+    path('charts_png', views.UploadChart.as_view(), name= 'graph-png')
 ]

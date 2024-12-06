@@ -2,13 +2,51 @@ from django.contrib.auth import get_user_model, login, logout
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import permissions, status
+from django.shortcuts import get_object_or_404
+from .permissions import IsAdminOrOwner
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer 
 from .serializers import TransactionSerializer, CategorySerializer, AccountSerializer, DebtSerializer
-from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
 from .models import Transaction, Category, Account, Debt
 import random
 
+#AdminAPI
+class BaseModelMixin:
+    model = None
+    serializer_class = None
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return self.model.objects.all()
+        return self.model.objects.filter(user=self.request.user)
+
+    def get_object(self, pk):
+        queryset = self.get_queryset()
+        return get_object_or_404(queryset, pk=pk)
+
+    def get_target_user(self, request):
+        if request.user.is_staff:
+            user_id = request.data.get('user_id')
+            if not user_id:
+                raise Response(
+                    {"error": "Administrators must specify a user_id."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            target_user = get_user_model().objects.filter(pk=user_id).first()
+            if not target_user:
+                raise Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return target_user
+        return request.user
+
+class UserList(APIView):
+    permission_classes = (IsAdminOrOwner,)
+    authentication_classes = (JWTAuthentication,)
+
+    def get(self, request):
+        users = get_user_model().objects.all()
+        serilizer = UserSerializer(users, many = True)
+        return Response(serilizer.data, status=status.HTTP_201_CREATED)
 
 class UserRegister(APIView):    
     permission_classes = (permissions.AllowAny,)
@@ -38,6 +76,7 @@ class UserLogin(APIView):
 class UserLogout(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
+
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
@@ -74,183 +113,174 @@ class ProfileView(APIView):
             return Response({'profile': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
       
-class TransactionListCreateView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+class TransactionListCreateView(BaseModelMixin,  APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
+    model = Transaction
+    serializer_class = TransactionSerializer
 
     def get(self, request):
+        user_id = request.query_params.get('user_id')
         transaction_type = request.query_params.get('type', None)
-        only_categories  = request.query_params.get('only_categories', 'false').lower() == 'true'
-        category_id = request.query_params.get('category', None)
 
-        if only_categories:
-            if transaction_type and transaction_type in dict(CategoryType.choices):
-                categories = Category.objects.filter(user=request.user, type=transaction_type)
-            else:
-                categories = Category.objects.filter(user=request.user)
-            serializer = CategorySerializer(categories, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if user_id and request.user.is_staff:
+            user = get_object_or_404(get_user_model(), pk=user_id)
+            queryset = self.model.objects.filter(user=user)
+        else:
+            queryset = self.get_queryset()
 
         if transaction_type:
-            transactions = Transaction.objects.filter(user=request.user, type=transaction_type)
-        else:
-            transactions = Transaction.objects.filter(user=request.user)
-        
-        serializer = TransactionSerializer(transactions, many=True)
+            queryset = queryset.filter(type=transaction_type)
+
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
     def post(self, request):
-        is_category = request.data.get('is_category', False)
-
-        if is_category:
-            serializer = CategorySerializer(data=request.data)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save(user=request.user) 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = TransactionSerializer(data=request.data)
+        user = self.get_target_user(request)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user)
+            serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class TransactionDetailView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+       
+class TransactionDetailView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-
-    def get_object(self, pk):
-        try:
-            return Transaction.objects.get(pk=pk, user=self.request.user)
-        except Transaction.DoesNotExist:
-            raise Response(status=status.HTTP_404_NOT_FOUND)
+    model = Transaction
+    serializer_class = TransactionSerializer
 
     def get(self, request, pk):
         transaction = self.get_object(pk)
-        serializer = TransactionSerializer(transaction)
-        return Response(serializer.data)
+        serializer = self.serializer_class(transaction)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         transaction = self.get_object(pk)
-        serializer = TransactionSerializer(transaction, data=request.data, partial=True)
-
-        print(f"Received PUT data: {request.data}")
-        
+        serializer = self.serializer_class(transaction, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
-        
-        print(f"Validation failed: {serializer.errors}")
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         transaction = self.get_object(pk)
         transaction.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Transaction deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
     
-class CategoryListCreateView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+class CategoryListCreateView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
+    model = Category
+    serializer_class = CategorySerializer
 
     def get(self, request):
+        user_id = request.query_params.get('user_id')
         transaction_type = request.query_params.get('type', None)
-        if transaction_type:
-            categories = Category.objects.filter(user=request.user, type=transaction_type)
+
+        if user_id and request.user.is_staff:
+            user = get_object_or_404(get_user_model(), pk=user_id)
+            queryset = self.model.objects.filter(user=user)
         else:
-            categories = Category.objects.filter(user=request.user)
-        serializer = CategorySerializer(categories, many=True)
+            queryset = self.get_queryset()
+
+        if transaction_type:
+            queryset = queryset.filter(type=transaction_type)
+
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
     def post(self, request):
-        serializer = CategorySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
+        user = self.get_target_user(request)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CategoryDetailView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+class CategoryDetailView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-
-    def get_object(self, pk, user):
-        try:
-            return Category.objects.get(pk=pk, user=user)
-        except Category.DoesNotExist:
-            return None
+    model = Category
+    serializer_class = CategorySerializer
 
     def get(self, request, pk):
-        category = self.get_object(pk, request.user)
-        if not category:
-            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CategorySerializer(category)
+        category = self.get_object(pk)
+        serializer = self.serializer_class(category)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        category = self.get_object(pk, request.user)
-        if not category:
-            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = CategorySerializer(category, data=request.data, partial=True)
-        if serializer.is_valid():
+        category = self.get_object(pk)
+        serializer = self.serializer_class(category, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        category = self.get_object(pk, request.user)
-        if not category:
-            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+        category = self.get_object(pk)
         category.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Category deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
-class AccountListCreateView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+class AccountListCreateView(BaseModelMixin,  APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
+    model = Account
+    serializer_class = AccountSerializer
 
     def get(self, request):
-        accounts = Account.objects.filter(user=request.user)
-        serializer = AccountSerializer(accounts, many=True)
+        user_id = request.query_params.get('user_id')
+
+        if user_id and request.user.is_staff:
+            user = get_object_or_404(get_user_model(), pk=user_id)
+            queryset = self.model.objects.filter(user=user)
+        else:
+            queryset = self.get_queryset()
+
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
     def post(self, request):
-        serializer = AccountSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)  # Asigna automáticamente el usuario
+        user = self.get_target_user(request)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class AccountDetailView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+class AccountDetailView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
+    model = Account
+    serializer_class = AccountSerializer
 
-    def get_object(self, pk, user):
-        try:
-            return Account.objects.get(pk=pk, user=user)
-        except Account.DoesNotExist:
-            return None
+    def get(self, request):
+        user_id = request.query_params.get('user_id')
 
-    def get(self, request, pk):
-        account = self.get_object(pk, request.user)
-        if not account:
-            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AccountSerializer(account)
+        if user_id and request.user.is_staff:
+            user = get_object_or_404(get_user_model(), pk=user_id)
+            queryset = self.model.objects.filter(user=user)
+        else:
+            queryset = self.get_queryset()
+
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
     def put(self, request, pk):
-        account = self.get_object(pk, request.user)
-        if not account:
-            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = AccountSerializer(account, data=request.data, partial=True)
-        if serializer.is_valid():
+        account = self.get_object(pk)
+        serializer = self.serializer_class(account, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        account = self.get_object(pk, request.user)
-        if not account:
-            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+        account = self.get_object(pk)
         account.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Account deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 class ExpenseChartDataView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -289,54 +319,46 @@ class ExpenseChartDataView(APIView):
         }
 
         return Response(data, status=status.HTTP_200_OK)
-    
-class DebtListCreateView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+
+class DebtListCreateView(BaseModelMixin,  APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
+    model = Debt
+    serializer_class = DebtSerializer
 
     def get(self, request):
-        debts = Debt.objects.filter(user=request.user)
-        serializer = DebtSerializer(debts, many=True)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        data = request.data
-        serializer = DebtSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
+        user = self.get_target_user(request)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class DebtDetailView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+class DebtDetailView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-
-    def get_object(self, pk):
-        try:
-            return Debt.objects.get(pk=pk, user=self.request.user)
-        except Debt.DoesNotExist:
-            return None
+    model = Debt
+    serializer_class = DebtSerializer
 
     def get(self, request, pk):
         debt = self.get_object(pk)
-        if not debt:
-            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = DebtSerializer(debt)
+        serializer = self.serializer_class(debt)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         debt = self.get_object(pk)
-        if not debt:
-            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = DebtSerializer(debt, data=request.data)
-        if serializer.is_valid():
+        serializer = self.serializer_class(debt, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         debt = self.get_object(pk)
-        if not debt:
-            return Response({'error': 'Debt not found'}, status=status.HTTP_404_NOT_FOUND)
         debt.delete()
-        return Response({'message': 'Debt deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Debt deleted successfully."}, status=status.HTTP_204_NO_CONTENT)

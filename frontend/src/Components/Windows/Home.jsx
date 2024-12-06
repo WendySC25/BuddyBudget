@@ -1,14 +1,15 @@
 // Home.jsx
 import React from 'react';
 import Navbar from '../NavBar/Navbar';
+import CardItem from './CardItem.jsx';
+
 import './Home.css';
 
 const Home = ({ handleLogout }) => {
     return (
         <div className="home">
             <Navbar handleLogout={handleLogout} />
-            <h1>Welcome!</h1>
-            <p>This is the Home page.</p>
+            <CardItem />
         </div>
     );
 };

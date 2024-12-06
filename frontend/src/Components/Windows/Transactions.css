@@ -5,8 +5,8 @@
     margin: 0;
     width: 100%;
     height: 100%;
-    color: #333;     
-    background-color: #E8F0F2; 
+    color: #000000;     
+    background-color: #b9daeb;
     padding: 20px;
     width:100vw;
     padding-top: 150px; 
@@ -272,7 +272,6 @@
   font-size: 16;
 }
   
-/* Color Picker Field */
 .color-picker-field {
   display: flex;
   flex-direction: column;
@@ -280,29 +279,27 @@
   margin-top: 10px;
 }
 
-/* Color Picker Container */
 .color-picker-container {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* Input for Color Picker */
 .color-picker {
   width: 50px;
   height: 50px;
   cursor: pointer;
-  border-radius: 10px; /* Matches modern UI design */
+  border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   background-color: transparent;
 }
 
-/* Color Preview */
+
 .color-preview {
   display: inline-block;
   width: 350px;
   height: 40px;
-  border-radius: 5px; /* Rounded corners */
-  border: 1px solid #ccc; /* Subtle border for preview */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  border-radius: 5px; 
+  border: 1px solid #ccc; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
 }

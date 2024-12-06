@@ -381,14 +381,6 @@ class PDFgeneration(APIView, canvas.Canvas):
             textob.textLine(line)
         
         c.drawText(textob)
-
-        if 'chart_image' in request.data: 
-            chart_image_base64 = request.data['chart_image']
-            chart_image_data = base64.b64decode(chart_image_base64)
-            image_buf = io.BytesIO(chart_image_data)
-
-            c.drawImage(image_buf, x=100, y=400, width=400, height=300)
-
         c.showPage()
         c.save()
         buf.seek(0)

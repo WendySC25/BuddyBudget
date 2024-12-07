@@ -6,8 +6,26 @@ from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerial
 from .serializers import TransactionSerializer, CategorySerializer, AccountSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
-from .models import Transaction, Category, Account
+from .models import Transaction, Category, Account, AppUser
 import random
+from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponse
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+
+def verify_email(request, uidb64, token):
+    try:
+        uid  = urlsafe_base64_decode(uidb64).decode()
+        user = get_object_or_404(AppUser, pk=uid)
+    except (TypeError, ValueError, OverflowError):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return redirect('http://127.0.0.1:3000/') 
+    else:
+        return redirect('/http://127.0.0.1:3000/')
 
 
 class UserRegister(APIView):    

@@ -171,17 +171,20 @@ STATIC_ROOT = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SITE_ID = 1
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'buddybudgetMail@gmail.com'
-EMAIL_HOST_PASSWORD = 'edws031224'
-DEFAULT_FROM_EMAIL = 'buddybudgetMail@gmail.com'
+EMAIL_HOST_USER = 'buddybudgetmail@gmail.com'
+EMAIL_HOST_PASSWORD = 'kqveclmxxrbcwpmv'
 
 # Allauth settings
+ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_REQUIRED = True 
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1  
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_AUTHENTICATED_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_ON_GET = True

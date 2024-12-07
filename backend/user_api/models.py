@@ -2,6 +2,11 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.urls import reverse
 
 class AppUserManager(BaseUserManager):
 	def create_user(self, email, username, password=None):
@@ -11,9 +16,10 @@ class AppUserManager(BaseUserManager):
 			raise ValueError('A password is required.')
 		
 		email = self.normalize_email(email)
-		user = self.model(email=email, username=username)
+		user  = self.model(email=email, username=username)
 		user.set_password(password)
 		user.save()
+		self.send_verification_email(user)
 
 		Profile.objects.get_or_create(user=user)
 
@@ -39,7 +45,20 @@ class AppUserManager(BaseUserManager):
 			Account.objects.create(user=user, **account_data)
 
 		return user
-	
+
+	def send_verification_email(self, user):
+		subject          = "Verify your account"
+		token            = default_token_generator.make_token(user)
+		uid              = urlsafe_base64_encode(force_bytes(user.pk))
+		domain           = "http://127.0.0.1:8000"
+		verification_url = f"{domain}{reverse('verify_email', kwargs={'uidb64': uid, 'token': token})}"
+		message          = f"Hello {user.username}!, please verify your account clicking the next link:\n{verification_url}"
+		send_mail(
+			subject,
+		    message,
+		    "buddybudgetmail@gmail.com", 
+		    [user.email],
+		)
 
 	def create_superuser(self, email, username, password=None):
 		if not email:

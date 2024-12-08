@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LoginRegister from './Components/LoginRegister/LoginRegister';
 import Home from './Components/Windows/Home';
-import Superhome from './Components/Windows/Superhome';
 import Transactions from './Components/Windows/Transactions';
 import Profile from './Components/Windows/Profile';
 import Reports from './Components/Windows/Reports';

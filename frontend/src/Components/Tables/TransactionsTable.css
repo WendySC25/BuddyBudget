@@ -68,6 +68,14 @@
         border: none;
         background: transparent;
     }
+
+    .button .iconb {
+        background: transparent !important;  
+        border: none;            
+        padding: 10;             
+        cursor: pointer;        
+      } 
+
     
     button:hover {
         cursor: pointer;
@@ -127,6 +135,7 @@
     
     .row.header {
         color: #ffffff;
+        display: table-row; 
         background: #000000;
     }
     
@@ -138,6 +147,7 @@
         .row.header {
         padding: 0;
         height: 0px;
+        display: none;
         }
     
         .row.header .cell {
@@ -160,7 +170,7 @@
     }
     
     .cell {
-        display: table-cell;     
+        display: table-cell;
     }
     
     @media screen and (max-width: 768px) {
@@ -181,9 +191,11 @@
         border-bottom: 1px solid #f2f2f2;
         text-align: center;
         vertical-align: middle; 
+        
     }
     
     .row.header .cell {
+        
         font-family: 'Poppins', sans-serif;
         font-size: 18px;
         color: #fff;
@@ -198,7 +210,7 @@
     
     .row .cell:nth-child(1) {
         width: 120px;
-        padding-left: 40px;
+        padding: 40px;
     }
     
     .row .cell:nth-child(2) {
@@ -206,7 +218,7 @@
     }
     
     .row .cell:nth-child(3) {
-        width: 250px;
+        width: 200px;
     }
     
     .row .cell:nth-child(4) {
@@ -225,7 +237,7 @@
     .table, .row {  
         width: 100% !important;
     }
-    
+      
     /* .cell:hover {
         background-color: #e6e0e0;
         cursor: pointer;

@@ -3,9 +3,10 @@ import React, {useState} from 'react';
 import '../Windows/Transactions.css';
 import client from '../../apiClient.jsx';
 
-const AccountForm = ({ onSaveAccount }) => {
+const AccountForm = ({ onSaveAccount, isAdmin }) => {
 
     const [account_number, setAccount_number] = useState('');
+    const [user_id, setUser] = useState(0);
     const [account_name,setAccount_name] = useState('');
     const [bank_name,setBank_name] = useState('');
     const [expiry_date, setExpiryDate] = useState('');
@@ -17,6 +18,7 @@ const AccountForm = ({ onSaveAccount }) => {
         e.preventDefault();
 
         const data = {
+            user_id: user_id,
             account_name: account_name,
             account_type: account_type,
             bank_name: bank_name,
@@ -46,6 +48,20 @@ const AccountForm = ({ onSaveAccount }) => {
             <div className="modal-content">
                 <form onSubmit={handleSubmitA}>
                     <div className="transaction-form">
+
+                        {isAdmin && (
+                            <div className="transaction-field">
+                                <label htmlFor="user id">User ID</label>
+                                    <input
+                                        type="number"
+                                        id="user_id"
+                                        value={user_id}
+                                        onChange={(e) => setUser(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                        )}
+
                         <div className="transaction-field"> 
                             <label htmlFor="name">Account Name</label>
                             <input

@@ -125,20 +125,4 @@ body {
 	display: flex;
 	align-items: center;
 	color: #787878;
-	&:first-child:after {
-		display: block;
-		content: "";
-		width: 4px;
-		height: 4px;
-		border-radius: 50%;
-		background-color: currentcolor;
-		margin-left: .75rem;
-		margin-right: .75rem;
-	}
-	svg {
-		flex-shrink: 0;
-		width: 1em;
-		height: 1em;
-		margin-right: .25em;
-	}
 }

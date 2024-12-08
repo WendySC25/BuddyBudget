@@ -1,6 +1,6 @@
 //Categories.jsx
 import React,{ useState, useEffect } from 'react';
-import './CategoryCard.css'
+import './CardList.css'
 
 
 const CardList = ({categories, onEditCategory, onDeleteCategory}) => {
@@ -11,8 +11,10 @@ const CardList = ({categories, onEditCategory, onDeleteCategory}) => {
         {categories.map((category, index) => (
           <article className="card" key={index}>
             <figure className="card-image" style={{ backgroundColor: category.color }} />
+            
             <div className="card-header">
-              {category.category_name}
+             {category.category_name} 
+             
               <div className="button-group">
                 <button onClick={() => onEditCategory(category)} className="icon-button">
                   <img
@@ -28,6 +30,12 @@ const CardList = ({categories, onEditCategory, onDeleteCategory}) => {
                 </button>
               </div>
             </div>
+
+            <div className="card-footer">
+             <div className='card-meta' > User ID: {category.user} </div>
+             <div className='card-meta' > {category.type} </div>
+            </div>
+
           </article>
         ))}
       </div>

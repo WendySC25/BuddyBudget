@@ -95,6 +95,7 @@ class UserView(APIView):
             serializer.save()
             return Response({'user': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class ProfileView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -360,3 +361,27 @@ class DebtDetailView(BaseModelMixin, APIView):
         debt = self.get_object(pk)
         debt.delete()
         return Response({"message": "Debt deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+class UserDeleteView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
+    authentication_classes = (JWTAuthentication,)
+    model = get_user_model()
+
+    def delete(self, request, pk):
+        user = self.get_object(pk)
+        if not (request.user.is_staff or request.user == user):
+            return Response(
+                {"error": "No tienes permiso para realizar esta acción."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        user.profile.delete()
+        user.accounts.all().delete()
+        user.categories.all().delete()
+        user.transactions.all().delete()
+        user.debts.all().delete()
+        user.delete()
+
+        return Response(
+            {"message": "Usuario y todos los datos relacionados eliminados con éxito."},
+            status=status.HTTP_204_NO_CONTENT
+        )

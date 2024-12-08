@@ -21,4 +21,5 @@ urlpatterns = [
     path('expchartdata/', views.ExpenseChartDataView.as_view(), name='expchartdata'),
 
     path('userlist/', views.UserList.as_view(), name='userlist/'),
+    path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='delete_user'),
 ]

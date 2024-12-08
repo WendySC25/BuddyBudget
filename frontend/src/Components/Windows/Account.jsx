@@ -77,6 +77,7 @@ const Accounts = ({ handleLogout, isAdmin }) => {
             accounts = {accounts}
             onDeleteAccount   = {handleDeleteAccount}
             onEditAccount     = {handleEditAccount}
+            isAdmin={isAdmin}
         />
 
         {showFormA && <AccountForm

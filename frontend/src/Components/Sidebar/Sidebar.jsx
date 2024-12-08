@@ -11,7 +11,7 @@ const Sidebar = () => {
                 <div className="side-title">ADMIN PANEL</div>
                 <div className="side-menu">
                     <a className="sidebar-link is-active" ><svg viewBox="0 0 24 24" fill="currentColor"/>Dashboard</a>
-                    <a className="sidebar-link" ><svg viewBox="0 0 24 24" fill="currentColor"/><Link to="/superhome/subpage1">Users</Link></a>
+                    <a className="sidebar-link" ><svg viewBox="0 0 24 24" fill="currentColor"/><Link to="/superhome/users">Users</Link></a>
                     <a className="sidebar-link" ><svg viewBox="0 0 24 24" fill="currentColor"/><Link to="/superhome/transactions">Transactions</Link></a>
                     <a className="sidebar-link" ><svg viewBox="0 0 24 24" fill="currentColor"/><Link to="/superhome/categories">Categories</Link></a>
                     <a className="sidebar-link" ><svg viewBox="0 0 24 24" fill="currentColor"/><Link to="/superhome/accounts">Acounts</Link></a>

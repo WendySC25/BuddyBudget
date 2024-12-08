@@ -1,8 +1,9 @@
 // TransactionsTable.jsx
 import React, {useState} from 'react';
 import '../Tables/TransactionsTable.css';
+import UserForm from '../Forms/UserForm';
 
-const UserListTable = ({ users, onEditTransaction, onDeleteTransaction }) => {
+const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState(""); 
@@ -33,6 +34,7 @@ const UserListTable = ({ users, onEditTransaction, onDeleteTransaction }) => {
     });
 
     return (
+       
         <div className="limiter">
             <div className="container-table100">
                 <div className="wrap-table100">
@@ -72,7 +74,7 @@ const UserListTable = ({ users, onEditTransaction, onDeleteTransaction }) => {
                                     <div className="cell" data-title="Username">{user.username}</div>
                                     
                                     <div className="cell" data-title="Button"> 
-                                        <button onClick={() => onEditTransaction(user)} className="iconb">
+                                        <button onClick={() => onEditUser(user)} className="iconb">
                                             <img
                                                 src="https://img.icons8.com/?size=100&id=AuMLFRmG95tQ&format=png&color=000000" 
                                                 alt="Edit icon"
@@ -82,7 +84,7 @@ const UserListTable = ({ users, onEditTransaction, onDeleteTransaction }) => {
                                     </div>
 
                                     <div className="cell" data-title="Button" > 
-                                        <button onClick={() => onDeleteTransaction(user) } className="iconb">
+                                        <button onClick={() => onDeleteUser(user) } className="iconb">
                                             <img
                                                 src="https://img.icons8.com/?size=100&id=68064&format=png&color=000000" 
                                                 alt="Trash can icon "

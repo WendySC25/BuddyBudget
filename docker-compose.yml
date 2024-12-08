@@ -9,6 +9,7 @@ services:
       - db
     volumes:
       - ./backend:/app
+      - ./frontend/src/Components/Assets:/app/assets
     command: >
       sh -c "./wait-for-it.sh db:3306 -- python manage.py makemigrations && python manage.py migrate && python manage.py test  && python manage.py runserver 0.0.0.0:8000"
 

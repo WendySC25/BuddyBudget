@@ -10,6 +10,8 @@ from .serializers import TransactionSerializer, CategorySerializer, AccountSeria
 from .validations import custom_validation, validate_email, validate_password
 from .models import Transaction, Category, Account, Debt
 import random
+from datetime import datetime
+from django.db.models import Q
 
 #REPORT LAB thinguies
 from django.http import FileResponse
@@ -20,9 +22,11 @@ from django.conf import settings
 import os
 from urllib.request import urlopen
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter
-
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Image, Spacer
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.graphics.shapes import Line, LineShape, Drawing
 
 
 #AdminAPI
@@ -381,40 +385,72 @@ class PDFgeneration(APIView, canvas.Canvas):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
+    def header(self, canvas, doc):
+        page_width, page_height = letter
+        canvas.saveState()
+
+        logo_path = "/app/assets/BuddyBudget_black.png"
+        canvas.drawImage(logo_path, x=35, y=735, width=92, height=48) 
+        canvas.setFont("Times-Roman", 16)
+        text = "Transactions Report"
+        text_width = canvas.stringWidth(text, "Times-Roman", 16)
+        text_x = page_width - text_width - 30 
+        text_y = page_height - 50  
+        canvas.drawString(text_x, text_y, text)
+        canvas.setLineWidth(0.5)
+        line_y = page_height - 60
+        canvas.setLineWidth(0.5)
+        canvas.line(30, line_y, page_width - 30, line_y)
+        canvas.restoreState()
+
+
     def get(self, request):
 
         buf = io.BytesIO()
-        c = canvas.Canvas(buf, pagesize=letter,bottomup=0)
-        textob = c.beginText()
-        textob.setTextOrigin(inch,inch)
-        textob.setFont("Times-Roman",14)
+        # doc style
+        doc = SimpleDocTemplate(buf, pagesize=letter)
 
-        transactions = Transaction.objects.all() #model where we attain info for the doc
-        lines = []
+        today = datetime.today()
+        transactions = Transaction.objects.filter(
+            Q(date__month=today.month) & Q(date__year=today.year)
+        )
+
+        data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
 
         for transaction in transactions:
+            categories = ", ".join([cat.category_name for cat in transaction.category.all()])
+            data.append([
+                categories,
+                transaction.account,
+                transaction.amount,
+                transaction.description,
+                transaction.date.strftime("%d-%m-%Y"),
+                transaction.type,
+            ])
 
-            categories = ",".join([cat.category_name for cat in transaction.category.all()])
-            lines.append(f"Category: {categories}")
-            lines.append(f"Account: {transaction.account}")
-            lines.append(f"Amount: {transaction.amount}")
-            lines.append(f"Description: {transaction.description}")
-            lines.append(f"Date: {transaction.date}")
-            lines.append(f"Type: {transaction.type}")
-            lines.append(" ")
-        
-        for line in lines:
-            textob.textLine(line)
-        
-        c.drawText(textob)
-        c.showPage()
-        c.save()
-        buf.seek(0)
+        #create table
+        table = Table(data)
+
+        #table style
+        style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue), 
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Times-Roman'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ])
+        table.setStyle(style)
+
+        #adding table to pdf
+        doc.build([table], onFirstPage=self.header, onLaterPages=self.header)
 
         #return FileResponse
+        buf.seek(0)
         response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
         response['Content-Type'] = 'application/pdf'
         return response
+
 
 class UploadChart(APIView):
     permission_classes = (permissions.IsAuthenticated,)

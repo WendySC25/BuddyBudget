@@ -3,8 +3,8 @@
 :root {
  --body-font: "Inter", sans-serif;
  --theme-bg: #d4d4d4;
- --body-color: #808191;
- --button-bg: #353340;
+ --body-color: #000000;
+ --button-bg: #000000;
  --border-color: rgb(128 129 145 / 24%);
  --delay: 0s;
 }
@@ -133,9 +133,11 @@
 }
 
 .side-title {
- font-size: 12px;
+ font-size: 16px;
  letter-spacing: 0.07em;
  margin-bottom: 24px;
+ font-weight: 600;
+ color: #000000;
 }
 
 .side-wrapper {

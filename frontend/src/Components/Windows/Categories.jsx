@@ -5,7 +5,7 @@ import CategoryForm from '../Forms/CategoryForm.jsx';
 import CardList from '../Cards/CardList.jsx';
 import client from '../../apiClient.jsx';
 
-const Categories = ({ handleLogout }) => {
+const Categories = ({ handleLogout, isAdmin }) => {
 
     const [categories, setCategories] = useState([]);
     const [categoryToEdit, setCategoryToEdit] = useState(null);
@@ -75,7 +75,7 @@ const Categories = ({ handleLogout }) => {
     };
 
     return(
-    <div className="home">
+    <div className="transactions">
         <Navbar handleLogout={handleLogout} />
         <h1> Categories </h1>
 
@@ -89,6 +89,7 @@ const Categories = ({ handleLogout }) => {
         {showFormC && <CategoryForm
                         onSaveCategory ={handleSaveCategory}
                         categoryToEdit = {categoryToEdit}
+                        isAdmin={isAdmin}ß
                     />
         }
 

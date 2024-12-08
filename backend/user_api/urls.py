@@ -11,6 +11,8 @@ urlpatterns = [
     path('profile', views.ProfileView.as_view(), name='profile'),
     path('transactions/', views.TransactionListCreateView.as_view(), name='transaction-list-create'),
     path('transactions/<int:pk>/', views.TransactionDetailView.as_view(), name='transaction-detail'),
+    path('debts/', views.DebtListCreateView.as_view(), name='debt-list-create'),
+    path('debts/<int:pk>/', views.DebtDetailView.as_view(), name='debt-detail'),
     path('categories/', views.CategoryListCreateView.as_view(), name='category-list-create'),
     path('categories/<int:pk>/',  views.CategoryDetailView.as_view(), name='category-detail'),
     path('accounts/', views.AccountListCreateView.as_view(), name='account-list-create'),
@@ -18,4 +20,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('expchartdata/', views.ExpenseChartDataView.as_view(), name='expchartdata'),
+
+    path('userlist/', views.UserList.as_view(), name='userlist/'),
 ]

@@ -5,6 +5,7 @@
     import TransactionForm from '../Forms/TransactionForm.jsx';
     import CategoryForm from '../Forms/CategoryForm.jsx';
     import AccountForm from '../Forms/AccountForm.jsx';
+
     import './Transactions.css'
     import client from '../../apiClient.jsx';
 
@@ -16,7 +17,6 @@
         const [showForm, setShowForm]   = useState(false); 
         const [showFormC, setShowFormC] = useState(false); 
         const [showFormA, setShowFormA] = useState(false);         
-       
 
         useEffect(() =>{ 
             fetchAllT();
@@ -51,19 +51,22 @@
             setShowForm(false);  
         };
 
-        const handleDeleteTransaction = (transactionToDelete) => {
+        const handleDeleteTransaction = async (transactionToDelete) => {
             const endpoint = `/api/transactions/${transactionToDelete.id}/`;
-            client.delete(endpoint)
-            .then(
-                //There is a bug here!  
-               
-            )
-            .catch(error => {
-                console.error('Error deleating transaction:', error);
-            });
-            fetchAllT()
-            
-        }
+            try {
+                await client.delete(endpoint, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                });
+                console.log(`Transaction with ID ${transactionToDelete.id} deleted successfully.`);
+                // Elimina localmente la transacción del estado
+                setTransactions((prevTransactions) =>
+                    prevTransactions.filter((transaction) => transaction.id !== transactionToDelete.id)
+                );
+            } catch (error) {
+                console.error('Error deleting transaction:', error);
+            }
+        };
+
 
         const handleSaveCategory = () => {
             setShowFormC(false);  
@@ -86,10 +89,12 @@
 
     
         return (
+
             <div className="transaction">
                 <Navbar handleLogout={handleLogout} />
                 <h1>Transactions Page</h1>
 
+               
                 <div className="table-container">
                     <div className="table-header-buttons">
                         <button onClick={() => {setShowForm(!showForm);} }>

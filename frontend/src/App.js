@@ -6,7 +6,9 @@ import Transactions from './Components/Windows/Transactions';
 import Profile from './Components/Windows/Profile';
 import Reports from './Components/Windows/Reports';
 import Configuration from './Components/Windows/Configuration';
+import Debts from './Components/Windows/Debts';
 import client from './apiClient'; 
+import Categories from './Components/Windows/Categories';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
@@ -77,6 +79,10 @@ if (loading) {
           element={isAuthenticated ? <Transactions handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
         <Route
+          path="/debts"
+          element={isAuthenticated ? <Debts handleLogout={handleLogout} /> : <Navigate to="/debts" />}
+        />
+        <Route
           path="/profile"
           element={isAuthenticated ? <Profile handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
@@ -87,6 +93,10 @@ if (loading) {
         <Route
           path="/configuration"
           element={isAuthenticated ? <Configuration handleLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
+         <Route
+          path="/categories"
+          element={isAuthenticated ? <Categories handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
 
         {/* Página de login, Redirección Inicial */}

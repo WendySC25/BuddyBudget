@@ -103,7 +103,6 @@ class AccountType(models.TextChoices):
     DEBIT  = 'DEBIT', 'Débito'
     CASH   = 'CASH', 'Efectivo'
 
-
 class Account(models.Model):
 	user 			= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='accounts')
 	account_type = models.CharField(
@@ -152,3 +151,14 @@ class Transaction(models.Model):
     def __str__(self):
         return f"{self.amount} - {self.category.name} ({self.account.account_name}) - {self.get_type_display()}"
 	
+class Debt(models.Model):
+    user     	      = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='debts')
+    description       = models.TextField(blank=True, null=True)
+    creditor          = models.TextField(blank=True, null=True)
+    amount 	 	      = models.DecimalField(max_digits=10, decimal_places=2)
+    months_to_pay     = models.PositiveIntegerField()
+    has_interest      = models.BooleanField(default=False)
+    last_payment_date = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.amount} - {self.creditor} ({self.last_payment_date}) - {self.get_type_display()}"

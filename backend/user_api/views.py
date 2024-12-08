@@ -22,6 +22,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image
 import matplotlib.pyplot as plt
+from collections import defaultdict
 from matplotlib.colors import to_hex
 
 
@@ -399,20 +400,119 @@ class PDFgeneration(APIView):
         canvas.line(30, line_y, page_width - 30, line_y)
         canvas.restoreState()
     
-    def create_graph(self):
-        # Create a simple bar graph for example
-        transactions = Transaction.objects.all()
-        categories = [", ".join(cat.category_name for cat in tx.category.all()) for tx in transactions]
-        amounts = [tx.amount for tx in transactions]
+    def create_graphL(self):
+        today = datetime.today()
+        transactions = Transaction.objects.filter(
+            Q(date__month=today.month) & Q(date__year=today.year)
+        )
 
-        plt.figure(figsize=(8, 4))
-        plt.bar(categories, amounts, color='skyblue')
-        plt.xlabel("Categories")
-        plt.ylabel("Amounts")
-        plt.title("Transaction Amounts by Category")
+        data = defaultdict(lambda: {'income': 0, 'expense': 0})
+
+        for transaction in transactions:
+            date = transaction.date.strftime('%d-%m-%Y') 
+            if transaction.type == 'INC': 
+                data[date]['income'] += float(transaction.amount)
+            elif transaction.type == 'EXP': 
+                data[date]['expense'] += float(transaction.amount)
+
+        sorted_data = sorted(data.items(), key=lambda x: x[0])
+        dates = [item[0] for item in sorted_data]
+        incomes = [item[1]['income'] for item in sorted_data]
+        expenses = [item[1]['expense'] for item in sorted_data]
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(dates, incomes, label='Income', marker='o', linestyle='-', linewidth=2)
+        plt.plot(dates, expenses, label='Expense', marker='o', linestyle='-', linewidth=2)
+        plt.title('Incomes and Expenses')
+        plt.legend()
+        plt.grid(True)
+        plt.xticks(rotation=45)
         plt.tight_layout()
 
-        # Save graph to BytesIO
+        graph_buffer = BytesIO()
+        plt.savefig(graph_buffer, format='png')
+        graph_buffer.seek(0)
+        plt.close()
+
+        return graph_buffer
+    
+    def create_graphPI(self):
+        category_total = defaultdict(float)
+        category_colors = {}
+
+        #fetching only income categories
+        categories = Category.objects.filter(type='INC')
+
+        for category in categories:
+            #sum amounts per category
+            today = datetime.today()
+            transactions = Transaction.objects.filter(
+                Q(date__month=today.month) & Q(date__year=today.year) & Q(category=category)
+            )
+            total_amount = sum(tx.amount for tx in transactions)
+
+            if total_amount > 0:
+                category_total[category.category_name] = total_amount
+                category_colors[category.category_name] = category.color
+
+        labels = list(category_total.keys())
+        sizes = list(category_total.values())
+        colors = [category_colors[label] for label in labels]  #using colors defined by user
+
+        plt.figure(figsize=(8, 8))
+        plt.pie(
+            sizes,
+            labels=labels,
+            colors=colors,
+            autopct='%1.1f%%',
+            startangle=90,
+            wedgeprops={'edgecolor': 'white', 'linewidth': 1}
+        )
+
+        plt.title("Incomes by Category", fontsize=16)
+
+        graph_buffer = BytesIO()
+        plt.savefig(graph_buffer, format='png')
+        graph_buffer.seek(0)
+        plt.close()
+
+        return graph_buffer
+    
+    def create_graphPE(self):
+        category_total = defaultdict(float)
+        category_colors = {}
+
+        #fetching only expense categories
+        categories = Category.objects.filter(type='EXP')
+
+        for category in categories:
+            #sum amounts per category
+            today = datetime.today()
+            transactions = Transaction.objects.filter(
+                Q(date__month=today.month) & Q(date__year=today.year) & Q(category=category)
+            )
+            total_amount = sum(tx.amount for tx in transactions)
+
+            if total_amount > 0:
+                category_total[category.category_name] = total_amount
+                category_colors[category.category_name] = category.color
+
+        labels = list(category_total.keys())
+        sizes = list(category_total.values())
+        colors = [category_colors[label] for label in labels]  #using colors defined by user
+
+        plt.figure(figsize=(8, 8))
+        plt.pie(
+            sizes,
+            labels=labels,
+            colors=colors,
+            autopct='%1.1f%%',
+            startangle=90,
+            wedgeprops={'edgecolor': 'white', 'linewidth': 1}
+        )
+
+        plt.title("Expenses by Category", fontsize=16)
+
         graph_buffer = BytesIO()
         plt.savefig(graph_buffer, format='png')
         graph_buffer.seek(0)
@@ -458,11 +558,17 @@ class PDFgeneration(APIView):
         ])
         table.setStyle(style)
 
-        graph_buffer = self.create_graph()
+        graph_buffer = self.create_graphL()
         graph_image = Image(graph_buffer, width=400, height=300)
+        graph_buffer1 = self.create_graphPI()
+        graph_image1 = Image(graph_buffer1, width=400, height=400)
+        graph_buffer2 = self.create_graphPE()
+        graph_image2 = Image(graph_buffer2, width=400, height=400)
         elements = [
             table,
-            graph_image
+            graph_image,
+            graph_image1,
+            graph_image2
         ]
 
         # adding table and graphs to pdf

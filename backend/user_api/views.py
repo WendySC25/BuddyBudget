@@ -15,18 +15,14 @@ from django.db.models import Q
 
 #REPORT LAB thinguies
 from django.http import FileResponse
+from io import BytesIO
 import io
-import base64
-from django.http import JsonResponse
-from django.conf import settings
-import os
-from urllib.request import urlopen
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Image, Spacer
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.graphics.shapes import Line, LineShape, Drawing
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image
+import matplotlib.pyplot as plt
+from matplotlib.colors import to_hex
 
 
 #AdminAPI
@@ -381,7 +377,7 @@ class DebtDetailView(BaseModelMixin, APIView):
         debt.delete()
         return Response({"message": "Debt deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
-class PDFgeneration(APIView, canvas.Canvas):
+class PDFgeneration(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
@@ -402,7 +398,27 @@ class PDFgeneration(APIView, canvas.Canvas):
         canvas.setLineWidth(0.5)
         canvas.line(30, line_y, page_width - 30, line_y)
         canvas.restoreState()
+    
+    def create_graph(self):
+        # Create a simple bar graph for example
+        transactions = Transaction.objects.all()
+        categories = [", ".join(cat.category_name for cat in tx.category.all()) for tx in transactions]
+        amounts = [tx.amount for tx in transactions]
 
+        plt.figure(figsize=(8, 4))
+        plt.bar(categories, amounts, color='skyblue')
+        plt.xlabel("Categories")
+        plt.ylabel("Amounts")
+        plt.title("Transaction Amounts by Category")
+        plt.tight_layout()
+
+        # Save graph to BytesIO
+        graph_buffer = BytesIO()
+        plt.savefig(graph_buffer, format='png')
+        graph_buffer.seek(0)
+        plt.close()
+
+        return graph_buffer
 
     def get(self, request):
 
@@ -442,8 +458,15 @@ class PDFgeneration(APIView, canvas.Canvas):
         ])
         table.setStyle(style)
 
-        #adding table to pdf
-        doc.build([table], onFirstPage=self.header, onLaterPages=self.header)
+        graph_buffer = self.create_graph()
+        graph_image = Image(graph_buffer, width=400, height=300)
+        elements = [
+            table,
+            graph_image
+        ]
+
+        # adding table and graphs to pdf
+        doc.build(elements, onFirstPage=self.header, onLaterPages=self.header)
 
         #return FileResponse
         buf.seek(0)
@@ -451,25 +474,4 @@ class PDFgeneration(APIView, canvas.Canvas):
         response['Content-Type'] = 'application/pdf'
         return response
 
-
-class UploadChart(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (JWTAuthentication,)
-
-    def post(self, request):
-        graphIm = request.data.get('image') #imagen de la request
-        
-        if graphIm.startswith('data:image/'):
-            header, graphIm = graphIm.split(',', 1)
-
-        dataIm = base64.b64decode(graphIm)
-
-        imagePath = os.path.join(settings.MEDIA_ROOT, 'charts', 'chart.png')
-        os.makedirs(os.path.dirname(imagePath), exist_ok=True)
-        with open(imagePath, 'wb') as f:
-            f.write(dataIm)
-
-        #url for image
-        imageURL= f"{settings.MEDIA_URL}charts/chart.png"
-        return JsonResponse({'url': imageURL})
     

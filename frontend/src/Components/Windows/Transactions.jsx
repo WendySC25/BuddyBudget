@@ -134,6 +134,7 @@
 
                 {showFormA && <AccountForm
                                 onSaveAccount={handleSaveAccount}
+                                isAdmin={isAdmin}
                             />}
             </div>
         );

@@ -31,9 +31,9 @@ const CardListA = ({accounts, onEditAccount, onDeleteAccount, isAdmin}) => {
             </div>
 
             <div className="card-footer">
-             <div className='card-meta' > {account.account_type} </div>
-             {isAdmin && ( <div className='card-meta' > User ID: {account.user} </div>)}
+             {isAdmin && ( <div className='card-meta' > User ID: {account.user} </div>)}         
             </div>
+            <div className='card-meta' > {account.account_type} </div>
 
             {account.account_type != 'CASH' && (
             <div>

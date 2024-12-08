@@ -53,7 +53,14 @@ const DebtsTable = ({ debts, onEditDebt, onDeleteDebt }) => {
                             ))
                         ) : (
                             <div className="row">
-                                <div className="cell" colSpan="8">No debts found</div>
+                                <div className="cell" colSpan="6">No debts found</div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
+                                <div className="cell"></div>
+                                <div className="cell"></div> <div className="cell"></div>
+
                             </div>
                         )}
                     </div>

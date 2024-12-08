@@ -297,11 +297,9 @@ class ExpenseChartDataView(APIView):
         for transaction in expenses:
             categories = transaction.category.all()
 
-            #Crear la combinación de categorías como una cadena ordenada
             category_names = sorted([cat.category_name for cat in categories])
             category_combination = " & ".join(category_names)
 
-            # Sumar el monto de la transacción a la combinación de categorías
             if category_combination in category_combinations:
                 category_combinations[category_combination] += transaction.amount
             else:

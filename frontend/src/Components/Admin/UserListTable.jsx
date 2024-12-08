@@ -34,15 +34,14 @@ const UserListTable = ({ users, onEditTransaction, onDeleteTransaction }) => {
 
     return (
         <div className="limiter">
-            
-
             <div className="container-table100">
                 <div className="wrap-table100">
                     <div className="table">
                         {/* Header */}
 
                         <div className="row header">
-                            <div className="cell"></div>
+                            <div className="cell"> </div>
+                        
                             <div className="cell" onClick={() => handleSort("User ID")}> 
                                 User ID  {sortBy === "user_id" && (sortOrder === "asc" ? "↑" : "↓")}
                             </div>
@@ -111,8 +110,9 @@ const UserListTable = ({ users, onEditTransaction, onDeleteTransaction }) => {
                         )}
                     </div>
                 </div>
-            </div>
-        </div>
+                </div>
+                </div>
+        
 
     );
 };

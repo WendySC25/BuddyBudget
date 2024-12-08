@@ -88,7 +88,7 @@ const AdminRoutes = () => {
                         {/* <Route path="transactions" element={<TransactionsTable transactions={t} />} /> */}
                         <Route path="transactions" element={<Transactions isAdmin = {true} />} />
                         <Route path="categories" element={<Categories isAdmin = {true} />} />
-                        <Route path="debts" element={<Debts/>} />
+                        <Route path="debts" element={<Debts isAdmin={true}/>} />
                         
                     </Route>
                 </Routes>

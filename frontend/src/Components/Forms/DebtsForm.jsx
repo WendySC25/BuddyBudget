@@ -4,7 +4,7 @@ import '../Windows/Transactions.css';
 import client from '../../apiClient.jsx';
 
 // Declaracion del componente DebtsForm, recibe la funcion onSaveDebt para ejecutar acciones cuando se guarde la deuda y contiene la deuda que se va a editar (si existe)
-const DebtsForm = ({ onSaveDebt, debtToEdit }) => {
+const DebtsForm = ({ onSaveDebt, debtToEdit, isAdmin }) => {
     const [description, setDescription] = useState('');
     const [creditor, setCreditor] = useState('');
     const [amount, setAmount] = useState('');
@@ -12,6 +12,8 @@ const DebtsForm = ({ onSaveDebt, debtToEdit }) => {
     const [hasInterest, setHasInterest] = useState(false);
     const [lastPaymentDate, setLastPaymentDate] = useState('');
     const [message, setMessage] = useState('');
+
+    const [user_id, setUser] = useState(0);
 
     // Si existe una deuda a editar, llena los estados con los valores correspondientes
     useEffect(() => {
@@ -22,6 +24,7 @@ const DebtsForm = ({ onSaveDebt, debtToEdit }) => {
             setMonthsToPay(debtToEdit.months_to_pay);
             setHasInterest(debtToEdit.has_interest);
             setLastPaymentDate(debtToEdit.last_payment_date);
+            setUser(debtToEdit.user);
         }
     }, [debtToEdit]);
 
@@ -31,6 +34,7 @@ const DebtsForm = ({ onSaveDebt, debtToEdit }) => {
 
         // Datos que se enviaran 
         const data = {
+            user_id: user_id,
             description,
             creditor,
             amount,
@@ -81,6 +85,20 @@ const DebtsForm = ({ onSaveDebt, debtToEdit }) => {
             <div className="modal-content">
                 <form onSubmit={handleSubmit}>
                     <div className="transaction-form">
+
+                        {isAdmin && (
+                            <div className="transaction-field">
+                                <label htmlFor="user id">User ID</label>
+                                    <input
+                                        type="number"
+                                        id="user_id"
+                                        value={user_id}
+                                        onChange={(e) => setUser(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                        )}
+                                
                         <div className="transaction-field">
                             <label htmlFor="description">Description</label>
                             <input

@@ -7,7 +7,7 @@ import DebtsForm from '../Forms/DebtsForm.jsx';
 import './Transactions.css'
 import client from '../../apiClient.jsx';
 
-const Debts = ({ handleLogout }) => {
+const Debts = ({ handleLogout, isAdmin }) => {
 
     const [debts, setDebts] = useState([]); // Estado para almacenar la lista de deudas
     const [debtToEdit, setDebtToEdit] = useState(null); // Estado para almacenar la deuda que se va a editar
@@ -95,6 +95,7 @@ const Debts = ({ handleLogout }) => {
             {showForm && <DebtsForm
                 onSaveDebt={handleSaveDebt}
                 debtToEdit={debtToEdit}
+                isAdmin={isAdmin}
             />}
         </div>
     );

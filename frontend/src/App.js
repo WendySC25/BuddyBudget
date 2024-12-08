@@ -12,6 +12,7 @@ import Categories from './Components/Windows/Categories';
 import EmailVerified from './Components/Windows/EmailVerified.jsx';
 import EmailNoVerified from './Components/Windows/EmailNoVerified.jsx';
 import AdminRoutes from './Components/Admin/AdminRoutes';
+import Accounts from './Components/Windows/Account';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
@@ -27,6 +28,11 @@ function App() {
     .then((res) => {
       if(res.data.user.is_staff) {
         setIsSuperuser(true);
+        console.log('is staff')
+        console.log('is staff')
+        console.log('is staff')
+        console.log('is staff')
+        console.log('is staff')
         console.log('is staff')
       }
     })
@@ -121,6 +127,11 @@ if (loading) {
         <Route path="/email-verified" element={<EmailVerified />} />
         <Route path="/email-unverified" element={<EmailNoVerified />} />
 
+
+        <Route
+          path="/accounts"
+          element={isAuthenticated ? <Accounts handleLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
 
         {/* Página de login, Redirección Inicial */}
         <Route

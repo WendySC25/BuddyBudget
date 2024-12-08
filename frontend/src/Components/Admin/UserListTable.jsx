@@ -104,8 +104,7 @@ const UserListTable = ({ users, onEditTransaction, onDeleteTransaction }) => {
                                 <div className="cell"></div>
                                 <div className="cell"></div>
                                 <div className="cell"></div>
-                                <div className="cell"></div>
-                                <div className="cell"></div>
+                                
                             </div>
                         )}
                     </div>

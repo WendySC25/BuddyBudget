@@ -8,6 +8,7 @@ import client from '../../apiClient.jsx';
 import Transactions from '../Windows/Transactions.jsx';
 import Debts from '../Windows/Debts.jsx';
 import Categories from '../Windows/Categories.jsx';
+import Accounts from '../Windows/Account.jsx';
 
 const AdminRoutes = () => {
 
@@ -85,9 +86,9 @@ const AdminRoutes = () => {
                         {/* Rutas internas de Superhome */}
                         <Route index element={<Home />} />
                         <Route path="subpage1" element={<UserListTable users={users} />} />
-                        {/* <Route path="transactions" element={<TransactionsTable transactions={t} />} /> */}
                         <Route path="transactions" element={<Transactions isAdmin = {true} />} />
-                        <Route path="categories" element={<Categories isAdmin = {true} />} />
+                        <Route path="categories" element={<Categories isAdmin={true} /> } />
+                        <Route path="accounts" element={<Accounts isAdmin = {true} />} />
                         <Route path="debts" element={<Debts isAdmin={true}/>} />
                         
                     </Route>

@@ -10,6 +10,7 @@ import Debts from './Components/Windows/Debts';
 import client from './apiClient'; 
 import Categories from './Components/Windows/Categories';
 import AdminRoutes from './Components/Admin/AdminRoutes';
+import Accounts from './Components/Windows/Account';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
@@ -25,6 +26,11 @@ function App() {
     .then((res) => {
       if(res.data.user.is_staff) {
         setIsSuperuser(true);
+        console.log('is staff')
+        console.log('is staff')
+        console.log('is staff')
+        console.log('is staff')
+        console.log('is staff')
         console.log('is staff')
       }
     })
@@ -115,6 +121,11 @@ if (loading) {
          <Route
           path="/categories"
           element={isAuthenticated ? <Categories handleLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/accounts"
+          element={isAuthenticated ? <Accounts handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
 
         {/* Página de login, Redirección Inicial */}

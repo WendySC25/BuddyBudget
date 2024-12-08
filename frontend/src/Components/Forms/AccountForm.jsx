@@ -1,9 +1,9 @@
 // AccountForm.jsx
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import '../Windows/Transactions.css';
 import client from '../../apiClient.jsx';
 
-const AccountForm = ({ onSaveAccount, isAdmin }) => {
+const AccountForm = ({ onSaveAccount, accountToEdit, isAdmin }) => {
 
     const [account_number, setAccount_number] = useState('');
     const [user_id, setUser] = useState(0);
@@ -13,6 +13,17 @@ const AccountForm = ({ onSaveAccount, isAdmin }) => {
     const [account_type, setAccountType] = useState('');
     
     const [message, setMessage] = useState('');
+
+    useEffect(() => {
+        if(accountToEdit){
+            setUser(accountToEdit.user);
+            setAccount_number(accountToEdit.account_number);
+            setAccount_name(accountToEdit.account_name);
+            setBank_name(accountToEdit.bank_name);
+            setAccountType(accountToEdit.account_type);
+            
+        }
+    }, [accountToEdit]);
 
     const handleSubmitA = (e) => { 
         e.preventDefault();
@@ -29,15 +40,27 @@ const AccountForm = ({ onSaveAccount, isAdmin }) => {
             data.expiry_date = expiry_date;
         }
 
-        const endpoint = '/api/accounts/';
-        client.post(endpoint,data)
-        .then(() => {
-            setMessage(`Account added successfully!`);
-        })
-        .catch((error) => {
-            console.error('Error while creating account:', error.response?.data || error.message);
-            setMessage('Failed to add account');
-        });
+        if(accountToEdit){
+            const endpoint = `/api/accounts/${accountToEdit.id}/`;
+            client.put(endpoint, data)
+            .then(() => { })
+            .catch((error) => {
+                console.error('Error while updating account:', error.response?.data || error.message);
+                setMessage('Failed to add account');
+            });
+
+        } else {
+
+            const endpoint = '/api/accounts/';
+            client.post(endpoint,data)
+            .then(() => {
+                setMessage(`Account added successfully!`);
+            })
+            .catch((error) => {
+                console.error('Error while creating account:', error.response?.data || error.message);
+                setMessage('Failed to add account');
+            });
+        }
 
         onSaveAccount();
         
@@ -126,7 +149,9 @@ const AccountForm = ({ onSaveAccount, isAdmin }) => {
                         </div> 
 
                     </div>
-                    <button type="submit">Add Account</button>
+                    <button type="submit">
+                        {accountToEdit ? 'Update Account' : 'Add Account'}
+                    </button>
                     <button
                         type="button"
                         onClick={() => onSaveAccount()}

@@ -5,9 +5,9 @@ import Sidebar from '../Sidebar/Sidebar';
 import MainContainer from './MainContainer';
 import UserListTable from './UserListTable';
 import client from '../../apiClient.jsx';
-import UsersCategory from './UsersCategory.jsx';
-import TransactionsTable from '../Tables/TransactionsTable.jsx';
-import DebtsTable from '../Tables/DebtsTable.jsx';
+import Transactions from '../Windows/Transactions.jsx';
+import Debts from '../Windows/Debts.jsx';
+import Categories from '../Windows/Categories.jsx';
 
 const AdminRoutes = () => {
 
@@ -85,9 +85,10 @@ const AdminRoutes = () => {
                         {/* Rutas internas de Superhome */}
                         <Route index element={<Home />} />
                         <Route path="subpage1" element={<UserListTable users={users} />} />
-                        <Route path="transactions" element={<TransactionsTable transactions={t} />} />
-                        <Route path="categories" element={<UsersCategory categories={categories} />} />
-                        <Route path="debts" element={<DebtsTable debts={d} />} />
+                        {/* <Route path="transactions" element={<TransactionsTable transactions={t} />} /> */}
+                        <Route path="transactions" element={<Transactions isAdmin = {true} />} />
+                        <Route path="categories" element={<Categories isAdmin = {true} />} />
+                        <Route path="debts" element={<Debts/>} />
                         
                     </Route>
                 </Routes>

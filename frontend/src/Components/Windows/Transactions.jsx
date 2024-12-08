@@ -6,10 +6,11 @@
     import CategoryForm from '../Forms/CategoryForm.jsx';
     import AccountForm from '../Forms/AccountForm.jsx';
 
+
     import './Transactions.css'
     import client from '../../apiClient.jsx';
 
-    const Transactions = ({ handleLogout }) => {
+    const Transactions = ({ handleLogout, isAdmin }) => {
 
         const [transactions, setTransactions] = useState([]);
         const [transactionToEdit, setTransactionToEdit] = useState(null);
@@ -145,11 +146,13 @@
                 {showForm && <TransactionForm
                                 onSaveTransaction={handleSaveTransaction}
                                 transactionToEdit={transactionToEdit} 
+                                isAdmin={isAdmin}
                             />
                 }
 
                 {showFormC && <CategoryForm
                                 onSaveCategory={handleSaveCategory}
+                                isAdmin={isAdmin}
                             />
                 }
 

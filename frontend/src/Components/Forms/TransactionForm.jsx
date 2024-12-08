@@ -4,10 +4,10 @@ import '../Windows/Transactions.css';
 import client from '../../apiClient.jsx';
 
 
-const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
+const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit, isAdmin }) => {
     const [categories, setCategories] = useState([]);
     const [accounts, setAccount] = useState([]);
-
+    const [user_id, setUser] = useState(0);
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [transactionType, setTransactionType] = useState('');
@@ -15,11 +15,9 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
     const [selectedAccount, setSelectedAccount] = useState('');
     const [date, setDate] = useState('');
     const [message, setMessage] = useState('');
-   
-    useEffect(() =>{ 
-        fetchAllC();
-        fetchAllA();
 
+
+    useEffect(() =>{ 
         if (transactionToEdit) {
             setAmount(transactionToEdit.amount);
             setDescription(transactionToEdit.description);
@@ -27,30 +25,56 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
             setSelectedCategories(transactionToEdit.category.map((cat) => cat.id));
             setSelectedAccount(transactionToEdit.account.id);
             setDate(transactionToEdit.date);
+            setUser(transactionToEdit.user);
         }
     }, [transactionToEdit]);
 
-    const fetchAllC = async () => {
-        try {   
-            const responseC = await client.get('/api/categories/', {
+    useEffect(() => {
+        if (isAdmin && user_id) {
+            fetchAllC(user_id);
+            fetchAllA(user_id); 
+        }       
+
+    }, [user_id, isAdmin]);
+    
+    useEffect(() => {
+        if (!isAdmin) {
+            fetchAllC(); 
+            fetchAllA();
+        }
+    }, [transactionToEdit, isAdmin]);
+
+    const fetchAllC = async (selectedUserId) => {
+        try {
+            const endpoint = isAdmin && selectedUserId
+                ? `/api/categories/?user_id=${selectedUserId}`
+                : '/api/categories/';
+    
+            const responseC = await client.get(endpoint, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             });
+    
             setCategories(responseC.data);
             console.log('Fetched categories:', responseC.data);
         } catch (error) {
             console.error('Error fetching categories:', error);
         }
     };
-
-    const fetchAllA = async () => {
-        try {   
-            const responseA = await client.get('/api/accounts/', {
+    
+    const fetchAllA = async (selectedUserId) => {
+        try {
+            const endpoint = isAdmin && selectedUserId
+                ? `/api/accounts/?user_id=${selectedUserId}`
+                : '/api/accounts/';
+    
+            const responseA = await client.get(endpoint, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
             });
+    
             setAccount(responseA.data);
             console.log('Fetched accounts:', responseA.data);
         } catch (error) {
-            console.error('Error fetching categories:', error);
+            console.error('Error fetching accounts:', error);
         }
     };
 
@@ -66,6 +90,8 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
         e.preventDefault();
 
         const data = {
+            user_id : user_id,
+
             category: selectedCategories,
             account: selectedAccount,
             amount: amount,
@@ -90,7 +116,9 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
             });
             
         } else {
-            const endpoint = '/api/transactions/';
+
+            const endpoint =`/api/transactions/`;        
+                
             client.post(endpoint,data)
             .then(() => {
                 setMessage(`${transactionType} added successfully!`);   
@@ -111,6 +139,7 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
         setSelectedCategories([]);   
         setTimeout(() => setMessage(''), 3000);
         onSaveTransaction();  
+        setUser(0);
     
     }
 
@@ -139,6 +168,18 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
                     {transactionType && (
                         <form onSubmit={handleSubmit}>
                             <div className="transaction-form">
+                                {isAdmin && (
+                                <div className="transaction-field">
+                                    <label htmlFor="amount">User ID</label>
+                                    <input
+                                        type="number"
+                                        id="user_id"
+                                        value={user_id}
+                                        onChange={(e) => setUser(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                )}
                                 <div className="transaction-field">
                                     <label htmlFor="amount">Amount</label>
                                     <input
@@ -175,6 +216,7 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
                                         <div className="categories-container">
                                             {categories
                                             .filter((cat) => cat.type === transactionType) 
+                                       
                                             .map((filteredCategory) => (
                                                 // This line
                                             <div key={filteredCategory.id} className="category-item">
@@ -203,7 +245,8 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit }) => {
                                         <option value="" disabled>
                                             Select an account
                                         </option>
-                                        {accounts.map((acc) => (
+                                        {accounts
+                                        .map((acc) => (
                                             <option key={acc.id} value={acc.id}>
                                                 {acc.account_name}
                                             </option>

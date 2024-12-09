@@ -6,11 +6,11 @@ from rest_framework import permissions, status
 from django.shortcuts import get_object_or_404
 from .permissions import IsAdminOrOwner
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, ProfileUpdateSerializer 
-from .serializers import TransactionSerializer, CategorySerializer, AccountSerializer, DebtSerializer
+from .serializers import TransactionSerializer, CategorySerializer, AccountSerializer, DebtSerializer, ConfigurationSerializer
 from .validations import custom_validation, validate_email, validate_password
-from .models import Transaction, Category, Account, Debt
+from .models import Transaction, Category, Account, Debt, Configuration, SendTimeType
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models import Q
 
 #REPORT LAB thinguies
@@ -20,7 +20,7 @@ import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, PageBreak, Spacer
 import matplotlib.pyplot as plt
 from collections import defaultdict
 from matplotlib.colors import to_hex
@@ -378,6 +378,23 @@ class DebtDetailView(BaseModelMixin, APIView):
         debt.delete()
         return Response({"message": "Debt deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
+class ConfigurationView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+    
+    def get(self, request):
+        config = request.user.configuration
+        serializer = ConfigurationSerializer(config)
+        return Response({'configuration': serializer.data}, status=status.HTTP_200_OK)
+    
+    def put(self, request):
+        config = request.user.configuration
+        serializer = ConfigurationSerializer(config, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({'configuration': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class PDFgeneration(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
@@ -400,7 +417,7 @@ class PDFgeneration(APIView):
         canvas.line(30, line_y, page_width - 30, line_y)
         canvas.restoreState()
     
-    def create_graphL(self):
+    def create_graphL(self): #must be responsive to config
         today = datetime.today()
         transactions = Transaction.objects.filter(
             Q(date__month=today.month) & Q(date__year=today.year)
@@ -436,7 +453,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def create_graphPI(self):
+    def create_graphPI(self):#must be responsive to config
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -466,7 +483,7 @@ class PDFgeneration(APIView):
             colors=colors,
             autopct='%1.1f%%',
             startangle=90,
-            wedgeprops={'edgecolor': 'white', 'linewidth': 1}
+            wedgeprops={'edgecolor': 'black', 'linewidth': 1}
         )
 
         plt.title("Incomes by Category", fontsize=16)
@@ -478,7 +495,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def create_graphPE(self):
+    def create_graphPE(self):#must be responsive to config
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -508,7 +525,7 @@ class PDFgeneration(APIView):
             colors=colors,
             autopct='%1.1f%%',
             startangle=90,
-            wedgeprops={'edgecolor': 'white', 'linewidth': 1}
+            wedgeprops={'edgecolor': 'black', 'linewidth': 1}
         )
 
         plt.title("Expenses by Category", fontsize=16)
@@ -523,12 +540,13 @@ class PDFgeneration(APIView):
     def get(self, request):
 
         buf = io.BytesIO()
-        # doc style
         doc = SimpleDocTemplate(buf, pagesize=letter)
-
-        today = datetime.today()
+        user_config = Configuration.objects.filter(user=request.user).first()
+        #Cases for filtering
+        
+        
         transactions = Transaction.objects.filter(
-            Q(date__month=today.month) & Q(date__year=today.year)
+            Q(date__range=(start_date, send_date))
         )
 
         data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
@@ -544,6 +562,7 @@ class PDFgeneration(APIView):
                 transaction.type,
             ])
 
+        data.append([f"Balance: {balance: .2f}"])
         #create table
         table = Table(data)
 
@@ -555,21 +574,29 @@ class PDFgeneration(APIView):
             ('FONTNAME', (0, 0), (-1, 0), 'Times-Roman'),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
+  
+            ('SPAN', (0, -1), (-1, -1)),
+            ('ALIGN', (0, -1), (-1, -1), 'RIGHT'),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
+            ('TEXTCOLOR', (0, -1), (-1, -1), colors.black),
+            ('FONTNAME', (0, -1), (-1, -1), 'Times-Bold'),
         ])
         table.setStyle(style)
 
-        graph_buffer = self.create_graphL()
-        graph_image = Image(graph_buffer, width=400, height=300)
-        graph_buffer1 = self.create_graphPI()
-        graph_image1 = Image(graph_buffer1, width=400, height=400)
-        graph_buffer2 = self.create_graphPE()
-        graph_image2 = Image(graph_buffer2, width=400, height=400)
-        elements = [
-            table,
-            graph_image,
-            graph_image1,
-            graph_image2
-        ]
+        elements = [table]
+        elements.append(PageBreak())
+        if user_config.add_graph == True:
+            graph_buffer = self.create_graphL()
+            graph_image = Image(graph_buffer, width=400, height=300)
+            elements.append(graph_image)
+
+            graph_buffer1 = self.create_graphPI()
+            graph_image1 = Image(graph_buffer1, width=400, height=400)
+            elements.append(graph_image1)
+
+            graph_buffer2 = self.create_graphPE()
+            graph_image2 = Image(graph_buffer2, width=400, height=400)
+            elements.append(graph_image2)
 
         # adding table and graphs to pdf
         doc.build(elements, onFirstPage=self.header, onLaterPages=self.header)

@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from datetime import time
 
 class AppUserManager(BaseUserManager):
 	def create_user(self, email, username, password=None):
@@ -37,6 +38,13 @@ class AppUserManager(BaseUserManager):
 
 		for account_data in default_accounts:
 			Account.objects.create(user=user, **account_data)
+		
+		Configuration.objects.create(
+			user=user,
+			send_time=SendTimeType.MONTHLY,
+			add_graph=True,
+			send_at=time(7,0)
+		)
 
 		return user
 	
@@ -143,3 +151,21 @@ class Debt(models.Model):
 
     def __str__(self):
         return f"{self.amount} - {self.creditor} ({self.last_payment_date}) - {self.get_type_display()}"
+
+class SendTimeType(models.TextChoices):
+    MONTHLY = 'MON', 'Monthly'
+    WEEKLY = 'WEK', 'Weekly'
+    FORTNIGHT = 'FOR', 'Fortnight' 
+    DAILY = 'DAY', 'Daily'
+
+class Configuration(models.Model):
+	user 			= models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='configurations')
+	send_time = models.CharField(
+		max_length=3,
+		choices=SendTimeType.choices,
+		default=SendTimeType.MONTHLY 
+    )
+	add_graph       = models.BooleanField(default=True)
+	send_at         = models.TimeField()
+	def __str__(self):
+		return f"{self.send_time} - {self.add_graph} - {self.send_at}"

@@ -159,7 +159,7 @@ class SendTimeType(models.TextChoices):
     DAILY = 'DAY', 'Daily'
 
 class Configuration(models.Model):
-	user 			= models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='configurations')
+	user 			= models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='configuration')
 	send_time = models.CharField(
 		max_length=3,
 		choices=SendTimeType.choices,

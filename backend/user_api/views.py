@@ -417,10 +417,10 @@ class PDFgeneration(APIView):
         canvas.line(30, line_y, page_width - 30, line_y)
         canvas.restoreState()
     
-    def create_graphL(self): #must be responsive to config
+    def create_graphL(self, start_date, end_date):
         today = datetime.today()
         transactions = Transaction.objects.filter(
-            Q(date__month=today.month) & Q(date__year=today.year)
+            Q(date__range=(start_date, end_date))
         )
 
         data = defaultdict(lambda: {'income': 0, 'expense': 0})
@@ -453,7 +453,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def create_graphPI(self):#must be responsive to config
+    def create_graphPI(self, start_date, end_date):
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -464,7 +464,7 @@ class PDFgeneration(APIView):
             #sum amounts per category
             today = datetime.today()
             transactions = Transaction.objects.filter(
-                Q(date__month=today.month) & Q(date__year=today.year) & Q(category=category)
+                Q(date__range=(start_date, end_date))  & Q(category=category)
             )
             total_amount = sum(tx.amount for tx in transactions)
 
@@ -495,7 +495,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def create_graphPE(self):#must be responsive to config
+    def create_graphPE(self, start_date, end_date):
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -506,7 +506,7 @@ class PDFgeneration(APIView):
             #sum amounts per category
             today = datetime.today()
             transactions = Transaction.objects.filter(
-                Q(date__month=today.month) & Q(date__year=today.year) & Q(category=category)
+                Q(date__range=(start_date, end_date))  & Q(category=category)
             )
             total_amount = sum(tx.amount for tx in transactions)
 
@@ -536,6 +536,11 @@ class PDFgeneration(APIView):
         plt.close()
 
         return graph_buffer
+    
+    def calculate_balance(incomes, expenses):
+        total_incomes = sum(float(income.amount) for income in incomes)
+        total_expenses = sum(float(expense.amount) for expense in expenses)
+        return total_incomes - total_expenses
 
     def get(self, request):
 
@@ -543,12 +548,31 @@ class PDFgeneration(APIView):
         doc = SimpleDocTemplate(buf, pagesize=letter)
         user_config = Configuration.objects.filter(user=request.user).first()
         #Cases for filtering
-        
+        if user_config.send_time == SendTimeType.MONTHLY:
+            end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date() #last day of previus month
+            start_date = end_date.replace(day=1)
+        elif user_config.send_time == SendTimeType.WEEKLY:
+            end_date = datetime.today().date()
+            start_date = end_date - timedelta(weeks=1)
+        elif user_config.send_time == SendTimeType.FORTNIGHT:
+            end_date = datetime.today().date()
+            start_date = end_date - timedelta(weeks=2)
+        elif user_config.send_time == SendTimeType.DAILY:
+            end_date = datetime.today().date()
+            start_date = end_date - timedelta(days=1)
+        else:
+            end_date = datetime.today().date()
+            start_date = datetime.today() - timedelta(days=30)
+
         
         transactions = Transaction.objects.filter(
-            Q(date__range=(start_date, send_date))
+            Q(date__range=(start_date, end_date)) 
         )
 
+        incomes = transactions.filter(type='INC')
+        expenses = transactions.filter(type='EXP')
+
+        balance = self.calculate_balance(incomes,expenses)
         data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
 
         for transaction in transactions:
@@ -585,16 +609,16 @@ class PDFgeneration(APIView):
 
         elements = [table]
         elements.append(PageBreak())
-        if user_config.add_graph == True:
-            graph_buffer = self.create_graphL()
+        if user_config.add_graph:
+            graph_buffer = self.create_graphL(start_date, end_date)
             graph_image = Image(graph_buffer, width=400, height=300)
             elements.append(graph_image)
 
-            graph_buffer1 = self.create_graphPI()
+            graph_buffer1 = self.create_graphPI(start_date, end_date)
             graph_image1 = Image(graph_buffer1, width=400, height=400)
             elements.append(graph_image1)
 
-            graph_buffer2 = self.create_graphPE()
+            graph_buffer2 = self.create_graphPE(start_date, end_date)
             graph_image2 = Image(graph_buffer2, width=400, height=400)
             elements.append(graph_image2)
 

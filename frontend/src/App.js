@@ -9,6 +9,8 @@ import Configuration from './Components/Windows/Configuration';
 import Debts from './Components/Windows/Debts';
 import client from './apiClient'; 
 import Categories from './Components/Windows/Categories';
+import EmailVerified from './Components/Windows/EmailVerified.jsx';
+import EmailNoVerified from './Components/Windows/EmailNoVerified.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
@@ -98,6 +100,9 @@ if (loading) {
           path="/categories"
           element={isAuthenticated ? <Categories handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
+        <Route path="/email-verified" element={<EmailVerified />} />
+        <Route path="/email-unverified" element={<EmailNoVerified />} />
+
 
         {/* Página de login, Redirección Inicial */}
         <Route

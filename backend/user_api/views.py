@@ -418,7 +418,6 @@ class PDFgeneration(APIView):
         canvas.restoreState()
     
     def create_graphL(self, start_date, end_date):
-        today = datetime.today()
         transactions = Transaction.objects.filter(
             Q(date__range=(start_date, end_date))
         )
@@ -462,7 +461,6 @@ class PDFgeneration(APIView):
 
         for category in categories:
             #sum amounts per category
-            today = datetime.today()
             transactions = Transaction.objects.filter(
                 Q(date__range=(start_date, end_date))  & Q(category=category)
             )
@@ -504,7 +502,6 @@ class PDFgeneration(APIView):
 
         for category in categories:
             #sum amounts per category
-            today = datetime.today()
             transactions = Transaction.objects.filter(
                 Q(date__range=(start_date, end_date))  & Q(category=category)
             )
@@ -537,7 +534,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def calculate_balance(incomes, expenses):
+    def calculate_balance(self, incomes, expenses):
         total_incomes = sum(float(income.amount) for income in incomes)
         total_expenses = sum(float(expense.amount) for expense in expenses)
         return total_incomes - total_expenses
@@ -562,7 +559,7 @@ class PDFgeneration(APIView):
             start_date = end_date - timedelta(days=1)
         else:
             end_date = datetime.today().date()
-            start_date = datetime.today() - timedelta(days=30)
+            start_date = datetime.today() - timedelta(days=30).date()
 
         
         transactions = Transaction.objects.filter(

@@ -20,11 +20,10 @@ import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, PageBreak, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, PageBreak, Paragraph
 import matplotlib.pyplot as plt
 from collections import defaultdict
-from matplotlib.colors import to_hex
-
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 #AdminAPI
 class BaseModelMixin:
@@ -417,9 +416,10 @@ class PDFgeneration(APIView):
         canvas.line(30, line_y, page_width - 30, line_y)
         canvas.restoreState()
     
-    def create_graphL(self, start_date, end_date):
+    def create_graphL(self, start_date, end_date, user):
         transactions = Transaction.objects.filter(
-            Q(date__range=(start_date, end_date))
+            user=user,  
+            date__range=(start_date, end_date)
         )
 
         data = defaultdict(lambda: {'income': 0, 'expense': 0})
@@ -452,7 +452,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def create_graphPI(self, start_date, end_date):
+    def create_graphPI(self, start_date, end_date,user):
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -462,7 +462,9 @@ class PDFgeneration(APIView):
         for category in categories:
             #sum amounts per category
             transactions = Transaction.objects.filter(
-                Q(date__range=(start_date, end_date))  & Q(category=category)
+                user=user,  
+                date__range=(start_date, end_date),
+                category=category
             )
             total_amount = sum(tx.amount for tx in transactions)
 
@@ -493,7 +495,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def create_graphPE(self, start_date, end_date):
+    def create_graphPE(self, start_date, end_date,user):
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -503,7 +505,9 @@ class PDFgeneration(APIView):
         for category in categories:
             #sum amounts per category
             transactions = Transaction.objects.filter(
-                Q(date__range=(start_date, end_date))  & Q(category=category)
+                user=user,  
+                date__range=(start_date, end_date),
+                category=category
             )
             total_amount = sum(tx.amount for tx in transactions)
 
@@ -545,31 +549,49 @@ class PDFgeneration(APIView):
         doc = SimpleDocTemplate(buf, pagesize=letter)
         user_config = Configuration.objects.filter(user=request.user).first()
         #Cases for filtering
-        if user_config.send_time == SendTimeType.MONTHLY:
+        if user_config.send_time == SendTimeType.MONTHLY: #assuming method is called every first of the month
             end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date() #last day of previus month
             start_date = end_date.replace(day=1)
+            typeReport = "monthly"
         elif user_config.send_time == SendTimeType.WEEKLY:
-            end_date = datetime.today().date()
+            end_date = datetime.today().date() - timedelta(days=1) #the day before the method is called
             start_date = end_date - timedelta(weeks=1)
+            typeReport = "weekly"
         elif user_config.send_time == SendTimeType.FORTNIGHT:
-            end_date = datetime.today().date()
+            end_date = datetime.today().date() - timedelta(days=1)
             start_date = end_date - timedelta(weeks=2)
+            typeReport = "fortnightly"
         elif user_config.send_time == SendTimeType.DAILY:
-            end_date = datetime.today().date()
-            start_date = end_date - timedelta(days=1)
+            end_date = datetime.today().date() - timedelta(days=1)
+            start_date = end_date
+            typeReport = "daily"
         else:
             end_date = datetime.today().date()
             start_date = datetime.today() - timedelta(days=30).date()
+            typeReport = "monthly"
 
         
         transactions = Transaction.objects.filter(
-            Q(date__range=(start_date, end_date)) 
+            user=request.user,  
+            date__range=(start_date, end_date)
         )
 
         incomes = transactions.filter(type='INC')
         expenses = transactions.filter(type='EXP')
 
         balance = self.calculate_balance(incomes,expenses)
+
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            name="TitleStyle",
+            parent=styles["Title"],
+            fontSize=18,
+            alignment=1, 
+            spaceAfter=20
+        )
+        title_text = f"Hello {request.user.username}, here is your {typeReport} report"
+        title = Paragraph(title_text, title_style)
+
         data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
 
         for transaction in transactions:
@@ -604,18 +626,18 @@ class PDFgeneration(APIView):
         ])
         table.setStyle(style)
 
-        elements = [table]
+        elements = [title,table]
         elements.append(PageBreak())
         if user_config.add_graph:
-            graph_buffer = self.create_graphL(start_date, end_date)
+            graph_buffer = self.create_graphL(start_date, end_date, request.user)
             graph_image = Image(graph_buffer, width=400, height=300)
             elements.append(graph_image)
 
-            graph_buffer1 = self.create_graphPI(start_date, end_date)
+            graph_buffer1 = self.create_graphPI(start_date, end_date, request.user)
             graph_image1 = Image(graph_buffer1, width=400, height=400)
             elements.append(graph_image1)
 
-            graph_buffer2 = self.create_graphPE(start_date, end_date)
+            graph_buffer2 = self.create_graphPE(start_date, end_date, request.user)
             graph_image2 = Image(graph_buffer2, width=400, height=400)
             elements.append(graph_image2)
 

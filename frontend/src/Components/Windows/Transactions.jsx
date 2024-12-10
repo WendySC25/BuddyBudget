@@ -45,6 +45,27 @@
             }
         };  
 
+        const fetchPDF = async () => {
+            const token = localStorage.getItem('authToken');
+            try {
+              const responseT = await client.get('/api/transactions_pdf', {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob' 
+              });
+
+              const file = new Blob([responseT.data], { type: 'application/pdf' });
+
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(file);
+              link.download = 'MyTransactions.pdf'; 
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            } catch (error) {
+              console.error('Error while fetching doc', error);
+            }
+        };
+
         const handleSaveTransaction = () => {
             fetchAllT();
             setTransactionToEdit(null);
@@ -107,6 +128,9 @@
 
                         <button onClick={() => setShowFormA(!showFormA)}>
                             {showFormA ? 'Cancel' : '+ Add Account'}
+                        </button>
+                        <button onClick={() => fetchPDF()}>
+                            pdf:
                         </button>
                     </div> 
 

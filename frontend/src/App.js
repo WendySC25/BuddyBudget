@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LoginRegister from './Components/LoginRegister/LoginRegister';
 import Home from './Components/Windows/Home';
+import Superhome from './Components/Windows/Superhome';
 import Transactions from './Components/Windows/Transactions';
 import Profile from './Components/Windows/Profile';
 import Reports from './Components/Windows/Reports';
@@ -11,15 +12,25 @@ import client from './apiClient';
 import Categories from './Components/Windows/Categories';
 import EmailVerified from './Components/Windows/EmailVerified.jsx';
 import EmailNoVerified from './Components/Windows/EmailNoVerified.jsx';
+import AdminRoutes from './Components/Admin/AdminRoutes';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // autentication state
+  const [isSuperuser, setIsSuperuser] = useState(false); // to manage the admin UI
   const [loading, setLoading] = useState(true);
 
   // Function to handle login
   const handleLogin = (token) => {
     localStorage.setItem('token', token)
     setIsAuthenticated(true);
+
+    client.get('/api/user', { headers: { Authorization: `Bearer ${token}` } })
+    .then((res) => {
+      if(res.data.user.is_staff) {
+        setIsSuperuser(true);
+        console.log('is staff')
+      }
+    })
   };
 
   // Function to handle logout
@@ -53,6 +64,7 @@ useEffect(() => {
       .finally(() => {
         setLoading(false);
       });
+
   } else {
     setLoading(false);
   }
@@ -68,14 +80,21 @@ if (loading) {
         {/* Redirige a /home si el usuario está autenticado, si no, a login */}
         <Route
           path="/"
-          element={loading?<div>Loading...</div>:isAuthenticated ? <Navigate to="/home" /> : <Navigate to="/login" />}
+          element={
+            loading ? <div>Loading...</div> :
+            isAuthenticated ? (isSuperuser ? <Navigate to="/superhome/home" /> : <Navigate to="/home" />) : 
+            <Navigate to="/login" />
+          }
         />
         
         {/* Rutas protegidas que verifican la autenticación */}
         <Route
           path="/home"
-          element={isAuthenticated ? <Home handleLogout={handleLogout} /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated ? (isSuperuser ? <Navigate to="/superhome/home" /> : <Home handleLogout={handleLogout}/>) :
+            <Navigate to="/login" />}
         />
+        
         <Route
           path="/transactions"
           element={isAuthenticated ? <Transactions handleLogout={handleLogout} /> : <Navigate to="/login" />}
@@ -109,6 +128,10 @@ if (loading) {
           path="/login"
           element={isAuthenticated ? <Navigate to="/home" /> : <LoginRegister handleLogin={handleLogin} />}
         />
+
+        <Route path="/superhome/*" element={<AdminRoutes />} />
+
+
       </Routes>
     </Router>
   );

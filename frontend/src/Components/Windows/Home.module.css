@@ -1,4 +1,4 @@
-/* Home.css */
+/* Home.module.css */
 
 html, body {
   margin: 0;
@@ -43,7 +43,7 @@ html, body {
     margin-bottom: 15px;
 }
 
-.cards-container {
+.cardsContainer {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;

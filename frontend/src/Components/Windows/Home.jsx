@@ -5,7 +5,7 @@ import CardItem from './CardItem.jsx';
 import DataProvider from "../DataProcessing/DataProvider.jsx";
 import { Line } from 'react-chartjs-2';
 
-import './Home.css';
+import styles from './Home.module.css';
 
 const Home = ({ handleLogout }) => {
     const { balance,profileName, getCurrentMonthTransactions, filterByType, countAndSum, countAndSumDebts, groupByWeeks, errorMessage } = DataProvider();
@@ -29,37 +29,37 @@ const Home = ({ handleLogout }) => {
     const chartDataExpenses = groupByWeeks(expenses);
 
     return (
-        <div className="home">
+        <div className={styles.home}>
             <Navbar handleLogout={handleLogout} />
             {profileName && <h2>Welcome, {profileName}!</h2>}
             <h2>Financial Summary of the Current Month</h2>
-            <div className="cards-container">
-                <div className="card">
+            <div className={styles.cardsContainer}>
+                <div className={styles.card}>
                     <h3>Balance </h3>
                     <p>${balance.toFixed(2)}</p>
                 </div>
-                <div className="card">
+                <div className={styles.card}>
                     <h3>Incomes</h3>
                     <p>Total: ${incomeTotal.toFixed(2)}</p>
                     <p>Transactions: {incomeCount}</p>
                 </div>
-                <div className="card">
+                <div className={styles.card}>
                     <h3>Expenses</h3>
                     <p>Total: ${expenseTotal.toFixed(2)}</p>
                     <p>Transactions: {expenseCount}</p>
                 </div>
-                <div className="card">
+                <div className={styles.card}>
                     <h3>Debts</h3>
                     <p>Total: ${debtTotal.toFixed(2)}</p>
                     <p>Debts: {debtCount}</p>
                 </div>
             </div>
-            <div className="charts-container">
-                <div className="chart-card">
+            <div className={styles['charts-container']}>
+                <div className={styles['chart-card']}>
                     <h3>Incomes</h3>
                     <Line data={chartDataIncomes} />
                 </div>
-                <div className="chart-card">
+                <div className={styles['chart-card']}>
                     <h3>Expenses</h3>
                     <Line data={chartDataExpenses} />
                 </div>

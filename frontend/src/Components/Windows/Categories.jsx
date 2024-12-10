@@ -5,6 +5,9 @@ import CategoryForm from '../Forms/CategoryForm.jsx';
 import CardList from '../Cards/CardList.jsx';
 import client from '../../apiClient.jsx';
 
+import styles from './Categories.module.css';
+
+
 const Categories = ({ handleLogout }) => {
 
     const [categories, setCategories] = useState([]);
@@ -75,7 +78,7 @@ const Categories = ({ handleLogout }) => {
     };
 
     return(
-    <div className="home">
+    <div className={styles.home}>
         <Navbar handleLogout={handleLogout} />
         <h1> Categories </h1>
 

@@ -22,6 +22,6 @@ urlpatterns = [
     path('expchartdata/', views.ExpenseChartDataView.as_view(), name='expchartdata'),
     path('userlist/', views.UserList.as_view(), name='userlist/'),
     path('transactions_pdf', views.PDFgeneration.as_view(), name= 'PDFgeneration'),
-    path('configuration', views.ConfigurationView.as_view(), name='configuration')
+    path('configuration', views.ConfigurationView.as_view(), name='configuration'),
     path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='delete_user'),
 ]

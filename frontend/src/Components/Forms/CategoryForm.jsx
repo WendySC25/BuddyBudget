@@ -3,9 +3,10 @@ import React, {useState, useEffect} from 'react';
 import '../Windows/Transactions.css';
 import client from '../../apiClient.jsx';
 
-const CategoryForm = ({ onSaveCategory, categoryToEdit }) => {
+const CategoryForm = ({ onSaveCategory, categoryToEdit, isAdmin }) => {
     
     const [category_name,setCategory_name] = useState('');
+    const [user_id, setUser] = useState(0);
     const [transactionType, setTransactionType] = useState('');
     const [category_color, setCategory_color] = useState("#ffffff");
     const [message, setMessage] = useState('');
@@ -15,6 +16,7 @@ const CategoryForm = ({ onSaveCategory, categoryToEdit }) => {
             setCategory_name(categoryToEdit.category_name);
             setTransactionType(categoryToEdit.type)
             setCategory_color(categoryToEdit.color);
+            setUser(categoryToEdit.user)
         }
     }, [categoryToEdit]);
 
@@ -22,6 +24,8 @@ const CategoryForm = ({ onSaveCategory, categoryToEdit }) => {
         e.preventDefault(); 
 
         const data = {
+            user_id: user_id,
+
             category_name: category_name,
             type:          transactionType,
             color:         category_color,
@@ -77,7 +81,22 @@ const CategoryForm = ({ onSaveCategory, categoryToEdit }) => {
                 <div className={`transaction-form-container ${
                     transactionType ? 'show-form' : '' }`}>
                         {transactionType && ( <form onSubmit={handleSubmitC}>
+
                             <div className="transaction-form">
+
+                                {isAdmin && (
+                                    <div className="transaction-field">
+                                        <label htmlFor="user id">User ID</label>
+                                        <input
+                                            type="number"
+                                            id="user_id"
+                                            value={user_id}
+                                            onChange={(e) => setUser(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                )}
+                                
                                 <div className="transaction-field">
                                     <label htmlFor="name">Category name</label>
                                         <input

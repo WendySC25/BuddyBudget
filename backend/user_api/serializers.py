@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from .models import Profile
-from .models import AccountType, Account, Category, Transaction, TransactionType, Debt
+from .models import AccountType, Account, Category, Transaction, TransactionType, Debt, Configuration
 
 UserModel = get_user_model()
 
@@ -75,3 +75,8 @@ class DebtSerializer(serializers.ModelSerializer):
         model = Debt
         fields = ['id', 'user', 'description', 'creditor', 'amount', 'months_to_pay', 'has_interest', 'last_payment_date']
         read_only_fields = ['user'] 
+
+class ConfigurationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Configuration
+        fields = ['send_time', 'add_graph', 'send_at']

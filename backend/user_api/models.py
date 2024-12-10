@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from datetime import time
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -43,6 +44,13 @@ class AppUserManager(BaseUserManager):
 
 		for account_data in default_accounts:
 			Account.objects.create(user=user, **account_data)
+		
+		Configuration.objects.create(
+			user=user,
+			send_time=SendTimeType.MONTHLY,
+			add_graph=True,
+			send_at=time(7,0)
+		)
 
 		return user
 
@@ -115,7 +123,7 @@ class Account(models.Model):
 	account_number 	= models.CharField(max_length=20, blank=True, null=True)
 	expiry_date 	= models.DateField(blank=True, null=True)
 	def __str__(self):
-		return f"{self.account_name} ({self.account_type.type_name})"
+		return f"{self.account_name} ({self.account_type})" 
 
 class TransactionType(models.TextChoices):
     INCOME  = 'INC', 'Ingreso'
@@ -162,3 +170,21 @@ class Debt(models.Model):
 
     def __str__(self):
         return f"{self.amount} - {self.creditor} ({self.last_payment_date}) - {self.get_type_display()}"
+
+class SendTimeType(models.TextChoices):
+    MONTHLY = 'MON', 'Monthly'
+    WEEKLY = 'WEK', 'Weekly'
+    FORTNIGHT = 'FOR', 'Fortnight' 
+    DAILY = 'DAY', 'Daily'
+
+class Configuration(models.Model):
+	user 			= models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='configuration')
+	send_time = models.CharField(
+		max_length=3,
+		choices=SendTimeType.choices,
+		default=SendTimeType.MONTHLY 
+    )
+	add_graph       = models.BooleanField(default=True)
+	send_at         = models.TimeField()
+	def __str__(self):
+		return f"{self.send_time} - {self.add_graph} - {self.send_at}"

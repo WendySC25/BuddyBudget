@@ -22,4 +22,6 @@ urlpatterns = [
     path('expchartdata/', views.ExpenseChartDataView.as_view(), name='expchartdata'),
     path('userlist/', views.UserList.as_view(), name='userlist/'),
     path('report_email/', views.ReportEmailView.as_view(), name='report_email'),
+    path('transactions_pdf', views.PDFgeneration.as_view(), name= 'PDFgeneration'),
+    path('configuration', views.ConfigurationView.as_view(), name='configuration')
 ]

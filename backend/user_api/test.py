@@ -105,6 +105,8 @@ class TransactionTests(APITestCase):
             'type': 'EXP'  
         }
 
+        self.user.is_active = True
+        self.user.save()
         self.authenticate()
 
     def authenticate(self):

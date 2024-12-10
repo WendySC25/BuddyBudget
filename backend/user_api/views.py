@@ -36,12 +36,14 @@ def verify_email(request, uidb64, token):
     except (TypeError, ValueError, OverflowError):
         user = None
 
-    if user is not None and default_token_generator.check_token(user, token):
+    if user is not None and user.is_active != False:
+        return redirect('http://127.0.0.1:3000/home')
+    elif user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
-        return redirect('http://127.0.0.1:3000/') 
+        return redirect('http://127.0.0.1:3000/email-verified')
     else:
-        return redirect('/http://127.0.0.1:3000/')
+        return redirect('http://127.0.0.1:3000/email-unverified')
 
 #AdminAPI
 class BaseModelMixin:

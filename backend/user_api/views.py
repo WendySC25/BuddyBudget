@@ -693,3 +693,17 @@ class UserDeleteView(BaseModelMixin, APIView):
             {"message": "Usuario y todos los datos relacionados eliminados con éxito."},
             status=status.HTTP_204_NO_CONTENT
         )
+
+class UserDetailView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
+    authentication_classes = (JWTAuthentication,)
+    model = get_user_model()
+    serializer_class = UserSerializer
+
+    def put(self, request, pk):
+        user = self.get_object(pk)
+        serializer = self.serializer_class(user, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

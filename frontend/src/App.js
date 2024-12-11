@@ -21,7 +21,7 @@ function App() {
 
   // Function to handle login
   const handleLogin = (token) => {
-    localStorage.setItem('token', token)
+    sessionStorage.setItem('authToken', token)
     setIsAuthenticated(true);
 
     client.get('/api/user', { headers: { Authorization: `Bearer ${token}` } })
@@ -41,19 +41,16 @@ function App() {
   // Function to handle logout
   const handleLogout = (e) => {
     e.preventDefault();
-    localStorage.removeItem("authToken");
+    const token = sessionStorage.getItem('authToken');
+    sessionStorage.removeItem('authToken');
     setIsAuthenticated(false);
-    client.post("/api/logout", {}, { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } })
-        .then(res => {
-            console.log("Logout successful:", res.data);
-        })
-        .catch(error => {
-            console.error("Logout error:", error);
-        });
-};
+    client.post("/api/logout", {}, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => console.log("Logout successful:", res.data))
+      .catch(error => console.error("Logout error:", error));
+  };
 
 useEffect(() => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('authToken');
   if (token) {
     client
       .get('/api/user', { headers: { Authorization: `Bearer ${token}` } })
@@ -64,7 +61,7 @@ useEffect(() => {
       .catch((error) => {
         console.error('Token validation failed:', error);
         setIsAuthenticated(false);
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
       })
       .finally(() => {
         setLoading(false);
@@ -106,7 +103,7 @@ if (loading) {
         />
         <Route
           path="/debts"
-          element={isAuthenticated ? <Debts handleLogout={handleLogout} /> : <Navigate to="/debts" />}
+          element={isAuthenticated ? <Debts handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
         <Route
           path="/profile"

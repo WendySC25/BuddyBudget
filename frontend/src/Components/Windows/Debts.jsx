@@ -30,7 +30,7 @@ const Debts = ({ handleLogout, isAdmin }) => {
     // Función para obtener todas las deudas desde la API
     // Realiza una solicitud GET a la API de deudas y actualiza el estado con las deudas obtenidas
     const fetchAllDebts = async () => {
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         try {
             const response = await client.get('/api/debts', {
                 headers: { Authorization: `Bearer ${token}` },
@@ -55,7 +55,7 @@ const Debts = ({ handleLogout, isAdmin }) => {
         const endpoint = `/api/debts/${debtToDelete.id}/`;
         try {
             await client.delete(endpoint, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             console.log(`Debt with ID ${debtToDelete.id} deleted successfully.`);
             // Elimina localmente la transacción del estado

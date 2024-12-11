@@ -33,7 +33,7 @@
         }, [showForm, showFormC, showFormA]);
 
         const fetchAllT = async () => {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
             try{
                 const responseT = await client.get('/api/transactions', {
                     headers: {Authorization: `Bearer ${token}`},
@@ -47,7 +47,7 @@
         };  
 
         const fetchPDF = async () => {
-            const token = localStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken');
             try {
               const responseT = await client.get('/api/transactions_pdf', {
                 headers: { Authorization: `Bearer ${token}` },

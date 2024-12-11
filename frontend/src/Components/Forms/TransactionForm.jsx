@@ -51,7 +51,7 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit, isAdmin
                 : '/api/categories/';
     
             const responseC = await client.get(endpoint, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
     
             setCategories(responseC.data);
@@ -68,7 +68,7 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit, isAdmin
                 : '/api/accounts/';
     
             const responseA = await client.get(endpoint, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
     
             setAccount(responseA.data);

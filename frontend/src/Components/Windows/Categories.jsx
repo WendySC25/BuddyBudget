@@ -5,6 +5,8 @@ import CategoryForm from '../Forms/CategoryForm.jsx';
 import CardList from '../Cards/CardList.jsx';
 import client from '../../apiClient.jsx';
 
+import './Transactions.css'
+
 const Categories = ({ handleLogout, isAdmin }) => {
 
     const [categories, setCategories] = useState([]);
@@ -31,7 +33,7 @@ const Categories = ({ handleLogout, isAdmin }) => {
     const fetchAllC = async () => {
         try {   
             const responseC = await client.get('/api/categories/', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             setCategories(responseC.data);
         } catch (error) {
@@ -60,7 +62,7 @@ const Categories = ({ handleLogout, isAdmin }) => {
         const endpoint = `/api/categories/${categoryToDelete.id}/`;
         try {
             await client.delete(endpoint, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             console.log(`Category with ID ${categoryToDelete.id} deleted  `);
 
@@ -75,9 +77,10 @@ const Categories = ({ handleLogout, isAdmin }) => {
     };
 
     return(
-    <div className="transactions">
+    <div className="transaction">
         <Navbar handleLogout={handleLogout} />
         <h1> Categories </h1>
+        <br></br>
 
         <CardList 
             categories = {categories}

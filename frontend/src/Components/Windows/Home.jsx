@@ -9,7 +9,7 @@ import styles from './Home.module.css';
 
 const Home = ({ handleLogout }) => {
     const { balance,profileName, getCurrentMonthTransactions, filterByType, countAndSum, countAndSumDebts, groupByWeeks, errorMessage } = DataProvider();
-
+    
     // Obtener transacciones del mes actual
     const currentMonthTransactions = getCurrentMonthTransactions();
 

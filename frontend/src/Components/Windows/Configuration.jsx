@@ -4,6 +4,8 @@ import ConfigurationForm from '../Forms/ConfigurationForm.jsx';
 import './Transactions.css';
 import client from '../../apiClient.jsx';
 
+import './Transactions.css'
+
 const Configuration = ({ handleLogout }) => {
     const [showForm, setShowForm] = useState(false);
     const [configuration, setConfiguration] = useState(null);
@@ -13,7 +15,7 @@ const Configuration = ({ handleLogout }) => {
         const fetchConfiguration = async () => {
             try {
                 const response = await client.get('/api/configuration', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
                 });
                 console.log(response);
                 // Acceder a la estructura de la respuesta
@@ -33,7 +35,7 @@ const Configuration = ({ handleLogout }) => {
         const fetchConfiguration = async () => {
             try {
                 const response = await client.get('/api/configuration', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
                 });
                 setConfiguration(response.data.configuration);
             } catch (error) {

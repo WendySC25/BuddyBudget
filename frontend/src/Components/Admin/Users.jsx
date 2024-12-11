@@ -23,7 +23,7 @@ const Users = ({ handleLogout, isAdmin }) => {
     }, [showForm]);
 
     const fetchAllUsers = async () => {
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         try {
             const response = await client.get('/api/userlist/', {
                 headers: { Authorization: `Bearer ${token}` },
@@ -46,7 +46,7 @@ const Users = ({ handleLogout, isAdmin }) => {
         const endpoint = `/api/users/${userToDelete.user_id}/delete/`;   
         try {
             await client.delete(endpoint, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             console.log(`User with ID ${userToDelete.user_id} deleted successfully.`);
             setUsers((prevUsers) => prevUsers.filter((user) => user.user_id !== userToDelete.user_id));

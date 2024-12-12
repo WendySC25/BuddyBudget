@@ -7,7 +7,7 @@ const DataProvider = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [profileName, setProfileName] = useState(null);
   const [debts, setDebts] = useState([]);
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {

@@ -5,6 +5,8 @@ import AccountForm from '../Forms/AccountForm.jsx';
 import CardListA from '../Cards/CardListA.jsx';
 import client from '../../apiClient.jsx';
 
+import './Transactions.css'
+
 const Accounts = ({ handleLogout, isAdmin }) => {
 
     const [accounts, setAccounts] = useState([]);
@@ -31,7 +33,7 @@ const Accounts = ({ handleLogout, isAdmin }) => {
     const fetchAllA = async () => {
         try {   
             const responseC = await client.get('/api/accounts/', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             setAccounts(responseC.data);
         } catch (error) {
@@ -55,7 +57,7 @@ const Accounts = ({ handleLogout, isAdmin }) => {
         const endpoint = `/api/accounts/${accountToDelete.id}/`;
         try {
             await client.delete(endpoint, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             console.log(`Account with ID ${accountToDelete.id} deleted  `);
 

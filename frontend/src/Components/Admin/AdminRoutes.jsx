@@ -28,7 +28,7 @@ const AdminRoutes = () => {
     const fetchAllU = async () => {
         try {   
             const response = await client.get('/api/userlist/', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             setUsers(response.data)
         } catch (error) {
@@ -39,7 +39,7 @@ const AdminRoutes = () => {
     const fetchAllC = async () => {
         try {   
             const response = await client.get('/api/categories/', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             setCategories(response.data)
 
@@ -51,7 +51,7 @@ const AdminRoutes = () => {
     const fetchAllT = async () => {
         try {   
             const response = await client.get('/api/transactions/', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             setT(response.data)
 
@@ -61,7 +61,7 @@ const AdminRoutes = () => {
     };
 
     const fetchAllD = async () => {
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         try {
             const response = await client.get('/api/debts', {
                 headers: { Authorization: `Bearer ${token}` },

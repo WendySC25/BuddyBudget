@@ -19,7 +19,7 @@ const ConfigurationForm = ({ initialData, onSaveConfiguration }) => {
 
         try {
             await client.put('/api/configuration', data, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
             });
             setMessage('Configuration updated successfully!');
             setTimeout(() => setMessage(''), 3000);

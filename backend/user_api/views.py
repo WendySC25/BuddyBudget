@@ -12,6 +12,7 @@ from .models import Transaction, Category, Account, AppUser, Debt, Configuration
 import random
 from datetime import datetime, timedelta
 from django.db.models import Q
+import io
 
 #REPORT LAB thinguies
 from django.http import FileResponse
@@ -398,35 +399,6 @@ class DebtDetailView(BaseModelMixin, APIView):
         debt.delete()
         return Response({"message": "Debt deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
-class ReportEmailView(APIView):
-    def generate_pdf(self):
-        buffer = BytesIO()
-        p = canvas.Canvas(buffer)
-        p.drawString(100, 750, "Hello, this is your PDF!")
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        return buffer
-
-    def post(self, request):
-        user_email = request.user.email
-        
-        try:
-            pdf_buffer = self.generate_pdf()
-
-            email = EmailMessage(
-                subject = 'Hi from BuddyBudget',
-                body = 'This is a test email.',
-                from_email='buddybudgetmail@gmail.com',
-                to=[user_email],
-            )
-            
-            email.attach('BuddyBudgetReport.pdf', pdf_buffer.read(), 'application/pdf')
-            email.send()
-            return Response({'message': 'Email sent successfully'}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
 class ConfigurationView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
@@ -441,6 +413,7 @@ class ConfigurationView(APIView):
         serializer = ConfigurationSerializer(config, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+            config.save_task()
             return Response({'configuration': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -696,7 +669,7 @@ class PDFgeneration(APIView):
 
         #return FileResponse
         buf.seek(0)
-        response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
+        response = FileResponse(buf, as_attachment=True, filename="BuddyBudgetReport.pdf")
         response['Content-Type'] = 'application/pdf'
         return response
 

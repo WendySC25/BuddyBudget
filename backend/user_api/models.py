@@ -8,6 +8,8 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+import json
 
 class AppUserManager(BaseUserManager):
 	def create_user(self, email, username, password=None):
@@ -178,13 +180,49 @@ class SendTimeType(models.TextChoices):
     DAILY = 'DAY', 'Daily'
 
 class Configuration(models.Model):
-	user 			= models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='configuration')
-	send_time = models.CharField(
-		max_length=3,
-		choices=SendTimeType.choices,
-		default=SendTimeType.MONTHLY 
+    user      = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='configuration')
+    send_time = models.CharField(
+        max_length=3,
+        choices=SendTimeType.choices,
+        default=SendTimeType.MONTHLY
     )
-	add_graph       = models.BooleanField(default=True)
-	send_at         = models.TimeField()
-	def __str__(self):
-		return f"{self.send_time} - {self.add_graph} - {self.send_at}"
+    add_graph = models.BooleanField(default=True)
+    send_at = models.TimeField()
+
+    def save_task(self, *args, **kwargs):
+        self.save(*args, **kwargs)
+        self.create_update_task()
+
+    def create_update_task(self):
+        new_time = self.send_at
+        hour     = new_time.hour
+        minute   = new_time.minute
+
+        if self.send_time == SendTimeType.DAILY:
+            schedule, _ = CrontabSchedule.objects.get_or_create(minute=minute, hour=hour, day_of_month="*")
+        elif self.send_time == SendTimeType.WEEKLY:
+            schedule, _ = CrontabSchedule.objects.get_or_create(minute=minute, hour=hour, day_of_week="1")  
+        elif self.send_time == SendTimeType.FORTNIGHT:
+            schedule, _ = CrontabSchedule.objects.get_or_create(minute=minute, hour=hour, day_of_month="1,15")  
+        elif self.send_time == SendTimeType.MONTHLY:
+            schedule, _ = CrontabSchedule.objects.get_or_create(minute=minute, hour=hour, day_of_month="1") 
+        else:
+            raise ValueError("Invalid send_time value")
+
+        task_name = f"send_email_task_user_{self.user.user_id}_{self.user.username}"
+        task, created = PeriodicTask.objects.get_or_create(
+            name=task_name,
+            defaults={
+                'task': 'user_api.tasks.send_pdf_to_user',
+                'crontab': schedule,
+                'args': json.dumps([self.user.user_id]),
+            },
+        )
+
+        if not created:
+            task.crontab = schedule
+            task.args = json.dumps([self.user.user_id])
+            task.save()
+
+    def __str__(self):
+        return f"{self.send_time} - {self.add_graph} - {self.send_at}"

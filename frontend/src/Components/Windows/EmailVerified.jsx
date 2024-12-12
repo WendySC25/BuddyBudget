@@ -11,7 +11,7 @@ const EmailVerified = () => {
           <FaCheckCircle className="verification-icon" />
           <h1>Email Verified Successfully</h1>
           <p>Your account has been verified. You can now log in.</p>
-          <Link to="/login">
+          <Link to="http://localhost:3000/login">
             <button className="login-button">Go to Login</button>
           </Link>
         </div>

@@ -531,7 +531,6 @@ class PDFgeneration(APIView):
         plt.figure(figsize=(8, 8))
         plt.pie(
             sizes,
-            labels=labels,
             colors=colors,
             autopct='%1.1f%%',
             startangle=90,
@@ -539,6 +538,7 @@ class PDFgeneration(APIView):
         )
 
         plt.title("Incomes by Category", fontsize=16)
+        plt.legend(labels, loc="lower left")
 
         graph_buffer = BytesIO()
         plt.savefig(graph_buffer, format='png')
@@ -585,7 +585,6 @@ class PDFgeneration(APIView):
         plt.figure(figsize=(8, 8))
         plt.pie(
             sizes,
-            labels=labels,
             colors=colors,
             autopct='%1.1f%%',
             startangle=90,
@@ -593,6 +592,7 @@ class PDFgeneration(APIView):
         )
 
         plt.title("Expenses by Category", fontsize=16)
+        plt.legend(labels, loc="lower left")
 
         graph_buffer = BytesIO()
         plt.savefig(graph_buffer, format='png')

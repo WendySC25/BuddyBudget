@@ -8,3 +8,6 @@ Pillow
 mysqlclient>=2.0.0
 reportlab
 matplotlib
+django_celery_beat
+celery
+redis

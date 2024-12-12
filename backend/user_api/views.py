@@ -744,13 +744,11 @@ class UserDeleteView(BaseModelMixin, APIView):
 class UserListCreateView(BaseModelMixin, APIView):
     permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-    model = get_user_model()
-    serializer_class = UserSerializer
+    model = get_user_model
 
     def get(self, request):
-        queryset = self.get_queryset()
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
+        return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -763,11 +761,16 @@ class UserListCreateView(BaseModelMixin, APIView):
 class UserDetailView(BaseModelMixin, APIView):
     permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-    model = get_user_model()
-    serializer_class = UserSerializer
+    serializer_class = UserSerializer  # Asegúrate de definir el serializer
 
     def put(self, request, pk):
-        user = self.get_object(pk)
+        User = get_user_model() 
+        try:
+            # Busca el usuario directamente sin un método auxiliar
+            user = User.objects.get(user_id=pk)  # Usa `User.objects`
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = self.serializer_class(user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()

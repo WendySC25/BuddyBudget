@@ -11,9 +11,6 @@ from .validations import custom_validation, validate_email, validate_password
 from .models import Transaction, Category, Account, AppUser, Debt, Configuration, SendTimeType
 import random
 from datetime import datetime, timedelta
-from django.db.models import Q
-
-#REPORT LAB thinguies
 from django.http import FileResponse
 from io import BytesIO
 import io
@@ -28,6 +25,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
+from collections import defaultdict
+from matplotlib.colors import to_hex, to_rgb
 
 def verify_email(request, uidb64, token):
     try:
@@ -470,7 +469,30 @@ class PDFgeneration(APIView):
         plt.close()
 
         return graph_buffer
-    
+ 
+    def hex_to_rgb(self,hex_color):
+        hex_color = hex_color.lstrip('#')
+        return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
+
+    def rgb_to_hex(self,r, g, b):
+        return f'#{r:02x}{g:02x}{b:02x}'
+
+    def blend_colors(self,colors):
+        total_colors = len(colors)
+        blended_rgb = [0, 0, 0]
+
+        for color in colors:
+            rgb = self.hex_to_rgb(color)
+            blended_rgb[0] += rgb[0] / total_colors
+            blended_rgb[1] += rgb[1] / total_colors
+            blended_rgb[2] += rgb[2] / total_colors
+
+        return self.rgb_to_hex(
+            int(round(blended_rgb[0])),
+            int(round(blended_rgb[1])),
+            int(round(blended_rgb[2]))
+        )
+
     def create_graphPI(self, start_date, end_date,user):
         category_total = defaultdict(float)
         category_colors = {}
@@ -479,17 +501,28 @@ class PDFgeneration(APIView):
         categories = Category.objects.filter(type='INC')
 
         for category in categories:
-            #sum amounts per category
+        # Sum amounts per category
             transactions = Transaction.objects.filter(
-                user=user,  
+                user=user,
                 date__range=(start_date, end_date),
                 category=category
             )
-            total_amount = sum(tx.amount for tx in transactions)
+            for tx in transactions:
+                if len(tx.category.all()) > 1: #multiple categories
+                    combined_category_name = ' & '.join([cat.category_name for cat in tx.category.all()])
+                    combined_colors = [cat.color for cat in tx.category.all()]
+                    blended_color = self.blend_colors(combined_colors)
 
-            if total_amount > 0:
-                category_total[category.category_name] = total_amount
-                category_colors[category.category_name] = category.color
+                    category_total[combined_category_name] += float(tx.amount)
+                    category_colors[combined_category_name] = blended_color
+                else:
+                    #one category
+                    single_category_name = category.category_name
+                    category_color = category.color
+
+                    category_total[single_category_name] += float(tx.amount)
+                    if single_category_name not in category_colors:
+                        category_colors[single_category_name] = category_color
 
         labels = list(category_total.keys())
         sizes = list(category_total.values())
@@ -522,17 +555,28 @@ class PDFgeneration(APIView):
         categories = Category.objects.filter(type='EXP')
 
         for category in categories:
-            #sum amounts per category
+        # Sum amounts per category
             transactions = Transaction.objects.filter(
-                user=user,  
+                user=user,
                 date__range=(start_date, end_date),
                 category=category
             )
-            total_amount = sum(tx.amount for tx in transactions)
+            for tx in transactions:
+                if len(tx.category.all()) > 1: #multiple categories
+                    combined_category_name = ' & '.join([cat.category_name for cat in tx.category.all()])
+                    combined_colors = [cat.color for cat in tx.category.all()]
+                    blended_color = self.blend_colors(combined_colors)
 
-            if total_amount > 0:
-                category_total[category.category_name] = total_amount
-                category_colors[category.category_name] = category.color
+                    category_total[combined_category_name] += float(tx.amount)
+                    category_colors[combined_category_name] = blended_color
+                else:
+                    #one category
+                    single_category_name = category.category_name
+                    category_color = category.color
+
+                    category_total[single_category_name] += float(tx.amount)
+                    if single_category_name not in category_colors:
+                        category_colors[single_category_name] = category_color
 
         labels = list(category_total.keys())
         sizes = list(category_total.values())
@@ -608,7 +652,7 @@ class PDFgeneration(APIView):
             alignment=1, 
             spaceAfter=20
         )
-        title_text = f"Hello {request.user.username}, here is your {typeReport} report"
+        title_text = f"Hello {request.user.username}, here is your {typeReport} report!"
         title = Paragraph(title_text, title_style)
 
         data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]

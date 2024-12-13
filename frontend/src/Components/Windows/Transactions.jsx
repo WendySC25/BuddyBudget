@@ -48,8 +48,21 @@
 
         const fetchPDF = async () => {
             const token = sessionStorage.getItem('authToken');
+            const end_date = new Date();
+            const start_date = new Date(end_date.getFullYear(), end_date.getMonth() - 1, end_date.getDate());
+             // Format dates as YYYY-MM-DD
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const formattedStartDate = formatDate(start_date);
+            const formattedEndDate = formatDate(end_date);
+
             try {
-              const responseT = await client.get('/api/transactions_pdf', {
+              const responseT = await client.get(`/api/transactions_pdf?start_date=${formattedStartDate }&end_date=${formattedEndDate}`, {
                 headers: { Authorization: `Bearer ${token}` },
                 responseType: 'blob' 
               });
@@ -131,7 +144,7 @@
                             {showFormA ? 'Cancel' : '+ Add Account'}
                         </button>
                         <button onClick={() => fetchPDF()}>
-                            pdf:
+                            PDF
                         </button>
                     </div> 
 

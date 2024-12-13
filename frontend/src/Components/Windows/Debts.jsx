@@ -6,6 +6,7 @@ import DebtsForm from '../Forms/DebtsForm.jsx';
 
 import './Transactions.css'
 import client from '../../apiClient.jsx';
+import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters.jsx';
 
 const Debts = ({ handleLogout, isAdmin }) => {
 
@@ -83,17 +84,21 @@ const Debts = ({ handleLogout, isAdmin }) => {
             <Navbar handleLogout={handleLogout} />
             <h1>Debts Page</h1>
 
-            <div className="table-container">
+    
                 <div className="table-header-buttons">
+                    {/* <SearchBarWithFilter options={options}/> */}
                     <button onClick={() => setShowForm(!showForm)}>
                         {showForm ? 'Cancel' : '+ Add Debt'}
                     </button>
                 </div>
 
+                <div className="table-container">
+
                 <DebtsTable
                     debts={debts}
                     onEditDebt={handleEditDebt}
                     onDeleteDebt={handleDeleteDebt}
+                    isAdmin={isAdmin}
                 />
             </div>
 

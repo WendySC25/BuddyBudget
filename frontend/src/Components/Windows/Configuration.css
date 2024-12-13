@@ -1,33 +1,24 @@
 /* Transactions.css*/
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-.transaction {
-  background-color: transparent;
-}
-
-.transaction2 {
-  text-align: center;
+.configuration {
   margin: 0;
   width: 100%;
   height: 100%;
   color: #000000;     
+  background-color: #6b90b7;
   padding: 20px;
   width:100vw;
   padding-top: 100px; 
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #6b90b7;
-}
-
-.transaction-title {
-  margin-top: 50px; /* Ajusta según la altura deseada */
 }
 
 .table-header-buttons {
   display: flex;
   justify-content: center; 
-  gap: 10px; 
+  gap: 30px; 
   margin-bottom: 20px; 
 }
 
@@ -46,7 +37,7 @@
   background-color: #4a5568; 
 }
 
-.transaction form {
+.configuration form {
   background-color: #1A202C;  
   padding: 30px;
   border-radius: 8px;
@@ -58,7 +49,7 @@
   max-width: 500px;
 }
 
-.transaction button{
+.configuration button{
   font-family: 'Poppins', sans-serif;
   background-color: #000000; 
   color: #ffffff;
@@ -68,10 +59,11 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-top: 20px;
   transition: background-color 0.3s, transform 0.2s;
 }
 
-.transaction button.icon-button {
+.configuration button.icon-button {
   background: transparent;  
   border: none;            
   padding: 10;             
@@ -84,28 +76,28 @@
 }
 
 
-.transaction button:hover {
+.configuration button:hover {
   background-color: #83b0e0; 
   transform: translateY(-2px);
 }
 
-.transaction-form {
+.configuration-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.transaction-form-container {
+.configuration-form-container {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.5s ease-out; 
 }
 
-.transaction-form-container.show-form {
+.configuration-form-container.show-form {
   max-height: 1500px; 
 }
 
-.transaction-type-buttons button {
+.configuration-type-buttons button {
   font-family: 'Poppins', sans-serif;
   margin: 5px;
   padding: 10px 20px;
@@ -115,35 +107,35 @@
   transition: background-color 0.3s;
 }
 
-.transaction-type-buttons .active-income {
+.configuration-type-buttons .active-income {
   background-color: #4CAF50; 
   color: white;
 }
 
-.transaction-type-buttons .active-expense {
+.configuration-type-buttons .active-expense {
   background-color: #FF6347;
   color: white;
 }
 
-.transaction-form.income {
+.configuration-form.income {
   background-color: #e6f7e6; 
 }
 
-.transaction-form.expense {
+.configuration-form.expense {
   background-color: #ffe6e6; 
 }
 
-.transaction-form label {
+.configuration-form label {
   font-size: 14px;
   color: #A0AEC0;
   margin-bottom: 5px;
   display: block;
 }
 
-.transaction-form input[type="text"],
-.transaction-form input[type="number"],
-.transaction-form input[type="date"],
-.transaction-form select {
+.configuration-form input[type="text"],
+.configuration-form input[type="number"],
+.configuration-form input[type="date"],
+.configuration-form select {
   font-family: 'Poppins', sans-serif;
   width: 100%;
   padding: 10px;
@@ -155,10 +147,10 @@
   transition: border-color 0.3s;
 }
 
-.transaction-form input[type="text"]:focus,
-.transaction-form input[type="number"]:focus,
-.transaction-form input[type="date"]:focus,
-.transaction-form select:focus {
+.configuration-form input[type="text"]:focus,
+.configuration-form input[type="number"]:focus,
+.configuration-form input[type="date"]:focus,
+.configuration-form select:focus {
   outline: none;
   border-color: #3182ce; 
   box-shadow: 0px 0px 6px rgba(49, 130, 206, 0.5); 
@@ -173,7 +165,7 @@
   border-radius: 5px;
 }
 
-.transaction button[type="submit"] {
+.configuration button[type="submit"] {
   background-color: #2b6cb0; 
   color: #ffffff;
   font-size: 1em;
@@ -186,12 +178,12 @@
   transition: background-color 0.3s, transform 0.2s;
 }
 
-.transaction button[type="submit"]:hover {
+.configuration button[type="submit"]:hover {
   background-color: #83b0e0; 
   transform: translateY(-2px);
 }
 
-.transaction button[type="submit"]:active {
+.configuration button[type="submit"]:active {
   background-color: #a6c6e9;
   transform: translateY(0);
 }
@@ -203,7 +195,7 @@
   text-align: center;
 }
 
-.add-transaction {
+.add-configuration {
   background-color: #2b6cb0;
   color: white; 
   padding: 5px 10px; 
@@ -214,101 +206,67 @@
   text-align: center;
 }
 
-.add-transaction:hover {
+.add-configuration:hover {
   background-color: #4A5568;
 }
 
 
-/********************
+/*----------------------------------------------------------------*/
 
-/* Modal overlay */
-.modal-overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100vw;
-height: 100vh;
-background-color: rgba(0, 0, 0, 0.5); 
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 1000; 
+.cards1Container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1400px;
 }
 
-/* Modal content */
-.modal-content {
-background-color: #1A202C;
-border-radius: 8px;
-padding: 20px;
-box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-width: 90%;
-max-width: 500px;
-color: #333;
+.card1 {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  width: calc(50% - 20px);
+  min-width: 200px;
+  max-width: 300px;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Blur effect for background */
-.blurred {
-filter: blur(5px); /* blur */
-pointer-events: none; 
+.card1 h3 {
+  font-size: 1.5rem;
+  color: #1A202C;
+  margin-bottom: 10px;
 }
 
-.categories-container {
-min-height: 100px;
-max-height: 250px;
-overflow-y: auto; 
-border: 1px solid #ccc; 
-padding: 10px;
-background-color: #f9f9f9; 
-border-radius: 5px; 
-
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-gap: 10px; 
+.card1 p {
+  font-size: 1.2rem;
+  color: #4A5568;
 }
 
-.category-item {
-display: flex;
-align-items: center; 
-gap: 10px;
+.card1 .error {
+  color: #FF6347;
+  font-size: 1rem;
+  margin-top: 10px;
 }
 
-.category-item label {
-display: flex;
-align-items: center;
-gap: 5px;
-color: black;
-font-size: 16;
-}
-
-.color-picker-field {
-display: flex;
-flex-direction: column;
-gap: 5px;
-margin-top: 10px;
-}
-
-.color-picker-container {
-display: flex;
-align-items: center;
-gap: 10px;
-}
-
-.color-picker {
-width: 50px;
-height: 50px;
-cursor: pointer;
-border-radius: 10px;
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-background-color: transparent;
+.card1 {
+background-color: #ffffff !important;
 }
 
 
-.color-preview {
-display: inline-block;
-width: 350px;
-height: 40px;
-border-radius: 5px; 
-border: 1px solid #ccc; 
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
-}
+@media screen and (max-width: 768px) {
+  .cards1-container {
+      flex-direction: column;
+      align-items: center;
+  }
 
+  .card1 {
+      width: 90%;
+      max-width: none;
+  }
+}

@@ -80,12 +80,12 @@ const Debts = ({ handleLogout, isAdmin }) => {
     };
 
     return (
-        <div className={isAdmin ? "transaction" : "transaction2"}>
+        <div className="transaction" style={ isAdmin ? {backgroundColor:'transparent'} : {backgroundColor:'#6b90b7', width: '100vw', height: '100%', minHeight: '100vh', paddingTop: '113px', color: '#000000' }}>
              {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
             <h1>Debts Page</h1>
 
     
-                <div className="table-header-buttons">
+                <div className="table-header-buttons " style={{ marginTop: '22px' }}>
                     {/* <SearchBarWithFilter options={options}/> */}
                     <button onClick={() => setShowForm(!showForm)}>
                         {showForm ? 'Cancel' : '+ Add Debt'}

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import client from '../../apiClient.jsx';
 
-const PasswordForm = ({ currentPassword, onUpdate }) => {
+const PasswordForm = ({ currentPassword, onUpdate, userId }) => {
     const [newPassword, setNewPassword] = useState('');
     const [message, setMessage] = useState('');
 
@@ -11,8 +11,8 @@ const PasswordForm = ({ currentPassword, onUpdate }) => {
         event.preventDefault();
         try {
             await client.put(
-                '/api/profile',
-                { bio: newPassword },
+                `/api/users/${userId}/`,
+                { password: newPassword },
                 { headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` } }
             );
             onUpdate(newPassword); // Notifica al padre sobre el cambio de nombre
@@ -30,10 +30,6 @@ const PasswordForm = ({ currentPassword, onUpdate }) => {
             <div className="modal-content">
                 <form onSubmit={handleSubmit}>
                     <div className="transaction-form">
-                        <div className="transaction-field">
-                            <label htmlFor="currentPassword">Current Password</label>
-                            <p id="currentPassword" className="readonly-field">{currentPassword}</p>
-                        </div>
                         <div className="transaction-field">
                             <label htmlFor="newPassword">New Password</label>
                             <input

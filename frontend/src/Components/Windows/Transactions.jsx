@@ -117,12 +117,12 @@
     
         return (
 
-            <div className={isAdmin ? "transaction" : "transaction2"}>
+            <div className="transaction" style={ isAdmin ? {backgroundColor:'transparent'} : {backgroundColor:'#6b90b7', width: '100vw', height: '100%', minHeight: '100vh', paddingTop: '113px', color: '#000000' }}>
                 {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
                 <h1>Transactions Page</h1>
 
                
-                <div className="table-container">
+                <div className="table-container" style={{ marginTop: '22px' }}>
                     <div className="table-header-buttons">
                         <button onClick={() => {setShowForm(!showForm);} }>
                             {showForm ? 'Cancel' : '+ Add Transaction'}

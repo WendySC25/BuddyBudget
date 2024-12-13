@@ -82,9 +82,9 @@ const Categories = ({ handleLogout, isAdmin }) => {
     };
 
     return(
-    <div className={isAdmin ? "transaction" : "transaction2"}>
+    <div className="transaction" style={ isAdmin ? {backgroundColor:'transparent'} : {backgroundColor:'#6b90b7', width: '100vw', height: '100%', minHeight: '100vh', paddingTop: '83px', color: '#000000' }}>
         {!isAdmin &&(<Navbar handleLogout={handleLogout} />)}
-        <h1> Categories </h1>
+        <h1 style={isAdmin ? { marginTop: '0px' } : { marginTop: '140px' }}> Categories </h1>
         <br></br>
 
         <CardList 

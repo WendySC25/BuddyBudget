@@ -10,7 +10,7 @@ html, body {
 }
 
 .reports-page {
-  background-color: #b9daeb; 
+  background-color: #6b90b7; 
   color: #000000;
   padding: 20px;
   width:100vw;
@@ -19,6 +19,8 @@ html, body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .reports-title {

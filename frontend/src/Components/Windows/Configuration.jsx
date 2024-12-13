@@ -4,7 +4,7 @@ import ConfigurationForm from '../Forms/ConfigurationForm.jsx';
 import UsernameForm from '../Forms/UsernameForm.jsx';
 import EmailForm from '../Forms/EmailForm.jsx';
 import PasswordForm from '../Forms/PasswordForm.jsx';
-import './Transactions.css';
+import './Configuration.css';
 import client from '../../apiClient.jsx';
 
 
@@ -126,7 +126,7 @@ const Configuration = ({ handleLogout }) => {
                 //setUsername(response.data.profile.name);
                 setEmail(response.data.user.email);
             } catch (error) {
-                console.error('Error fetching username:', error);
+                console.error('Error fetching email:', error);
             }
         };
 
@@ -138,12 +138,12 @@ const Configuration = ({ handleLogout }) => {
 
         const fetchPassword = async () => {
             try {
-                const response = await client.get('/api/profile', {
+                const response = await client.get('/api/users', {
                     headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
                 });
-                setPassword(response.data.profile.bio);
+                setPassword(response.data.user.password);
             } catch (error) {
-                console.error('Error fetching username:', error);
+                console.error('Error fetching password:', error);
             }
         };
 
@@ -166,29 +166,35 @@ const Configuration = ({ handleLogout }) => {
     };
 
     return (
-        <div className="transaction2">
+        <div className="configuration">
             <Navbar handleLogout={handleLogout} />
-            <h1 style={{ marginTop: '102px' }}>Configuration Page</h1>
-            
-            <h2 style={{ marginTop: '20px' }}>Email Sending Configuration</h2>
-  
+            <h1 >Configuration Page</h1>
 
-            {/* Contenedor principal */}
-            <div className="table-container">
-
-              {/* Mostrar detalles de configuración si la información existe */}
-              {configuration && (
-                  <div className="configuration-details">
-                      <p><strong>Send Time:</strong> {getSendTimeText(configuration?.send_time)}</p>
-                      <p><strong>Add Graph:</strong> {configuration?.add_graph ? 'Yes' : 'No'}</p>
-                      <p><strong>Send At:</strong> {configuration?.send_at}</p>
-                  </div>
-              )}
-
-              {/* Botón para alternar la edición */}
-              <button className="toggle-button" onClick={() => setShowForm(!showForm)}>
-                  {showForm ? 'Cancel' : 'Edit Configuration'}
-              </button>
+            <div className="cards1Container">
+                <div className="card1">
+                    <h2>Email Sending</h2>
+                    <button className="toggle-button" onClick={() => setShowForm(!showForm)}>
+                        {showForm ? 'Cancel' : 'Edit Configuration'}
+                    </button>
+                </div>
+                <div className="card1">
+                    <h2>Username</h2>
+                    <button className="toggle-button" onClick={() => setShowUsernameForm(!showUsernameForm)}>
+                        {showUsernameForm ? 'Cancel' : 'Change Username'}
+                    </button>
+                </div>
+                <div className="card1">
+                    <h2>Email</h2>
+                    <button className="toggle-button" onClick={() => setShowEmailForm(!showEmailForm)}>
+                        {showEmailForm ? 'Cancel' : 'Change Email'}
+                    </button>
+                </div>
+                <div className="card1">
+                    <h2>Password</h2>
+                    <button className="toggle-button" onClick={() => setShowPasswordForm(!showPasswordForm)}>
+                        {showPasswordForm ? 'Cancel' : 'Change Password'}
+                    </button>
+                </div>
             </div>
 
             {showForm && (
@@ -198,18 +204,6 @@ const Configuration = ({ handleLogout }) => {
                 />
             )}
 
-            <h2 style={{ marginTop: '20px' }}>Username Configuration</h2>
-
-            <div className="table-container">
-                <div className="username-details">
-                    <p><strong>Current Username:</strong> {username}</p>
-                </div>
-
-                <button className="toggle-button" onClick={() => setShowUsernameForm(!showUsernameForm)}>
-                    {showUsernameForm ? 'Cancel' : 'Change Username'}
-                </button>
-            </div>
-
             {showUsernameForm && (
                 <UsernameForm
                     currentUsername={username}
@@ -217,19 +211,7 @@ const Configuration = ({ handleLogout }) => {
                     userId={userId}
                 />
             )}
-            {/* Email Configuration */}
-            <h2 style={{ marginTop: '20px' }}>Email Configuration</h2>
-
-            <div className="table-container">
-                <div className="email-details">
-                    <p><strong>Current Email:</strong> {email}</p>
-                </div>
-
-                <button className="toggle-button" onClick={() => setShowEmailForm(!showEmailForm)}>
-                    {showEmailForm ? 'Cancel' : 'Change Email'}
-                </button>
-            </div>
-
+            
             {showEmailForm && (
                 <EmailForm
                     currentEmail={email}
@@ -238,26 +220,14 @@ const Configuration = ({ handleLogout }) => {
                 />
             )}
 
-            {/* Password Configuration */}
-            <h2 style={{ marginTop: '20px' }}>Password Configuration</h2>
-
-            <div className="table-container">
-                <div className="email-details">
-                    <p><strong>Current Password:</strong> {password}</p>
-                </div>
-
-                <button className="toggle-button" onClick={() => setShowPasswordForm(!showPasswordForm)}>
-                    {showPasswordForm ? 'Cancel' : 'Change Password'}
-                </button>
-            </div>
-
             {showPasswordForm && (
                 <PasswordForm
                     currentPassword={password}
                     onUpdate={handlePasswordUpdate}
+                    userId={userId}
                 />
             )}
-
+            
         </div>
     );
 };

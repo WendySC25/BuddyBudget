@@ -9,6 +9,7 @@
 
     import './Transactions.css'
     import client from '../../apiClient.jsx';
+    import PdfForm from '../Forms/PdfForm.jsx';
 
     const Transactions = ({ handleLogout, isAdmin }) => {
 
@@ -17,20 +18,21 @@
 
         const [showForm, setShowForm]   = useState(false); 
         const [showFormC, setShowFormC] = useState(false); 
-        const [showFormA, setShowFormA] = useState(false);         
+        const [showFormA, setShowFormA] = useState(false);  
+        const [showFormP, setShowFormP] = useState(false);       
 
         useEffect(() =>{ 
             fetchAllT();
             const background = document.querySelector('.table-container');
             if (background) {
-                if (showForm || showFormC) {
+                if (showForm || showFormC || showFormA || showFormP) {
                     background.classList.add('blurred');
                 } else {
                     background.classList.remove('blurred');
                 }
             }
 
-        }, [showForm, showFormC, showFormA]);
+        }, [showForm, showFormC, showFormA, showFormP]);
 
         const fetchAllT = async () => {
             const token = sessionStorage.getItem('authToken');
@@ -45,40 +47,6 @@
                 console.error('Error while fetching transactions', error);
             }
         };  
-
-        const fetchPDF = async () => {
-            const token = sessionStorage.getItem('authToken');
-            const end_date = new Date();
-            const start_date = new Date(end_date.getFullYear(), end_date.getMonth() - 1, end_date.getDate());
-             // Format dates as YYYY-MM-DD
-            const formatDate = (date) => {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            };
-
-            const formattedStartDate = formatDate(start_date);
-            const formattedEndDate = formatDate(end_date);
-
-            try {
-              const responseT = await client.get(`/api/transactions_pdf?start_date=${formattedStartDate }&end_date=${formattedEndDate}`, {
-                headers: { Authorization: `Bearer ${token}` },
-                responseType: 'blob' 
-              });
-
-              const file = new Blob([responseT.data], { type: 'application/pdf' });
-
-              const link = document.createElement('a');
-              link.href = URL.createObjectURL(file);
-              link.download = 'MyTransactions.pdf'; 
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            } catch (error) {
-              console.error('Error while fetching doc', error);
-            }
-        };
 
         const handleSaveTransaction = () => {
             fetchAllT();
@@ -122,6 +90,10 @@
             setShowForm(false);
         };
 
+        const handleSavePDF = () => {
+            setShowFormP(false);
+            console.log('PDF generation canceled or completed.');
+        };
     
         return (
 
@@ -143,8 +115,8 @@
                         <button onClick={() => setShowFormA(!showFormA)}>
                             {showFormA ? 'Cancel' : '+ Add Account'}
                         </button>
-                        <button onClick={() => fetchPDF()}>
-                            PDF
+                        <button onClick={() => setShowFormP(!showFormP)}>
+                            {showFormP ? 'Cancel' : 'PDF'}
                         </button>
                     </div> 
 
@@ -172,6 +144,9 @@
                 {showFormA && <AccountForm
                                 onSaveAccount={handleSaveAccount}
                                 isAdmin={isAdmin}
+                            />}
+                {showFormP && <PdfForm
+                                onSavePDF={handleSavePDF}
                             />}
             </div>
         );

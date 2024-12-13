@@ -69,7 +69,7 @@ const Users = ({ handleLogout, isAdmin }) => {
 
     return (
         <div className="transaction">
-            <Navbar handleLogout={handleLogout} />
+             {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
             <h1>Users Management</h1>
 
             <div className="table-container">

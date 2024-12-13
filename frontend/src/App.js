@@ -137,7 +137,10 @@ if (loading) {
           element={isAuthenticated ? <Navigate to="/home" /> : <LoginRegister handleLogin={handleLogin} />}
         />
 
-        <Route path="/superhome/*" element={<AdminRoutes />} />
+        <Route 
+          path="/superhome/*" 
+          element={isAuthenticated ? <AdminRoutes handleLogout={handleLogout}/> : <LoginRegister handleLogin={handleLogin} />} 
+        />
 
 
       </Routes>

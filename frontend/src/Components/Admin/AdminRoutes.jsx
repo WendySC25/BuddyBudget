@@ -10,10 +10,10 @@ import Categories from '../Windows/Categories.jsx';
 import Accounts from '../Windows/Account.jsx';
 import Users from './Users.jsx';
 
-const AdminRoutes = () => {
+const AdminRoutes = ({handleLogout}) => {
     return (
         <div className="container">
-            <Sidebar/>
+            <Sidebar handleLogout={handleLogout}/>
 
             <div className="wrapper1">
             <header className="header">     
@@ -24,7 +24,7 @@ const AdminRoutes = () => {
                     <Route path="/" element={<Home />}>
                         {/* Rutas internas de Superhome */}
                         <Route index element={<Home />} />
-                        <Route path="users" element={<Users/>} />
+                        <Route path="users" element={<Users isAdmin={true}/>} />
                         <Route path="transactions" element={<Transactions isAdmin = {true} />} />
                         <Route path="categories" element={<Categories isAdmin={true} /> } />
                         <Route path="accounts" element={<Accounts isAdmin = {true} />} />

@@ -10,17 +10,14 @@ services:
     volumes:
       - ./backend:/app
       - ./frontend/src/Components/Assets:/app/assets
-    command: >
-      sh -c "./wait-for-it.sh db:3306 -- 
-      python manage.py makemigrations && 
-      python manage.py migrate && 
-      python manage.py test  && 
-      python manage.py runserver 0.0.0.0:8000"
+    entrypoint: ["./entrypoint.sh", "django"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
   
   celery:
     build:
       context: ./backend
     container_name: celery-worker
+    entrypoint: []
     command: celery -A backend worker --loglevel=debug
     volumes:
       - ./backend:/app
@@ -36,7 +33,8 @@ services:
     build:
       context: ./backend
     container_name: celery-beat
-    command: celery -A backend beat --loglevel=DEBUG
+    entrypoint: ["./entrypoint.sh", "celery-beat"]
+    command: ["celery", "-A", "backend", "beat", "--loglevel=DEBUG"]
     volumes:
       - ./backend:/app
     depends_on:

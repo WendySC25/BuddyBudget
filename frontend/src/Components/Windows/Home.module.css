@@ -21,6 +21,7 @@ html, body {
   align-items: left;
   position: relative;
   z-index: 1;
+  align-items: center;
 } 
 
 .home button {

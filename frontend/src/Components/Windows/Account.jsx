@@ -84,12 +84,23 @@ const Accounts = ({ handleLogout, isAdmin }) => {
         <h1> Accounts </h1>
         <br></br>
 
-        <CardListA 
-            accounts = {accounts}
-            onDeleteAccount   = {handleDeleteAccount}
-            onEditAccount     = {handleEditAccount}
-            isAdmin={isAdmin}
-        />
+        {isAdmin ? (
+            <CardListA 
+                accounts = {accounts}
+                onDeleteAccount   = {handleDeleteAccount}
+                onEditAccount     = {handleEditAccount}
+                isAdmin={isAdmin}
+            />
+        ) : (
+            <div className="card-list-wrapper" style={{ paddingBottom: '50px' }}>
+                <CardListA 
+                    accounts = {accounts}
+                    onDeleteAccount   = {handleDeleteAccount}
+                    onEditAccount     = {handleEditAccount}
+                    isAdmin={isAdmin}
+                />
+            </div>
+        )}
 
         {showFormA && <AccountForm
                         onSaveAccount ={handleSaveAccount}

@@ -81,26 +81,37 @@ const Debts = ({ handleLogout, isAdmin }) => {
 
     return (
         <div className="transaction" style={ isAdmin ? {backgroundColor:'transparent'} : {backgroundColor:'#6b90b7', width: '100vw', height: '100%', minHeight: '100vh', paddingTop: '113px', color: '#000000' }}>
-             {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
+            {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
             <h1>Debts Page</h1>
 
     
-                <div className="table-header-buttons " style={{ marginTop: '22px' }}>
+                <div className="table-container" style={ isAdmin ? {} : { height: 'calc(100vh - 200px)', overflowY: 'auto', padding: '16px', boxSizing: 'border-box' }}>
                     {/* <SearchBarWithFilter options={options}/> */}
-                    <button onClick={() => setShowForm(!showForm)}>
-                        {showForm ? 'Cancel' : '+ Add Debt'}
-                    </button>
+                    <div className="table-header-buttons">
+                        <button onClick={() => setShowForm(!showForm)}>
+                            {showForm ? 'Cancel' : '+ Add Debt'}
+                        </button>
+                    </div>
+                
+
+                    {isAdmin ? (
+                        <DebtsTable
+                            debts={debts}
+                            onEditDebt={handleEditDebt}
+                            onDeleteDebt={handleDeleteDebt}
+                            isAdmin={isAdmin}
+                        />
+                    ) : (
+                        <div className="card-list-wrapper" >
+                            <DebtsTable
+                                debts={debts}
+                                onEditDebt={handleEditDebt}
+                                onDeleteDebt={handleDeleteDebt}
+                                isAdmin={isAdmin}
+                            />
+                        </div>
+                    )}
                 </div>
-
-                <div className="table-container">
-
-                <DebtsTable
-                    debts={debts}
-                    onEditDebt={handleEditDebt}
-                    onDeleteDebt={handleDeleteDebt}
-                    isAdmin={isAdmin}
-                />
-            </div>
 
             {showForm && <DebtsForm
                 onSaveDebt={handleSaveDebt}

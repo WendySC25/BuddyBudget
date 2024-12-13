@@ -126,13 +126,26 @@
                         </button>
                     </div> 
 
-                    <TransactionsTable
-                        transactions={transactions}
-                        onEditTransaction={handleEditTransaction}
-                        onDeleteTransaction={handleDeleteTransaction}
-                        onEdit={handleSaveEditTransaction}  
-                        isAdmin={isAdmin}
-                    />
+                    
+                    {isAdmin ? (
+                        <TransactionsTable
+                            transactions={transactions}
+                            onEditTransaction={handleEditTransaction}
+                            onDeleteTransaction={handleDeleteTransaction}
+                            onEdit={handleSaveEditTransaction}  
+                            isAdmin={isAdmin}
+                        />
+                    ) : (
+                        <div className="card-list-wrapper" >
+                            <TransactionsTable
+                                transactions={transactions}
+                                onEditTransaction={handleEditTransaction}
+                                onDeleteTransaction={handleDeleteTransaction}
+                                onEdit={handleSaveEditTransaction}  
+                                isAdmin={isAdmin}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {showForm && <TransactionForm

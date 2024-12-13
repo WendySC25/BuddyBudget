@@ -312,3 +312,9 @@ border: 1px solid #ccc;
 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
 }
 
+.card-list-wrapper {
+  max-height: 70vh; /* Ajusta según el diseño */
+  overflow-y: auto;
+  padding: 10px;
+}
+

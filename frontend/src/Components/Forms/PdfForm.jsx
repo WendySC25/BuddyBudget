@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../Windows/Transactions.css';
 import client from '../../apiClient.jsx';
 
-const PdfForm = ({onSavePDF}) => {
+const PdfForm = ({onSavePDF, isAdmin}) => {
     const [start_date, setStartDate] = useState('');
     const [end_date, setEndDate] = useState('');
     const [message, setMessage] = useState('');
@@ -25,15 +25,19 @@ const PdfForm = ({onSavePDF}) => {
             const formattedStartDate = start_date;
             const formattedEndDate = end_date;
 
-            const responseT = await client.get(`/api/transactions_pdf?start_date=${formattedStartDate}&end_date=${formattedEndDate}`, {
+            const endpoint = isAdmin
+            ? `/api/users_pdf?start_date=${formattedStartDate}&end_date=${formattedEndDate}`
+            : `/api/transactions_pdf?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+
+            const responseT = await client.get(endpoint, {
                 headers: { Authorization: `Bearer ${token}` },
-                responseType: 'blob', 
+                responseType: 'blob',
             });
 
             const file = new Blob([responseT.data], { type: 'application/pdf' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(file);
-            link.download = 'MyTransactions.pdf';
+            link.download = isAdmin ? 'AdminTransactions.pdf' : 'MyTransactions.pdf';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

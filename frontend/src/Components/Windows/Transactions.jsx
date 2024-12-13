@@ -147,6 +147,7 @@
                             />}
                 {showFormP && <PdfForm
                                 onSavePDF={handleSavePDF}
+                                isAdmin={isAdmin}
                             />}
             </div>
         );

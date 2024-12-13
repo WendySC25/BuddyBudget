@@ -850,7 +850,7 @@ class PDFgenerationA(BaseModelMixin, APIView):
 
         for user in users:
             user_transactions = Transaction.objects.filter(
-                user_id=user.id,
+                user_id=user.user_id,
                 date__range=(start_date, end_date),
             )
             if not user_transactions.exists():

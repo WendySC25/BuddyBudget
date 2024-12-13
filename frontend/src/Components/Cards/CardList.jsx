@@ -18,13 +18,13 @@ const CardList = ({categories, onEditCategory, onDeleteCategory}) => {
               <div className="button-group">
                 <button onClick={() => onEditCategory(category)} className="icon-button">
                   <img
-                    src="https://img.icons8.com/?size=100&id=AuMLFRmG95tQ&format=png&color=000000" 
+                    src="https://img.icons8.com/?size=100&id=AuMLFRmG95tQ&format=png&color=FFFFFF" 
                     alt="Edit icon"
                   />
                 </button>
                 <button onClick={() => onDeleteCategory(category)} className="icon-button">
                 <img
-                    src="https://img.icons8.com/?size=100&id=68064&format=png&color=000000" 
+                    src="https://img.icons8.com/?size=100&id=68064&format=png&color=FFFFFF" 
                     alt="Trash can icon "
                   />
                 </button>

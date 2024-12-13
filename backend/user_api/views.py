@@ -761,13 +761,12 @@ class UserListCreateView(BaseModelMixin, APIView):
 class UserDetailView(BaseModelMixin, APIView):
     permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-    serializer_class = UserSerializer  # Asegúrate de definir el serializer
+    serializer_class = UserSerializer  
 
     def put(self, request, pk):
         User = get_user_model() 
         try:
-            # Busca el usuario directamente sin un método auxiliar
-            user = User.objects.get(user_id=pk)  # Usa `User.objects`
+            user = User.objects.get(user_id=pk)  
         except User.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 

@@ -48,6 +48,11 @@ const Reports = ({ handleLogout }) => {
     setIsPopupOpenExpenses(false);
   };
 
+  useEffect(() => {
+    const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+    document.title = `Reports - ${appName}`;
+  }, []);
+
   // Codigo a ejecutar al entrar en esta actividad
   useEffect(() => {
     // con fetch llamo a la Api para obtener transacciones
@@ -925,7 +930,7 @@ const Reports = ({ handleLogout }) => {
   return (
     <div className="reports-page">
       <Navbar handleLogout={handleLogout} />
-      <h1 className="reports-title">Reports Page </h1>
+      <h1 style={{ marginTop: '22px' }}>Reports Page </h1>
       {errorMessage && <p className="error">{errorMessage}</p>}
       <div className="button-container">
         <select value={chartType} onChange={(e) => setChartType(e.target.value)}>

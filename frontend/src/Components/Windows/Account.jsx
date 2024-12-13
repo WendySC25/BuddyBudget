@@ -4,8 +4,11 @@ import Navbar from '../NavBar/Navbar.jsx';
 import AccountForm from '../Forms/AccountForm.jsx';
 import CardListA from '../Cards/CardListA.jsx';
 import client from '../../apiClient.jsx';
+import './Transactions.css';
+
 
 import './Transactions.css'
+import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters.jsx';
 
 const Accounts = ({ handleLogout, isAdmin }) => {
 
@@ -16,6 +19,11 @@ const Accounts = ({ handleLogout, isAdmin }) => {
     useEffect(() => {
         fetchAllA();
     }, []); 
+
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Accounts - ${appName}`;
+      }, []);
 
     useEffect(() =>{ 
         fetchAllA();
@@ -71,9 +79,10 @@ const Accounts = ({ handleLogout, isAdmin }) => {
     };
 
     return(
-    <div className="transactions">
-        <Navbar handleLogout={handleLogout} />
+    <div className="transaction" style={ isAdmin ? {backgroundColor:'transparent'} : {backgroundColor:'#6b90b7', width: '100vw', height: '100%', minHeight: '100vh', paddingTop: '113px', color: '#000000' }}>
+         {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
         <h1> Accounts </h1>
+        <br></br>
 
         <CardListA 
             accounts = {accounts}

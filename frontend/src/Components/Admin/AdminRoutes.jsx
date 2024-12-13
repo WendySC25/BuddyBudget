@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import Sidebar from '../Sidebar/Sidebar';
 import MainContainer from './MainContainer';
-import UserListTable from './UserListTable';
 import client from '../../apiClient.jsx';
 import Transactions from '../Windows/Transactions.jsx';
 import Debts from '../Windows/Debts.jsx';
@@ -11,72 +10,11 @@ import Categories from '../Windows/Categories.jsx';
 import Accounts from '../Windows/Account.jsx';
 import Users from './Users.jsx';
 
-const AdminRoutes = () => {
-
-    const [users, setUsers] = useState([])
-    const [categories, setCategories] = useState([])
-    const [t,setT] = useState([]);
-    const [d,setDebts] = useState([]);
-
-    useEffect(() =>{ 
-        fetchAllU();
-        fetchAllC();
-        fetchAllT();
-        fetchAllD();
-    }, []);
-
-    const fetchAllU = async () => {
-        try {   
-            const response = await client.get('/api/userlist/', {
-                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
-            });
-            setUsers(response.data)
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
-    };
-
-    const fetchAllC = async () => {
-        try {   
-            const response = await client.get('/api/categories/', {
-                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
-            });
-            setCategories(response.data)
-
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
-    };
-
-    const fetchAllT = async () => {
-        try {   
-            const response = await client.get('/api/transactions/', {
-                headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
-            });
-            setT(response.data)
-
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
-    };
-
-    const fetchAllD = async () => {
-        const token = sessionStorage.getItem('authToken');
-        try {
-            const response = await client.get('/api/debts', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setDebts(response.data);
-            console.log('Fetched debts:', response.data);
-        } catch (error) {
-            console.error('Error while fetching debts', error);
-        }
-    };
-
+const AdminRoutes = ({handleLogout}) => {
     return (
         <div className="container">
-            <Sidebar/>
-            
+            <Sidebar handleLogout={handleLogout}/>
+
             <div className="wrapper1">
             <header className="header">     
             </header>
@@ -86,7 +24,7 @@ const AdminRoutes = () => {
                     <Route path="/" element={<Home />}>
                         {/* Rutas internas de Superhome */}
                         <Route index element={<Home />} />
-                        <Route path="users" element={<Users/>} />
+                        <Route path="users" element={<Users isAdmin={true}/>} />
                         <Route path="transactions" element={<Transactions isAdmin = {true} />} />
                         <Route path="categories" element={<Categories isAdmin={true} /> } />
                         <Route path="accounts" element={<Accounts isAdmin = {true} />} />

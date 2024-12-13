@@ -44,6 +44,7 @@ function App() {
     const token = sessionStorage.getItem('authToken');
     sessionStorage.removeItem('authToken');
     setIsAuthenticated(false);
+    setIsSuperuser(false);
     client.post("/api/logout", {}, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => console.log("Logout successful:", res.data))
       .catch(error => console.error("Logout error:", error));
@@ -136,7 +137,10 @@ if (loading) {
           element={isAuthenticated ? <Navigate to="/home" /> : <LoginRegister handleLogin={handleLogin} />}
         />
 
-        <Route path="/superhome/*" element={<AdminRoutes />} />
+        <Route 
+          path="/superhome/*" 
+          element={isAuthenticated ? <AdminRoutes handleLogout={handleLogout}/> : <LoginRegister handleLogin={handleLogin} />} 
+        />
 
 
       </Routes>

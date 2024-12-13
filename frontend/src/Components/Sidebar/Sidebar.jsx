@@ -3,7 +3,8 @@ import './Sidebar.css';
 import { Link } from 'react-router-dom';
 import logo__light from '../Assets/BuddyBudget_black.png';
 
-const Sidebar = () => {
+const Sidebar = ({handleLogout}) => {
+
   return (
         <div className="sidebar">
         <img src={logo__light} alt="Logo" />
@@ -17,7 +18,15 @@ const Sidebar = () => {
                     <a className="sidebar-link" ><svg viewBox="0 0 24 24" fill="currentColor"/><Link to="/superhome/accounts">Acounts</Link></a>
                     <a className="sidebar-link" ><svg viewBox="0 0 24 24" fill="currentColor"/><Link to="/superhome/debts">Debt</Link></a>
                 </div>
+
             </div>
+            <div className="side-wrapper">
+
+            <div className="side-menu">
+                <a className="sidebar-link" onClick={handleLogout}><svg viewBox="0 0 24 24" fill="currentColor"/>Log out</a>
+            </div>
+            </div>
+
         </div>
   );
 };

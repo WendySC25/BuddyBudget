@@ -6,6 +6,7 @@ import DebtsForm from '../Forms/DebtsForm.jsx';
 
 import './Transactions.css'
 import client from '../../apiClient.jsx';
+import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters.jsx';
 
 const Debts = ({ handleLogout, isAdmin }) => {
 
@@ -13,6 +14,11 @@ const Debts = ({ handleLogout, isAdmin }) => {
     const [debtToEdit, setDebtToEdit] = useState(null); // Estado para almacenar la deuda que se va a editar
 
     const [showForm, setShowForm] = useState(false); // Estado para controlar la visibilidad del formulario
+
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Debts - ${appName}`;
+      }, []);
 
     // useEffect para realizar acciones cuando cambia `showForm` (Modificar Fondo)
     useEffect(() =>{ 
@@ -74,21 +80,25 @@ const Debts = ({ handleLogout, isAdmin }) => {
     };
 
     return (
-        <div className="transaction">
-            <Navbar handleLogout={handleLogout} />
+        <div className="transaction" style={ isAdmin ? {backgroundColor:'transparent'} : {backgroundColor:'#6b90b7', width: '100vw', height: '100%', minHeight: '100vh', paddingTop: '113px', color: '#000000' }}>
+             {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
             <h1>Debts Page</h1>
 
-            <div className="table-container">
-                <div className="table-header-buttons">
+    
+                <div className="table-header-buttons " style={{ marginTop: '22px' }}>
+                    {/* <SearchBarWithFilter options={options}/> */}
                     <button onClick={() => setShowForm(!showForm)}>
                         {showForm ? 'Cancel' : '+ Add Debt'}
                     </button>
                 </div>
 
+                <div className="table-container">
+
                 <DebtsTable
                     debts={debts}
                     onEditDebt={handleEditDebt}
                     onDeleteDebt={handleDeleteDebt}
+                    isAdmin={isAdmin}
                 />
             </div>
 

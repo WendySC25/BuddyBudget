@@ -15,7 +15,10 @@ WORKDIR /app
 COPY ./requirements.txt .
 RUN pip3 install -r requirements.txt
 COPY ./wait-for-it.sh /wait-for-it.sh
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /wait-for-it.sh /entrypoint.sh
 
 COPY . .
 
-CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py user_api/urls.py && python manage.py runserver 0.0.0.0:8000"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["python manage.py runserver 0.0.0.0:8000"]

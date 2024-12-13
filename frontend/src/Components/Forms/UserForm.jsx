@@ -16,36 +16,31 @@ const UserForm = ({ userToEdit, onSaveUser }) => {
         }
     }, [userToEdit]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const data = {
-            username,
-            email,
-            password: password || undefined, 
-        };
+        console.log("Saving user with ID:", userToEdit.user_id);
 
-        if (userToEdit) {
-            // Update existing user
-            const endpoint = `/api/users/${userToEdit.id}/`;
-            client.put(endpoint, data)
-                .then(() => setMessage('User updated successfully!'))
-                .catch((error) => {
-                    console.error('Error while updating user:', error.response?.data || error.message);
-                    setMessage('Failed to update user');
-                });
-        } else {
-            // Create new user
-            const endpoint = '/api/register';
-            client.post(endpoint, data)
-                .then(() => setMessage('User created successfully!'))
-                .catch((error) => {
-                    console.error('Error while creating user:', error.response?.data || error.message);
-                    setMessage('Failed to create user');
-                });
+        try {
+            const data = { username, email };
+            if (password) data.password = password; // Only include password if provided
+
+            if (userToEdit) {
+                // Update existing user
+                await client.put(`/api/users/${userToEdit.user_id}/`, data);
+                setMessage('User updated successfully!');
+            } else {
+                // Create new user
+                await client.post('/api/register', data);
+                setMessage('User created successfully!');
+            }
+
+            setTimeout(() => setMessage(''), 3000); // Clear message after 3 seconds
+            onSaveUser(); // Notify parent about completion
+        } catch (error) {
+            console.error('Error saving user:', error.response?.data || error.message);
+            setMessage('Failed to save user. Please check the details.');
         }
-
-        onSaveUser()
 
     };
 

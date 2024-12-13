@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './LoginRegister.css';
 import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from 'axios';
+import { useEffect } from 'react';
 
 // Axios configuration for http requests
 axios.defaults.xsrfCookieName = 'csrftoken';
@@ -22,6 +23,11 @@ const LoginRegister = ({ handleLogin }) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false); // useState for password visibility
     const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Visibility for confirm password
+
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Login & Register - ${appName}`;
+      }, []);
 
     const registerLink = () => {
         setAction(' active');

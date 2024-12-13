@@ -12,7 +12,7 @@ from .models import Transaction, Category, Account, AppUser, Debt, Configuration
 import random
 from datetime import datetime, timedelta
 from django.http import FileResponse
-from io import BytesIO
+from django.db.models import Q
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -25,8 +25,9 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
-from collections import defaultdict
 from matplotlib.colors import to_hex, to_rgb
+from django.core.mail import EmailMessage
+from io import BytesIO
 
 def verify_email(request, uidb64, token):
     try:
@@ -36,13 +37,13 @@ def verify_email(request, uidb64, token):
         user = None
 
     if user is not None and user.is_active != False:
-        return redirect('http://127.0.0.1:3000/home')
+        return redirect('http://localhost:3000/home')
     elif user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
-        return redirect('http://127.0.0.1:3000/email-verified')
+        return redirect('http://localhost:3000/email-verified')
     else:
-        return redirect('http://127.0.0.1:3000/email-unverified')
+        return redirect('http://localhost:3000/email-unverified')
 
 #AdminAPI
 class BaseModelMixin:
@@ -409,6 +410,7 @@ class ConfigurationView(APIView):
         serializer = ConfigurationSerializer(config, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+            config.save_task()
             return Response({'configuration': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -729,7 +731,7 @@ class PDFgeneration(APIView):
 
         #return FileResponse
         buf.seek(0)
-        response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
+        response = FileResponse(buf, as_attachment=True, filename="BuddyBudgetReport.pdf")
         response['Content-Type'] = 'application/pdf'
         return response
 
@@ -757,14 +759,38 @@ class UserDeleteView(BaseModelMixin, APIView):
             {"message": "Usuario y todos los datos relacionados eliminados con éxito."},
             status=status.HTTP_204_NO_CONTENT
         )
+    
+
+class UserListCreateView(BaseModelMixin, APIView):
+    permission_classes = (IsAdminOrOwner,)
+    authentication_classes = (JWTAuthentication,)
+    model = get_user_model
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserDetailView(BaseModelMixin, APIView):
     permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
+    serializer_class = UserSerializer  
     model = get_user_model()
 
     def put(self, request, pk):
-        user = self.get_object(pk)
+        User = get_user_model() 
+        try:
+            user = User.objects.get(user_id=pk)  
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
         serializer = self.serializer_class(user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()

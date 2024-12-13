@@ -10,8 +10,49 @@ services:
     volumes:
       - ./backend:/app
       - ./frontend/src/Components/Assets:/app/assets
-    command: >
-      sh -c "./wait-for-it.sh db:3306 -- python manage.py makemigrations && python manage.py migrate && python manage.py test  && python manage.py runserver 0.0.0.0:8000"
+    entrypoint: ["./entrypoint.sh", "django"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+  
+  celery:
+    build:
+      context: ./backend
+    container_name: celery-worker
+    entrypoint: []
+    command: celery -A backend worker --loglevel=debug
+    volumes:
+      - ./backend:/app
+      - ./frontend/src/Components/Assets:/app/assets
+    depends_on:
+      - django
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=backend.settings
+
+  celery-beat:
+    build:
+      context: ./backend
+    container_name: celery-beat
+    entrypoint: ["./entrypoint.sh", "celery-beat"]
+    command: ["celery", "-A", "backend", "beat", "--loglevel=DEBUG"]
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - django
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DJANGO_SETTINGS_MODULE=backend.settings
+      - TZ=America/Mexico_City
+
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"] 
 
   react:
     build:
@@ -35,5 +76,6 @@ services:
       - db_data:/var/lib/mysql
 volumes:
   db_data:
+  redis_data:
 
     

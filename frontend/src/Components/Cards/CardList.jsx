@@ -1,6 +1,6 @@
 //Categories.jsx
 import React,{ useState, useEffect } from 'react';
-import './CardList.css'
+import './CardList.css';
 
 
 const CardList = ({categories, onEditCategory, onDeleteCategory}) => {

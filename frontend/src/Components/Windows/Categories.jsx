@@ -5,7 +5,7 @@ import CategoryForm from '../Forms/CategoryForm.jsx';
 import CardList from '../Cards/CardList.jsx';
 import client from '../../apiClient.jsx';
 
-import './Transactions.css'
+import './Transactions.css';
 
 const Categories = ({ handleLogout, isAdmin }) => {
 

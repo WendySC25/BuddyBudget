@@ -4,8 +4,9 @@ import Navbar from '../NavBar/Navbar.jsx';
 import AccountForm from '../Forms/AccountForm.jsx';
 import CardListA from '../Cards/CardListA.jsx';
 import client from '../../apiClient.jsx';
+import './Transactions.css';
 
-import './Transactions.css'
+
 
 const Accounts = ({ handleLogout, isAdmin }) => {
 
@@ -71,7 +72,7 @@ const Accounts = ({ handleLogout, isAdmin }) => {
     };
 
     return(
-    <div className="transactions">
+    <div className="transaction">
         <Navbar handleLogout={handleLogout} />
         <h1> Accounts </h1>
 

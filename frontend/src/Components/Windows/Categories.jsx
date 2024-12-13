@@ -82,9 +82,9 @@ const Categories = ({ handleLogout, isAdmin }) => {
     };
 
     return(
-    <div className="transaction">
-        <Navbar handleLogout={handleLogout} />
-        <h1 style={{ marginTop: '67px' }}> Categories </h1>
+    <div className={isAdmin ? "transaction" : "transaction2"}>
+        {!isAdmin &&(<Navbar handleLogout={handleLogout} />)}
+        <h1> Categories </h1>
         <br></br>
 
         <CardList 

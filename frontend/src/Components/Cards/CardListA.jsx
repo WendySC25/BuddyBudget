@@ -91,7 +91,11 @@ const CardListA = ({ accounts, onEditAccount, onDeleteAccount, isAdmin }) => {
           ))}
         </div>
       ) : (
-        <p>No accounts available</p>
+
+        <div className="card-list">
+          <p>No accounts available</p>
+        </div>
+        
       )}
     </div>
   );

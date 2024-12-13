@@ -79,8 +79,8 @@ const Accounts = ({ handleLogout, isAdmin }) => {
     };
 
     return(
-    <div className="transaction">
-        <Navbar handleLogout={handleLogout} />
+    <div className={isAdmin ? "transaction" : "transaction2"}>
+         {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
         <h1> Accounts </h1>
 
         <CardListA 

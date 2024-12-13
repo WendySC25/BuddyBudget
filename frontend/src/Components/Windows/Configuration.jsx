@@ -166,7 +166,7 @@ const Configuration = ({ handleLogout }) => {
     };
 
     return (
-        <div className="transaction">
+        <div className="transaction2">
             <Navbar handleLogout={handleLogout} />
             <h1 style={{ marginTop: '102px' }}>Configuration Page</h1>
             

@@ -117,9 +117,9 @@
     
         return (
 
-            <div className="transaction">
-                <Navbar handleLogout={handleLogout} />
-                <h1 style={{ marginTop: '10px' }}>Transactions Page</h1>
+            <div className={isAdmin ? "transaction" : "transaction2"}>
+                {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
+                <h1>Transactions Page</h1>
 
                
                 <div className="table-container">

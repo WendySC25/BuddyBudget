@@ -69,7 +69,9 @@ const CardList = ({ categories, onEditCategory, onDeleteCategory }) => {
           ))}
         </div>
       ) : (
-        <p>No categories available</p>
+        <div className="card-list">
+          <p>No categories available</p>
+        </div>
       )}
     </div>
   );

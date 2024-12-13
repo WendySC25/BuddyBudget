@@ -80,8 +80,8 @@ const Debts = ({ handleLogout, isAdmin }) => {
     };
 
     return (
-        <div className="transaction">
-            <Navbar handleLogout={handleLogout} />
+        <div className={isAdmin ? "transaction" : "transaction2"}>
+             {!isAdmin && (<Navbar handleLogout={handleLogout} />)}
             <h1>Debts Page</h1>
 
     

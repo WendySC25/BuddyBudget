@@ -1,7 +1,6 @@
 // Home.jsx
 import React, { useEffect } from 'react';
 import Navbar from '../NavBar/Navbar';
-import CardItem from './CardItem.jsx';
 import DataProvider from "../DataProcessing/DataProvider.jsx";
 import { Line } from 'react-chartjs-2';
 

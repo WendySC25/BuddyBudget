@@ -1,19 +1,18 @@
 /* Transactions.css*/
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-.transaction {
+/* .transaction {
   margin: 0;
   width: 100%;
   height: 100%;
   color: #000000;     
-  background-color: #b9daeb;
   padding: 20px;
   width:100vw;
   padding-top: 100px; 
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
+} */
 
 .transaction-title {
   margin-top: 50px; /* Ajusta según la altura deseada */
@@ -22,7 +21,7 @@
 .table-header-buttons {
   display: flex;
   justify-content: center; 
-  gap: 30px; 
+  gap: 10px; 
   margin-bottom: 20px; 
 }
 
@@ -63,7 +62,6 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 20px;
   transition: background-color 0.3s, transform 0.2s;
 }
 

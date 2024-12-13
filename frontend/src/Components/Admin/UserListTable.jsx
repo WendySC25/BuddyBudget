@@ -2,12 +2,20 @@
 import React, {useState} from 'react';
 import '../Tables/TransactionsTable.css';
 import UserForm from '../Forms/UserForm';
+import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters';
 
 const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
+
+    const options = [
+        { value: "user_id", label: "User ID", type: "texto" },
+        { value: "email", label: "Email", type: "texto" }, 
+        { value: "username", label: "Username", type: "texto" },
+    ];
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState(""); 
     const [sortOrder, setSortOrder] = useState("asc");
+    const [filteredData, setFilteredData] = useState(users);
     
     const handleSort = (key) => {
         if (sortBy === key) {
@@ -18,24 +26,38 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
         }
     };
 
-    const sortedData = [...users].sort((a, b) => {
-        if (sortBy === "") {
-            return sortOrder === "asc" ? -1 : 1;
+    const handleSearch = (searchTerm, selectedOption) => {
+        if (!selectedOption) {
+          setFilteredData(users);
+          return;
         }
-
-        const aValue = a[sortBy];
-        const bValue = b[sortBy];
-
+      
+        const filtered = users.filter((user) =>
+          user[selectedOption]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      
+        setFilteredData(filtered);
+      };
+      
+      const sortedData = [...filteredData].sort((a, b) => {
+        if (sortBy === "") return 0; // Si no hay campo seleccionado para ordenar, no cambia el orden
+      
+        const aValue = a[sortBy]?.toString().toLowerCase() || "";
+        const bValue = b[sortBy]?.toString().toLowerCase() || "";
+      
         if (sortOrder === "asc") {
-            return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
         } else {
-            return bValue < aValue ? -1 : bValue > aValue ? 1 : 0;
+          return bValue < aValue ? -1 : bValue > aValue ? 1 : 0;
         }
-    });
-
+      });
     return (
        
         <div className="limiter">
+            <SearchBarWithFilter
+                options ={options}
+                onSearch={handleSearch  }
+            />
             <div className="container-table100">
                 <div className="wrap-table100">
                     <div className="table">

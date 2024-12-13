@@ -145,6 +145,7 @@
                         onEditTransaction={handleEditTransaction}
                         onDeleteTransaction={handleDeleteTransaction}
                         onEdit={handleSaveEditTransaction}  
+                        isAdmin={isAdmin}
                     />
                 </div>
 

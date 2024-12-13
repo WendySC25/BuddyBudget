@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 import './TransactionsTable.css';
 
-const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransaction }) => {
+const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransaction, isAdmin}) => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState(""); 
@@ -71,6 +71,13 @@ const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransactio
                         {/* Header */}
 
                         <div className="row header">
+
+                            {isAdmin && ( 
+                                <div className="cell" onClick={() => handleSort("user")}> 
+                                User {sortBy === "user" && (sortOrder === "asc" ? "↑" : "↓")}
+                                </div>
+
+                            )}
                             <div className="cell" onClick={() => handleSort("type")}> 
                                 Type  {sortBy === "type" && (sortOrder === "asc" ? "↑" : "↓")}
                             </div>
@@ -103,6 +110,7 @@ const TransactionsTable = ({ transactions, onEditTransaction, onDeleteTransactio
                             .filter(item => item.description.includes(searchTerm))
                             .map((transaction, index) => (
                                 <div className="row" key={transaction.id}>
+                                    {isAdmin && (<div className="cell" data-title="User_id">{transaction.user}</div>)}
                                     <div className="cell" data-title="Type">
                                         {transaction.type === 'INC' ? (
                                             <img

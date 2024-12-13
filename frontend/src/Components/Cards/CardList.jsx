@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-//Categories.jsx
-import React,{ useState, useEffect } from 'react';
-import './CardList.css';
-=======
 import React, { useState, useEffect } from 'react';
 import './CardList.css';
 import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters';
->>>>>>> df99701 (feat: Add serch bar into categories table)
 
 const CardList = ({ categories, onEditCategory, onDeleteCategory }) => {
   const [filteredCategories, setFilteredCategories] = useState(categories);

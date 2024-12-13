@@ -18,6 +18,12 @@ const AdminRoutes = () => {
     const [t,setT] = useState([]);
     const [d,setDebts] = useState([]);
 
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Admin Panel - ${appName}`;
+      }, []);
+
+
     useEffect(() =>{ 
         fetchAllU();
         fetchAllC();

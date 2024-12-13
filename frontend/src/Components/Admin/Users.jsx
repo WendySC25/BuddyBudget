@@ -8,7 +8,13 @@ import client from '../../apiClient.jsx';
 const Users = ({ handleLogout, isAdmin }) => {
     const [users, setUsers] = useState([]);
     const [userToEdit, setUserToEdit] = useState(null);
-    const [showForm, setShowForm] = useState(false);
+    const [showForm, setShowForm] = useState(false)
+
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Users - ${appName}`;
+      }, []);
+
     
     useEffect(() => {
         fetchAllUsers();

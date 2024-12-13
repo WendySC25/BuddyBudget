@@ -19,6 +19,11 @@ const Configuration = ({ handleLogout }) => {
     const [password, setPassword] = useState('');
     const [userId, setUserId] = useState('');
 
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Configuration - ${appName}`;
+      }, []);
+
     // Obtener configuración existente al cargar el componente
     useEffect(() => {
         const fetchConfiguration = async () => {

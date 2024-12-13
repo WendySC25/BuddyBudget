@@ -1,5 +1,5 @@
 // Home.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../NavBar/Navbar';
 import CardItem from './CardItem.jsx';
 import DataProvider from "../DataProcessing/DataProvider.jsx";
@@ -9,6 +9,10 @@ import styles from './Home.module.css';
 
 const Home = ({ handleLogout }) => {
     const { balance,profileName, getCurrentMonthTransactions, filterByType, countAndSum, countAndSumDebts, groupByWeeks, errorMessage } = DataProvider();
+
+    useEffect(() => {
+        document.title = "Home - Buddy Budget";
+    }, []);
     
     // Obtener transacciones del mes actual
     const currentMonthTransactions = getCurrentMonthTransactions();

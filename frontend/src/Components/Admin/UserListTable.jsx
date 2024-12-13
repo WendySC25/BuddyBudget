@@ -76,7 +76,7 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
                                     <div className="cell" data-title="Button"> 
                                         <button onClick={() => onEditUser(user)} className="iconb">
                                             <img
-                                                src="https://img.icons8.com/?size=100&id=AuMLFRmG95tQ&format=png&color=000000" 
+                                                src="https://img.icons8.com/?size=100&id=AuMLFRmG95tQ&format=png&color=FFFFFF" 
                                                 alt="Edit icon"
                                                 style={{ width: '24px', height: '24px' }}
                                             />
@@ -86,7 +86,7 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
                                     <div className="cell" data-title="Button" > 
                                         <button onClick={() => onDeleteUser(user) } className="iconb">
                                             <img
-                                                src="https://img.icons8.com/?size=100&id=68064&format=png&color=000000" 
+                                                src="https://img.icons8.com/?size=100&id=68064&format=png&color=FFFFFF" 
                                                 alt="Trash can icon "
                                                 style={{ width: '24px', height: '24px' }}
                                             />

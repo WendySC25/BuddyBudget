@@ -17,7 +17,12 @@
 
         const [showForm, setShowForm]   = useState(false); 
         const [showFormC, setShowFormC] = useState(false); 
-        const [showFormA, setShowFormA] = useState(false);         
+        const [showFormA, setShowFormA] = useState(false);
+        
+        useEffect(() => {
+            const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+            document.title = `Transactions - ${appName}`;
+          }, []);
 
         useEffect(() =>{ 
             fetchAllT();

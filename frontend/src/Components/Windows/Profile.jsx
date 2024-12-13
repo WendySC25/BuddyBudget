@@ -21,6 +21,11 @@ const Profile = ({ user = {}, handleLogout }) => {
 
   const [errorMessage, setErrorMessage] = useState('');
 
+  useEffect(() => {
+    const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+    document.title = `Profile - ${appName}`;
+  }, []);
+
   // Función para cargar datos del perfil cuando la página se carga
   useEffect(() => {
     client.get('/api/profile')

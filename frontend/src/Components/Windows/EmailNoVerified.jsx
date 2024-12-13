@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './../LoginRegister/LoginRegister.css'; // Estilamos con el mismo CSS que Login/Register
 import { FaTimesCircle } from 'react-icons/fa';
 
 const EmailVerified = () => {
+
+  useEffect(() => {
+    const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+    document.title = `Profile - ${appName}`;
+  }, []);
+
   return (
     <div className="wrapper">
       <div className="form-box">

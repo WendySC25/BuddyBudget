@@ -17,6 +17,11 @@ const Accounts = ({ handleLogout, isAdmin }) => {
         fetchAllA();
     }, []); 
 
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Accounts - ${appName}`;
+      }, []);
+
     useEffect(() =>{ 
         fetchAllA();
         const background = document.querySelector('.table-container');

@@ -14,6 +14,11 @@ const Debts = ({ handleLogout, isAdmin }) => {
 
     const [showForm, setShowForm] = useState(false); // Estado para controlar la visibilidad del formulario
 
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Debts - ${appName}`;
+      }, []);
+
     // useEffect para realizar acciones cuando cambia `showForm` (Modificar Fondo)
     useEffect(() =>{ 
         fetchAllDebts();

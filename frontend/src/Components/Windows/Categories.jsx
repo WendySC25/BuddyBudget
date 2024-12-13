@@ -17,6 +17,11 @@ const Categories = ({ handleLogout, isAdmin }) => {
         fetchAllC();
     }, []); // El arreglo vacío asegura que esto se ejecute solo al montar el componente, aprendí por accidente y nuestro servidor recibió 389 request ;-;
     
+    useEffect(() => {
+        const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
+        document.title = `Categories - ${appName}`;
+      }, []);
+
     useEffect(() =>{ 
         fetchAllC();
         const background = document.querySelector('.table-container');

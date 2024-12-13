@@ -762,7 +762,6 @@ class UserDetailView(BaseModelMixin, APIView):
     permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
     model = get_user_model()
-    serializer_class = UserSerializer
 
     def put(self, request, pk):
         user = self.get_object(pk)
@@ -775,7 +774,6 @@ class UserDetailView(BaseModelMixin, APIView):
 class PDFgenerationA(BaseModelMixin, APIView):
     permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-    model = get_user_model()
 
     def header(self, canvas, doc):
         page_width, page_height = letter
@@ -795,42 +793,6 @@ class PDFgenerationA(BaseModelMixin, APIView):
         canvas.line(30, line_y, page_width - 30, line_y)
         canvas.restoreState()
     
-    def create_graphL(self, start_date, end_date, user):
-        transactions = Transaction.objects.filter(
-            user=user,  
-            date__range=(start_date, end_date)
-        )
-
-        data = defaultdict(lambda: {'income': 0, 'expense': 0})
-
-        for transaction in transactions:
-            date = transaction.date.strftime('%d-%m-%Y') 
-            if transaction.type == 'INC': 
-                data[date]['income'] += float(transaction.amount)
-            elif transaction.type == 'EXP': 
-                data[date]['expense'] += float(transaction.amount)
-
-        sorted_data = sorted(data.items(), key=lambda x: x[0])
-        dates = [item[0] for item in sorted_data]
-        incomes = [item[1]['income'] for item in sorted_data]
-        expenses = [item[1]['expense'] for item in sorted_data]
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(dates, incomes, label='Income', marker='o', linestyle='-', linewidth=2)
-        plt.plot(dates, expenses, label='Expense', marker='o', linestyle='-', linewidth=2)
-        plt.title('Incomes and Expenses')
-        plt.legend()
-        plt.grid(True)
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-
-        graph_buffer = BytesIO()
-        plt.savefig(graph_buffer, format='png')
-        graph_buffer.seek(0)
-        plt.close()
-
-        return graph_buffer
- 
     def calculate_balance(self, incomes, expenses):
         total_incomes = sum(float(income.amount) for income in incomes)
         total_expenses = sum(float(expense.amount) for expense in expenses)
@@ -840,100 +802,109 @@ class PDFgenerationA(BaseModelMixin, APIView):
 
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=letter)
-        user_config = Configuration.objects.filter(user=request.user).first()
-        #Cases for filtering
-        if user_config.send_time == SendTimeType.MONTHLY: #assuming method is called every first of the month
-            end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date() #last day of previus month
-            start_date = end_date.replace(day=1)
-            typeReport = "monthly"
-        elif user_config.send_time == SendTimeType.WEEKLY:
-            end_date = datetime.today().date() - timedelta(days=1) #the day before the method is called
-            start_date = end_date - timedelta(weeks=1)
-            typeReport = "weekly"
-        elif user_config.send_time == SendTimeType.FORTNIGHT:
-            end_date = datetime.today().date() - timedelta(days=1)
-            start_date = end_date - timedelta(weeks=2)
-            typeReport = "fortnightly"
-        elif user_config.send_time == SendTimeType.DAILY:
-            end_date = datetime.today().date() - timedelta(days=1)
-            start_date = end_date
-            typeReport = "daily"
+        elements = []
+        start_date_param = request.query_params.get('start_date')
+        end_date_param = request.query_params.get('end_date')
+
+        if start_date_param and end_date_param:
+            try:
+                start_date = datetime.strptime(start_date_param, "%Y-%m-%d").date()
+                end_date = datetime.strptime(end_date_param, "%Y-%m-%d").date()
+                if start_date > end_date:
+                    return Response(
+                        {"error": "start_date must be earlier than or equal to end_date."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                typeReport = "custom"
+            except ValueError:
+                return Response(
+                    {"error": "Invalid date format. Use YYYY-MM-DD."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         else:
-            end_date = datetime.today().date()
-            start_date = datetime.today() - timedelta(days=30).date()
-            typeReport = "monthly"
+            #config admin
+            user_config = Configuration.objects.filter(user=request.user).first()
+            #Cases for filtering
+            if user_config and user_config.send_time == SendTimeType.MONTHLY:#assuming method is called every first of the month
+                end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date()#last day of previus month
+                start_date = end_date.replace(day=1)
+                typeReport = "monthly"
+            elif user_config and user_config.send_time == SendTimeType.WEEKLY:
+                end_date = datetime.today().date() - timedelta(days=1)#the day before the method is called
+                start_date = end_date - timedelta(weeks=1)
+                typeReport = "weekly"
+            elif user_config and user_config.send_time == SendTimeType.FORTNIGHT:
+                end_date = datetime.today().date() - timedelta(days=1)
+                start_date = end_date - timedelta(weeks=2)
+                typeReport = "fortnightly"
+            elif user_config and user_config.send_time == SendTimeType.DAILY:
+                end_date = datetime.today().date() - timedelta(days=1)
+                start_date = end_date
+                typeReport = "daily"
+            else:
+                end_date = datetime.today().date()
+                start_date = datetime.today() - timedelta(days=30).date()
+                typeReport = "monthly"
 
-        #for all users
-        transactions = Transaction.objects.filter(
-            user=request.user,  
-            date__range=(start_date, end_date)
-        )
+        users = get_user_model().objects.all()
 
-        incomes = transactions.filter(type='INC')
-        expenses = transactions.filter(type='EXP')
+        for user in users:
+            user_transactions = Transaction.objects.filter(
+                user_id=user.id,
+                date__range=(start_date, end_date),
+            )
+            if not user_transactions.exists():
+                continue
 
-        balance = self.calculate_balance(incomes,expenses)
+            incomes = user_transactions.filter(type="INC")
+            expenses = user_transactions.filter(type="EXP")
+            balance = self.calculate_balance(incomes, expenses)
 
-        styles = getSampleStyleSheet()
-        title_style = ParagraphStyle(
-            name="TitleStyle",
-            parent=styles["Title"],
-            fontSize=18,
-            alignment=1, 
-            spaceAfter=20
-        )
-        title_text = f"Hello {request.user.username}, here is your {typeReport} report!"
-        title = Paragraph(title_text, title_style)
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle(
+                name="TitleStyle",
+                parent=styles["Title"],
+                fontSize=18,
+                alignment=1,
+                spaceAfter=20,
+            )
+            title_text = f"Report for {user.username} ({typeReport})"
+            title = Paragraph(title_text, title_style)
 
-        data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
+            data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
+            for transaction in user_transactions:
+                categories = ", ".join([cat.category_name for cat in transaction.category.all()])
+                data.append([
+                    categories,
+                    transaction.account,
+                    transaction.amount,
+                    transaction.description,
+                    transaction.date.strftime("%d-%m-%Y"),
+                    transaction.type,
+                ])
 
-        for transaction in transactions:
-            categories = ", ".join([cat.category_name for cat in transaction.category.all()])
-            data.append([
-                categories,
-                transaction.account,
-                transaction.amount,
-                transaction.description,
-                transaction.date.strftime("%d-%m-%Y"),
-                transaction.type,
+            data.append([f"Balance: {balance:.2f}"])
+            table = Table(data)
+
+            style = TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Times-Roman"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ("SPAN", (0, -1), (-1, -1)),
+                ("ALIGN", (0, -1), (-1, -1), "RIGHT"),
+                ("BACKGROUND", (0, -1), (-1, -1), colors.lightgrey),
+                ("TEXTCOLOR", (0, -1), (-1, -1), colors.black),
+                ("FONTNAME", (0, -1), (-1, -1), "Times-Bold"),
             ])
+            table.setStyle(style)
 
-        data.append([f"Balance: {balance: .2f}"])
-        #create table
-        table = Table(data)
-
-        #table style
-        style = TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue), 
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Times-Roman'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-  
-            ('SPAN', (0, -1), (-1, -1)),
-            ('ALIGN', (0, -1), (-1, -1), 'RIGHT'),
-            ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
-            ('TEXTCOLOR', (0, -1), (-1, -1), colors.black),
-            ('FONTNAME', (0, -1), (-1, -1), 'Times-Bold'),
-        ])
-        table.setStyle(style)
-
-        elements = [title,table]
-        elements.append(PageBreak())
-        if user_config.add_graph:
-            graph_buffer = self.create_graphL(start_date, end_date, request.user)
-            graph_image = Image(graph_buffer, width=400, height=300)
-            elements.append(graph_image)
-
-            graph_buffer1 = self.create_graphPI(start_date, end_date, request.user)
-            graph_image1 = Image(graph_buffer1, width=400, height=400)
-            elements.append(graph_image1)
-
-            graph_buffer2 = self.create_graphPE(start_date, end_date, request.user)
-            graph_image2 = Image(graph_buffer2, width=400, height=400)
-            elements.append(graph_image2)
-
+            elements.append(title)
+            elements.append(table)
+            elements.append(PageBreak())
+     
         # adding table and graphs to pdf
         doc.build(elements, onFirstPage=self.header, onLaterPages=self.header)
 

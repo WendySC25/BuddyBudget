@@ -10,14 +10,21 @@ html, body {
 
 /* Configuración general de la página de perfil */
 .profile {
-  background-color: #E8F0F2; /* Fondo suave y profesional */
-  color: #333;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  color: #000000;     
+  background-color: #b9daeb;
   padding: 20px;
   width:100vw;
-  padding-top: 200px;  /*Ajuste del espaciado para la barra de navegación */
+  padding-top: 100px; 
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.profile-title {
+  margin-top: 50px; /* Ajusta según la altura deseada */
 }
 
 /* Formulario de perfil */

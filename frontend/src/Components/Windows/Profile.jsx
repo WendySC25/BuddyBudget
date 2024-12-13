@@ -63,7 +63,7 @@ const Profile = ({ user = {}, handleLogout }) => {
   return (
     <div className="profile">
       <Navbar handleLogout={handleLogout} />
-      <h1>Profile Page</h1>
+      <h1 style={{ marginTop: '67px' }}>Profile Page</h1>
       {errorMessage && <p className="error">{errorMessage}</p>}
       <form className="profile-form" onSubmit={handleSave}>
         <div className="profile-field">

@@ -9,10 +9,14 @@
   background-color: #b9daeb;
   padding: 20px;
   width:100vw;
-  padding-top: 150px; 
+  padding-top: 100px; 
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.transaction-title {
+  margin-top: 50px; /* Ajusta según la altura deseada */
 }
 
 .table-header-buttons {

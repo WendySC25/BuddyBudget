@@ -79,7 +79,7 @@ const Categories = ({ handleLogout, isAdmin }) => {
     return(
     <div className="transaction">
         <Navbar handleLogout={handleLogout} />
-        <h1> Categories </h1>
+        <h1 style={{ marginTop: '67px' }}> Categories </h1>
         <br></br>
 
         <CardList 

@@ -7,7 +7,7 @@ const EmailVerified = () => {
 
   useEffect(() => {
     const appName = document.querySelector('meta[name="app-name"]').getAttribute('content');
-    document.title = `Profile - ${appName}`;
+    document.title = `No verified - ${appName}`;
   }, []);
 
   return (

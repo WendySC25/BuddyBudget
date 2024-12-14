@@ -13,7 +13,7 @@ const DebtsForm = ({ onSaveDebt, debtToEdit, isAdmin }) => {
     const [lastPaymentDate, setLastPaymentDate] = useState('');
     const [message, setMessage] = useState('');
 
-    const [user_id, setUser] = useState(0);
+    const [user_id, setUser] = useState('');
 
     // Si existe una deuda a editar, llena los estados con los valores correspondientes
     useEffect(() => {
@@ -28,9 +28,34 @@ const DebtsForm = ({ onSaveDebt, debtToEdit, isAdmin }) => {
         }
     }, [debtToEdit]);
 
+    const [userExists, setUserExists] = useState(null);
+    const handleUserValidation = async () => {
+        if (!user_id) return;
+        const token = sessionStorage.getItem('authToken');
+        try {
+            const response = await client.get(`/api/users/${user_id}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.status === 200) {
+                setUserExists(true);
+                setMessage('');
+            }
+        } catch (error) {
+            console.error('User validation failed:', error);
+            setUserExists(false);
+            setMessage('User ID does not exist.');
+        }
+    };
+
     // Controla el envio del formulario
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        if (!userExists && isAdmin) {
+            setMessage('Cannot submit. User ID does not exist.');
+            return;
+        }
 
         // Datos que se enviaran 
         const data = {
@@ -88,15 +113,20 @@ const DebtsForm = ({ onSaveDebt, debtToEdit, isAdmin }) => {
 
                         {isAdmin && (
                             <div className="transaction-field">
-                                <label htmlFor="user id">User ID</label>
-                                    <input
-                                        type="number"
-                                        id="user_id"
-                                        value={user_id}
-                                        onChange={(e) => setUser(e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                <label htmlFor="user_id">User ID</label>
+                                <input
+                                    type="number"
+                                    id="user_id"
+                                    value={user_id}
+                                    onChange={(e) => setUser(e.target.value)}
+                                    onBlur={handleUserValidation} // Validación al desenfocar el campo
+                                    required
+                                    readOnly={!!debtToEdit}
+                                />
+                                {userExists === false && (
+                                    <p className="error-message">User ID does not exist.</p>
+                                )}
+                            </div>
                         )}
                                 
                         <div className="transaction-field">

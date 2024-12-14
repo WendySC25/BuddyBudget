@@ -27,6 +27,7 @@ const UserForm = ({ userToEdit, onSaveUser }) => {
 
             if (userToEdit) {
                 // Update existing user
+                console.log(data);
                 await client.put(`/api/users/${userToEdit.user_id}/`, data);
                 setMessage('User updated successfully!');
             } else {

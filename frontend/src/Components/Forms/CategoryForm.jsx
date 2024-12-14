@@ -6,10 +6,30 @@ import client from '../../apiClient.jsx';
 const CategoryForm = ({ onSaveCategory, categoryToEdit, isAdmin }) => {
     
     const [category_name,setCategory_name] = useState('');
-    const [user_id, setUser] = useState(0);
+    const [user_id, setUser] = useState('');
     const [transactionType, setTransactionType] = useState('');
     const [category_color, setCategory_color] = useState("#ffffff");
     const [message, setMessage] = useState('');
+
+    const [userExists, setUserExists] = useState(null);
+    const handleUserValidation = async () => {
+        if (!user_id) return;
+        const token = sessionStorage.getItem('authToken');
+        try {
+            const response = await client.get(`/api/users/${user_id}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.status === 200) {
+                setUserExists(true);
+                setMessage('');
+            }
+        } catch (error) {
+            console.error('User validation failed:', error);
+            setUserExists(false);
+            setMessage('User ID does not exist.');
+        }
+    };
 
     useEffect(() => {
         if(categoryToEdit){
@@ -22,6 +42,11 @@ const CategoryForm = ({ onSaveCategory, categoryToEdit, isAdmin }) => {
 
     const handleSubmitC = (e) => { 
         e.preventDefault(); 
+
+        if (!userExists && isAdmin) {
+            setMessage('Cannot submit. User ID does not exist.');
+            return;
+        }
 
         const data = {
             user_id: user_id,
@@ -62,21 +87,45 @@ const CategoryForm = ({ onSaveCategory, categoryToEdit, isAdmin }) => {
         <div className="modal-overlay">
             <div className="modal-content">
  
-                <div className="transaction-type-buttons">
-                    <button
-                        type="button"
-                        onClick={() => setTransactionType('INC')}
-                        className={transactionType === 'INC' ? 'active-income' : ''}>
-                        Income
-                    </button>
+            <div className="transaction-type-buttons">
+                {categoryToEdit ? (
+                    categoryToEdit.type === 'INC' ? (
+                        <button
+                            type="button"
+                            onClick={() => setTransactionType('INC')}
+                            className="active-income"
+                        >
+                            Income
+                        </button>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => setTransactionType('EXP')}
+                            className="active-expense"
+                        >
+                            Expense
+                        </button>
+                    )
+                ) : (
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setTransactionType('INC')}
+                            className={transactionType === 'INC' ? 'active-income' : ''}
+                        >
+                            Income
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setTransactionType('EXP')}
+                            className={transactionType === 'EXP' ? 'active-expense' : ''}
+                        >
+                            Expense
+                        </button>
+                    </>
+                )}
+            </div>
 
-                    <button
-                        type="button"
-                        onClick={() => setTransactionType('EXP')}
-                        className={transactionType === 'EXP' ? 'active-expense' : ''}>
-                        Expense
-                    </button>
-                </div>
  
                 <div className={`transaction-form-container ${
                     transactionType ? 'show-form' : '' }`}>
@@ -86,14 +135,19 @@ const CategoryForm = ({ onSaveCategory, categoryToEdit, isAdmin }) => {
 
                                 {isAdmin && (
                                     <div className="transaction-field">
-                                        <label htmlFor="user id">User ID</label>
+                                        <label htmlFor="user_id">User ID</label>
                                         <input
                                             type="number"
                                             id="user_id"
                                             value={user_id}
                                             onChange={(e) => setUser(e.target.value)}
+                                            onBlur={handleUserValidation} 
                                             required
+                                            readOnly={!!categoryToEdit}
                                         />
+                                        {userExists === false && (
+                                            <p className="error-message">User ID does not exist.</p>
+                                        )}
                                     </div>
                                 )}
                                 

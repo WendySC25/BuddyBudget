@@ -7,7 +7,7 @@ import client from '../../apiClient.jsx';
 const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit, isAdmin }) => {
     const [categories, setCategories] = useState([]);
     const [accounts, setAccount] = useState([]);
-    const [user_id, setUser] = useState(0);
+    const [user_id, setUser] = useState('');
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [transactionType, setTransactionType] = useState('');
@@ -15,6 +15,26 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit, isAdmin
     const [selectedAccount, setSelectedAccount] = useState('');
     const [date, setDate] = useState('');
     const [message, setMessage] = useState('');
+
+    const [userExists, setUserExists] = useState(null);
+    const handleUserValidation = async () => {
+        if (!user_id) return;
+        const token = sessionStorage.getItem('authToken');
+        try {
+            const response = await client.get(`/api/users/${user_id}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.status === 200) {
+                setUserExists(true);
+                setMessage('');
+            }
+        } catch (error) {
+            console.error('User validation failed:', error);
+            setUserExists(false);
+            setMessage('User ID does not exist.');
+        }
+    };
 
 
     useEffect(() =>{ 
@@ -88,6 +108,11 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit, isAdmin
 
     const handleSubmit = (e) => { 
         e.preventDefault();
+
+        if (!userExists && isAdmin) {
+            setMessage('Cannot submit. User ID does not exist.');
+            return;
+        }
 
         const data = {
             user_id : user_id,
@@ -168,17 +193,23 @@ const TransactionForm = ({ onSaveTransaction, onEdit, transactionToEdit, isAdmin
                     {transactionType && (
                         <form onSubmit={handleSubmit}>
                             <div className="transaction-form">
+
                                 {isAdmin && (
-                                <div className="transaction-field">
-                                    <label htmlFor="amount">User ID</label>
-                                    <input
-                                        type="number"
-                                        id="user_id"
-                                        value={user_id}
-                                        onChange={(e) => setUser(e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                    <div className="transaction-field">
+                                        <label htmlFor="user_id">User ID</label>
+                                        <input
+                                            type="number"
+                                            id="user_id"
+                                            value={user_id}
+                                            onChange={(e) => setUser(e.target.value)}
+                                            onBlur={handleUserValidation} 
+                                            required
+                                            readOnly={!!transactionToEdit}
+                                        />
+                                        {userExists === false && (
+                                            <p className="error-message">User ID does not exist.</p>
+                                        )}
+                                    </div>
                                 )}
                                 <div className="transaction-field">
                                     <label htmlFor="amount">Amount</label>

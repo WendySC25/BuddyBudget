@@ -6,13 +6,33 @@ import client from '../../apiClient.jsx';
 const AccountForm = ({ onSaveAccount, accountToEdit, isAdmin }) => {
 
     const [account_number, setAccount_number] = useState('');
-    const [user_id, setUser] = useState(0);
+    const [user_id, setUser] = useState('');
     const [account_name,setAccount_name] = useState('');
     const [bank_name,setBank_name] = useState('');
     const [expiry_date, setExpiryDate] = useState('');
     const [account_type, setAccountType] = useState('');
     
     const [message, setMessage] = useState('');
+
+    const [userExists, setUserExists] = useState(null);
+    const handleUserValidation = async () => {
+        if (!user_id) return;
+        const token = sessionStorage.getItem('authToken');
+        try {
+            const response = await client.get(`/api/users/${user_id}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.status === 200) {
+                setUserExists(true);
+                setMessage('');
+            }
+        } catch (error) {
+            console.error('User validation failed:', error);
+            setUserExists(false);
+            setMessage('User ID does not exist.');
+        }
+    };
 
     useEffect(() => {
         if(accountToEdit){
@@ -27,6 +47,11 @@ const AccountForm = ({ onSaveAccount, accountToEdit, isAdmin }) => {
 
     const handleSubmitA = (e) => { 
         e.preventDefault();
+
+        if (!userExists && isAdmin) {
+            setMessage('Cannot submit. User ID does not exist.');
+            return;
+        }
 
         const data = {
             user_id: user_id,
@@ -73,17 +98,22 @@ const AccountForm = ({ onSaveAccount, accountToEdit, isAdmin }) => {
                     <div className="transaction-form">
 
                         {isAdmin && (
-                            <div className="transaction-field">
-                                <label htmlFor="user id">User ID</label>
+                                <div className="transaction-field">
+                                    <label htmlFor="user_id">User ID</label>
                                     <input
                                         type="number"
                                         id="user_id"
                                         value={user_id}
                                         onChange={(e) => setUser(e.target.value)}
+                                        onBlur={handleUserValidation}
                                         required
+                                        readOnly={!!accountToEdit}
                                     />
+                                    {userExists === false && (
+                                        <p className="error-message">User ID does not exist.</p>
+                                    )}
                                 </div>
-                        )}
+                            )}
 
                         <div className="transaction-field"> 
                             <label htmlFor="name">Account Name</label>
@@ -103,6 +133,7 @@ const AccountForm = ({ onSaveAccount, accountToEdit, isAdmin }) => {
                                 value={account_type}
                                 onChange={(e) => setAccountType(e.target.value)}
                                 required
+                                
                             >
                                 <option value="" disabled>
                                 Select the account type

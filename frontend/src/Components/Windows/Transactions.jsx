@@ -54,11 +54,11 @@
             }
         };  
 
-        const handleSaveTransaction = () => {
-            fetchAllT();
+        const handleSaveTransaction = async () => {
+            await fetchAllT(); 
             setTransactionToEdit(null);
-            setShowForm(false);  
-        };
+            setShowForm(false);
+        };        
 
         const handleDeleteTransaction = async (transactionToDelete) => {
             const endpoint = `/api/transactions/${transactionToDelete.id}/`;

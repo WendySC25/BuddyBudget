@@ -6,10 +6,6 @@ import CardListA from '../Cards/CardListA.jsx';
 import client from '../../apiClient.jsx';
 import './Transactions.css';
 
-
-import './Transactions.css'
-import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters.jsx';
-
 const Accounts = ({ handleLogout, isAdmin }) => {
 
     const [accounts, setAccounts] = useState([]);

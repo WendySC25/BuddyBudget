@@ -1,7 +1,6 @@
 // TransactionsTable.jsx
-import React, {useState} from 'react';
+import React, {useState, useEffect } from 'react';
 import '../Tables/TransactionsTable.css';
-import UserForm from '../Forms/UserForm';
 import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters';
 
 const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
@@ -12,7 +11,11 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
         { value: "username", label: "Username", type: "texto" },
     ];
 
-    const [searchTerm, setSearchTerm] = useState('');
+    useEffect(() => {
+        setFilteredData(users);
+        
+    }, [users]);
+
     const [sortBy, setSortBy] = useState(""); 
     const [sortOrder, setSortOrder] = useState("asc");
     const [filteredData, setFilteredData] = useState(users);
@@ -85,7 +88,6 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
                         {/* Body */}
                         {sortedData.length > 0 ? (
                             sortedData
-                            .filter(item => item.username.includes(searchTerm))
                             .map((user, index) => (
                                 <div className="row" key={user.id}>
                                     <div className="cell" data-title="check"> 

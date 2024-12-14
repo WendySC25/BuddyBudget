@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactSlider from "react-slider";
 import "./SearchBarWithFilter.css";
 
@@ -22,7 +22,7 @@ const SearchBarWithFilter = ({ options, onSearch, handleReset, priceMin = 0, pri
   const renderDynamicInput = () => {
     const selectedType = options.find((opt) => opt.value === selectedOption)?.type;
 
-    if(selectedType == "texto"){
+    if(selectedType === "texto"){
         return(
             <input
             type="text"
@@ -99,10 +99,6 @@ const SearchBarWithFilter = ({ options, onSearch, handleReset, priceMin = 0, pri
         </select>
         <button className="search-button" onClick={handleSearch}>
           Serch
-        </button>
-
-        <button className="search-button" onClick={handleReset}>
-          Reset
         </button>
    
       {renderDynamicInput()}

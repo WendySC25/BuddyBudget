@@ -15,7 +15,6 @@ const Users = ({ handleLogout, isAdmin }) => {
         document.title = `Users - ${appName}`;
       }, []);
 
-    
     useEffect(() => {
         fetchAllUsers();
         const background = document.querySelector('.table-container');

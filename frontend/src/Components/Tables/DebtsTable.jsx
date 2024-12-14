@@ -4,14 +4,21 @@ import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters';
 
 const DebtsTable = ({ debts, onEditDebt, onDeleteDebt, isAdmin }) => {
 
-    const options = [
+    const allOptions = [
         { value: "description", label: "Description", type: "texto" },
         { value: "creditor", label: "Creditor", type: "texto" },
         { value: "amount", label: "Amount", type: "rango_dinero" },
         { value: "months_to_pay", label: "Months to Pay", type: "rango_dinero" },
         { value: "last_payment_date", label: "Last Payment Date", type: "rango_fechas" },
-        { value: "user", label: "User ID", type: "texto" }, // Solo relevante si `isAdmin` es true
+        { value: "user", label: "User ID", type: "texto" }, // Solo mostrar si `isAdmin` es true
       ];
+
+    const options = allOptions.filter(option => {
+        if (option.value === "user") {
+            return isAdmin; 
+        }
+        return true;
+    });
       
 
     const [filteredDebts, setFilteredDebts] = useState(debts);

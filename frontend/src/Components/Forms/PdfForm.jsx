@@ -37,11 +37,11 @@ const PdfForm = ({onSavePDF, isAdmin}) => {
             const file = new Blob([responseT.data], { type: 'application/pdf' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(file);
-            link.download = isAdmin ? 'AdminTransactions.pdf' : 'MyTransactions.pdf';
+            link.download = isAdmin ? 'AdminTransactions.pdf' : `BuddyBudgetReport_${formattedStartDate}_${formattedEndDate}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            setMessage('PDF downloaded successfully.');
+            setMessage('PDF generated successfully.');
         } catch (error) {
             console.error('Error while creating the PDF:', error);
             setMessage('An error occurred while generating the PDF.');

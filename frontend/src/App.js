@@ -58,6 +58,11 @@ useEffect(() => {
       .then((res) => {
         console.log('User validated:', res.data);
         setIsAuthenticated(true);
+        if (res.data.user.is_staff) {
+          setIsSuperuser(true);
+        } else {
+          setIsSuperuser(false);
+        }
       })
       .catch((error) => {
         console.error('Token validation failed:', error);
@@ -94,7 +99,7 @@ if (loading) {
         <Route
           path="/home"
           element={
-            isAuthenticated ? (isSuperuser ? <Navigate to="/superhome/home" /> : <Home handleLogout={handleLogout}/>) :
+            isAuthenticated ? (isSuperuser ? <Navigate to="/superhome/" /> : <Home handleLogout={handleLogout}/>) :
             <Navigate to="/login" />}
         />
         
@@ -122,6 +127,7 @@ if (loading) {
           path="/categories"
           element={isAuthenticated ? <Categories handleLogout={handleLogout} /> : <Navigate to="/login" />}
         />
+
         <Route path="/email-verified" element={<EmailVerified />} />
         <Route path="/email-unverified" element={<EmailNoVerified />} />
 
@@ -139,7 +145,7 @@ if (loading) {
 
         <Route 
           path="/superhome/*" 
-          element={isAuthenticated ? <AdminRoutes handleLogout={handleLogout}/> : <LoginRegister handleLogin={handleLogin} />} 
+          element={(isAuthenticated && isSuperuser) ? <AdminRoutes handleLogout={handleLogout}/> : <Navigate to="/login" />} 
         />
 
 

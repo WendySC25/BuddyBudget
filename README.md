@@ -23,7 +23,7 @@ BuddyBudget is an application designed to help users manage their finances. The 
 
 3. Once the containers are running, access the frontend of the application in your browser:
 
-   http://localhost:80
+   http://localhost:3000
 
 ## Shutting Down the Project
 

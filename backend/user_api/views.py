@@ -611,50 +611,30 @@ class PDFgeneration(APIView):
 
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=letter)
-        start_date_param = request.query_params.get('start_date')
-        end_date_param = request.query_params.get('end_date')
-
-        if start_date_param and end_date_param:
-            try:
-                start_date = datetime.strptime(start_date_param, "%Y-%m-%d").date()
-                end_date = datetime.strptime(end_date_param, "%Y-%m-%d").date()
-                if start_date > end_date:
-                    return Response(
-                        {"error": "start_date must be earlier than or equal to end_date."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                typeReport = "custom"
-            except ValueError:
-                return Response(
-                    {"error": "Invalid date format. Use YYYY-MM-DD."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            user_config = Configuration.objects.filter(user=request.user).first()
-            #Cases for filtering
-            if user_config and user_config.send_time == SendTimeType.MONTHLY:#assuming method is called every first of the month
-                end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date()#last day of previus month
-                start_date = end_date.replace(day=1)
-                typeReport = "monthly"
-            elif user_config and user_config.send_time == SendTimeType.WEEKLY:
-                end_date = datetime.today().date() - timedelta(days=1)#the day before the method is called
-                start_date = end_date - timedelta(weeks=1)
-                typeReport = "weekly"
-            elif user_config and user_config.send_time == SendTimeType.FORTNIGHT:
-                end_date = datetime.today().date() - timedelta(days=1)
-                start_date = end_date - timedelta(weeks=2)
-                typeReport = "fortnightly"
-            elif user_config and user_config.send_time == SendTimeType.DAILY:
-                end_date = datetime.today().date() - timedelta(days=1)
-                start_date = end_date
-                typeReport = "daily"
-            else:
-                end_date = datetime.today().date()
-                start_date = datetime.today() - timedelta(days=30).date()
-                typeReport = "monthly"
-        
         user_config = Configuration.objects.filter(user=request.user).first()
+        #Cases for filtering
+        if user_config.send_time == SendTimeType.MONTHLY: #assuming method is called every first of the month
+            end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date() #last day of previus month
+            start_date = end_date.replace(day=1)
+            typeReport = "monthly"
+        elif user_config.send_time == SendTimeType.WEEKLY:
+            end_date = datetime.today().date() - timedelta(days=1) #the day before the method is called
+            start_date = end_date - timedelta(weeks=1)
+            typeReport = "weekly"
+        elif user_config.send_time == SendTimeType.FORTNIGHT:
+            end_date = datetime.today().date() - timedelta(days=1)
+            start_date = end_date - timedelta(weeks=2)
+            typeReport = "fortnightly"
+        elif user_config.send_time == SendTimeType.DAILY:
+            end_date = datetime.today().date() - timedelta(days=1)
+            start_date = end_date
+            typeReport = "daily"
+        else:
+            end_date = datetime.today().date()
+            start_date = datetime.today() - timedelta(days=30).date()
+            typeReport = "monthly"
 
+        
         transactions = Transaction.objects.filter(
             user=request.user,  
             date__range=(start_date, end_date)
@@ -673,7 +653,7 @@ class PDFgeneration(APIView):
             alignment=1, 
             spaceAfter=20
         )
-        title_text = f"Hello {request.user.username}, here is your {typeReport} report from {start_date} to {end_date}!"
+        title_text = f"Hello {request.user.username}, here is your {typeReport} report!"
         title = Paragraph(title_text, title_style)
 
         data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
@@ -805,146 +785,3 @@ class UserDetailView(BaseModelMixin, APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class PDFgenerationA(BaseModelMixin, APIView):
-    permission_classes = (IsAdminOrOwner,)
-    authentication_classes = (JWTAuthentication,)
-
-    def header(self, canvas, doc):
-        page_width, page_height = letter
-        canvas.saveState()
-
-        logo_path = "/app/assets/BuddyBudget_black.png"
-        canvas.drawImage(logo_path, x=35, y=735, width=92, height=48) 
-        canvas.setFont("Times-Roman", 16)
-        text = "Users Report"
-        text_width = canvas.stringWidth(text, "Times-Roman", 16)
-        text_x = page_width - text_width - 30 
-        text_y = page_height - 50  
-        canvas.drawString(text_x, text_y, text)
-        canvas.setLineWidth(0.5)
-        line_y = page_height - 60
-        canvas.setLineWidth(0.5)
-        canvas.line(30, line_y, page_width - 30, line_y)
-        canvas.restoreState()
-    
-    def calculate_balance(self, incomes, expenses):
-        total_incomes = sum(float(income.amount) for income in incomes)
-        total_expenses = sum(float(expense.amount) for expense in expenses)
-        return total_incomes - total_expenses
-
-    def get(self, request):
-
-        buf = io.BytesIO()
-        doc = SimpleDocTemplate(buf, pagesize=letter)
-        elements = []
-        start_date_param = request.query_params.get('start_date')
-        end_date_param = request.query_params.get('end_date')
-
-        if start_date_param and end_date_param:
-            try:
-                start_date = datetime.strptime(start_date_param, "%Y-%m-%d").date()
-                end_date = datetime.strptime(end_date_param, "%Y-%m-%d").date()
-                if start_date > end_date:
-                    return Response(
-                        {"error": "start_date must be earlier than or equal to end_date."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                typeReport = "custom"
-            except ValueError:
-                return Response(
-                    {"error": "Invalid date format. Use YYYY-MM-DD."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            #config admin
-            user_config = Configuration.objects.filter(user=request.user).first()
-            #Cases for filtering
-            if user_config and user_config.send_time == SendTimeType.MONTHLY:#assuming method is called every first of the month
-                end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date()#last day of previus month
-                start_date = end_date.replace(day=1)
-                typeReport = "monthly"
-            elif user_config and user_config.send_time == SendTimeType.WEEKLY:
-                end_date = datetime.today().date() - timedelta(days=1)#the day before the method is called
-                start_date = end_date - timedelta(weeks=1)
-                typeReport = "weekly"
-            elif user_config and user_config.send_time == SendTimeType.FORTNIGHT:
-                end_date = datetime.today().date() - timedelta(days=1)
-                start_date = end_date - timedelta(weeks=2)
-                typeReport = "fortnightly"
-            elif user_config and user_config.send_time == SendTimeType.DAILY:
-                end_date = datetime.today().date() - timedelta(days=1)
-                start_date = end_date
-                typeReport = "daily"
-            else:
-                end_date = datetime.today().date()
-                start_date = datetime.today() - timedelta(days=30).date()
-                typeReport = "monthly"
-
-        users = get_user_model().objects.all()
-
-        for user in users:
-            user_transactions = Transaction.objects.filter(
-                user_id=user.user_id,
-                date__range=(start_date, end_date),
-            )
-            if not user_transactions.exists():
-                continue
-
-            incomes = user_transactions.filter(type="INC")
-            expenses = user_transactions.filter(type="EXP")
-            balance = self.calculate_balance(incomes, expenses)
-
-            styles = getSampleStyleSheet()
-            title_style = ParagraphStyle(
-                name="TitleStyle",
-                parent=styles["Title"],
-                fontSize=18,
-                alignment=1,
-                spaceAfter=20,
-            )
-            title_text = f"Report for {user.username} ({typeReport})"
-            title = Paragraph(title_text, title_style)
-
-            data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
-            for transaction in user_transactions:
-                categories = ", ".join([cat.category_name for cat in transaction.category.all()])
-                data.append([
-                    categories,
-                    transaction.account,
-                    transaction.amount,
-                    transaction.description,
-                    transaction.date.strftime("%d-%m-%Y"),
-                    transaction.type,
-                ])
-
-            data.append([f"Balance: {balance:.2f}"])
-            table = Table(data)
-
-            style = TableStyle([
-                ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Times-Roman"),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-                ("SPAN", (0, -1), (-1, -1)),
-                ("ALIGN", (0, -1), (-1, -1), "RIGHT"),
-                ("BACKGROUND", (0, -1), (-1, -1), colors.lightgrey),
-                ("TEXTCOLOR", (0, -1), (-1, -1), colors.black),
-                ("FONTNAME", (0, -1), (-1, -1), "Times-Bold"),
-            ])
-            table.setStyle(style)
-
-            elements.append(title)
-            elements.append(table)
-            elements.append(PageBreak())
-     
-        # adding table and graphs to pdf
-        doc.build(elements, onFirstPage=self.header, onLaterPages=self.header)
-
-        #return FileResponse
-        buf.seek(0)
-        response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
-        response['Content-Type'] = 'application/pdf'
-        return response

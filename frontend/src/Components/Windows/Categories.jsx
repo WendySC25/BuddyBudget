@@ -92,6 +92,7 @@ const Categories = ({ handleLogout, isAdmin }) => {
                 categories={categories}
                 onDeleteCategory={handleDeleteCategory}
                 onEditCategory={handleEditCategory}
+                isAdmin={isAdmin}
             />
         ) : (
             <div className="card-list-wrapper" style={{ paddingBottom: '50px' }}>
@@ -99,6 +100,7 @@ const Categories = ({ handleLogout, isAdmin }) => {
                 categories={categories}
                 onDeleteCategory={handleDeleteCategory}
                 onEditCategory={handleEditCategory}
+                isAdmin={isAdmin}
                 />
             </div>
         )}

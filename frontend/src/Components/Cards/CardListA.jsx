@@ -4,13 +4,20 @@ import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters';
 
 const CardListA = ({ accounts, onEditAccount, onDeleteAccount, isAdmin }) => {
   const [filteredAccounts, setFilteredAccounts] = useState(accounts);
-  const options = [
+  const allOptions = [
     { value: 'account_name', label: 'Account Name', type: 'texto' },
     { value: 'user', label: 'User ID', type: 'texto' },
     { value: 'account_type', label: 'Account Type', type: 'texto' },
     { value: 'bank_name', label: 'Bank Name', type: 'texto' },
     { value: 'expiry_date', label: 'Expiry Date', type: 'rango_fechas' }, 
   ];
+
+  const options = allOptions.filter(option => {
+    if (option.value === "user") {
+        return isAdmin; 
+    }
+    return true;
+});
 
   useEffect(() => {
     setFilteredAccounts(accounts);

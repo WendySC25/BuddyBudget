@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react';
 import './CardList.css';
 import SearchBarWithFilter from '../Serchbar/SerchBarWithFilters';
 
-const CardList = ({ categories, onEditCategory, onDeleteCategory }) => {
+const CardList = ({ categories, onEditCategory, onDeleteCategory, isAdmin }) => {
   const [filteredCategories, setFilteredCategories] = useState(categories);
-  const options = [
+  const allOptions = [
     { value: 'category_name', label: 'Category Name', type: 'texto' },
     { value: 'user', label: 'User ID', type: 'texto' },
     { value: 'type', label: 'Type', type: 'texto' },
   ];
+
+  const options = allOptions.filter(option => {
+    if (option.value === "user") {
+        return isAdmin; 
+    }
+    return true;
+});
 
   useEffect(() => {
     setFilteredCategories(categories);
@@ -62,10 +69,12 @@ const CardList = ({ categories, onEditCategory, onDeleteCategory }) => {
               </div>
 
               <div className="card-footer">
-                <div className="card-meta">User ID: {category.user}</div>
-                <div className="card-meta">{category.type}</div>
+                <div>
+                  {isAdmin && <div className="card-meta">User ID: {category.user}</div> }
+                  <div className="card-meta"> Type: {category.type}</div>
+                </div>
               </div>
-            </article>
+              </article>
           ))}
         </div>
       ) : (

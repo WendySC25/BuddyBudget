@@ -27,6 +27,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 from matplotlib.colors import to_hex, to_rgb
 from django.core.mail import EmailMessage
+
+from rest_framework.exceptions import ValidationError, NotFound
 from io import BytesIO
 
 def verify_email(request, uidb64, token):
@@ -63,13 +65,10 @@ class BaseModelMixin:
         if request.user.is_staff:
             user_id = request.data.get('user_id')
             if not user_id:
-                raise Response(
-                    {"error": "Administrators must specify a user_id."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                raise ValidationError({"error": "Administrators must specify a user_id."})
             target_user = get_user_model().objects.filter(pk=user_id).first()
             if not target_user:
-                raise Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+                raise NotFound({"error": "User not found."})
             return target_user
         return request.user
 
@@ -781,8 +780,18 @@ class UserListCreateView(BaseModelMixin, APIView):
 class UserDetailView(BaseModelMixin, APIView):
     permission_classes = (IsAdminOrOwner,)
     authentication_classes = (JWTAuthentication,)
-    serializer_class = UserSerializer  
-    model = get_user_model()
+    serializer_class = UserSerializer
+
+    def get(self, request, pk):
+  
+        User = get_user_model()  
+        try:
+            user = User.objects.get(pk=pk) 
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.serializer_class(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         User = get_user_model() 

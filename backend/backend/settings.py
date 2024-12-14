@@ -126,7 +126,7 @@ REST_FRAMEWORK = {
 
 ## JSON Web Token
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1000),
     'USER_ID_FIELD': 'user_id',
 }
 

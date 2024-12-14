@@ -8,6 +8,7 @@ const UserForm = ({ userToEdit, onSaveUser }) => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
 
+
     useEffect(() => {
         if (userToEdit) {
             setUsername(userToEdit.username);
@@ -19,7 +20,7 @@ const UserForm = ({ userToEdit, onSaveUser }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log("Saving user with ID:", userToEdit.user_id);
+        // console.log("Saving user with ID:", userToEdit.user_id);
 
         try {
             const data = { username, email };

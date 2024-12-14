@@ -67,7 +67,6 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
                         {/* Header */}
 
                         <div className="row header">
-                            <div className="cell"> </div>
                         
                             <div className="cell" onClick={() => handleSort("User ID")}> 
                                 User ID  {sortBy === "user_id" && (sortOrder === "asc" ? "↑" : "↓")}
@@ -81,6 +80,14 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
                                 Username {sortBy === "username" && (sortOrder === "asc" ? "↑" : "↓")}
                             </div>
 
+                            <div className="cell">
+                                Staff
+                            </div>
+
+                            <div className="cell">
+                                Email verified
+                            </div>
+
                             <div className="cell"></div>
                             <div className="cell"></div>
                         </div>
@@ -90,12 +97,16 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
                             sortedData
                             .map((user, index) => (
                                 <div className="row" key={user.id}>
-                                    <div className="cell" data-title="check"> 
-                                        <input type="checkbox" id="selected" value="scales"/>
-                                    </div>
                                     <div className="cell" data-title="User ID">{user.user_id}</div>
                                     <div className="cell" data-title="Email">{user.email}</div>
                                     <div className="cell" data-title="Username">{user.username}</div>
+                                    <div className="cell" data-title="Username">
+                                        {user.is_staff ? "YES" : "NO"}
+                                    </div>
+
+                                    <div className="cell" data-title="Username">
+                                        {user.is_active ? "YES" : "NO"}
+                                    </div>
                                     
                                     <div className="cell" data-title="Button"> 
                                         <button onClick={() => onEditUser(user)} className="iconb">
@@ -125,6 +136,7 @@ const UserListTable = ({ users, onEditUser, onDeleteUser }) => {
                         ) : (
                             <div className="row">
                                 <div className="cell" colSpan="6">No users yet</div>
+                                <div className="cell"></div>
                                 <div className="cell"></div>
                                 <div className="cell"></div>
                                 <div className="cell"></div>

@@ -611,30 +611,50 @@ class PDFgeneration(APIView):
 
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=letter)
-        user_config = Configuration.objects.filter(user=request.user).first()
-        #Cases for filtering
-        if user_config.send_time == SendTimeType.MONTHLY: #assuming method is called every first of the month
-            end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date() #last day of previus month
-            start_date = end_date.replace(day=1)
-            typeReport = "monthly"
-        elif user_config.send_time == SendTimeType.WEEKLY:
-            end_date = datetime.today().date() - timedelta(days=1) #the day before the method is called
-            start_date = end_date - timedelta(weeks=1)
-            typeReport = "weekly"
-        elif user_config.send_time == SendTimeType.FORTNIGHT:
-            end_date = datetime.today().date() - timedelta(days=1)
-            start_date = end_date - timedelta(weeks=2)
-            typeReport = "fortnightly"
-        elif user_config.send_time == SendTimeType.DAILY:
-            end_date = datetime.today().date() - timedelta(days=1)
-            start_date = end_date
-            typeReport = "daily"
-        else:
-            end_date = datetime.today().date()
-            start_date = datetime.today() - timedelta(days=30).date()
-            typeReport = "monthly"
+        start_date_param = request.query_params.get('start_date')
+        end_date_param = request.query_params.get('end_date')
 
+        if start_date_param and end_date_param:
+            try:
+                start_date = datetime.strptime(start_date_param, "%Y-%m-%d").date()
+                end_date = datetime.strptime(end_date_param, "%Y-%m-%d").date()
+                if start_date > end_date:
+                    return Response(
+                        {"error": "start_date must be earlier than or equal to end_date."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                typeReport = "custom"
+            except ValueError:
+                return Response(
+                    {"error": "Invalid date format. Use YYYY-MM-DD."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            user_config = Configuration.objects.filter(user=request.user).first()
+            #Cases for filtering
+            if user_config and user_config.send_time == SendTimeType.MONTHLY:#assuming method is called every first of the month
+                end_date = (datetime.today().replace(day=1) - timedelta(days=1)).date()#last day of previus month
+                start_date = end_date.replace(day=1)
+                typeReport = "monthly"
+            elif user_config and user_config.send_time == SendTimeType.WEEKLY:
+                end_date = datetime.today().date() - timedelta(days=1)#the day before the method is called
+                start_date = end_date - timedelta(weeks=1)
+                typeReport = "weekly"
+            elif user_config and user_config.send_time == SendTimeType.FORTNIGHT:
+                end_date = datetime.today().date() - timedelta(days=1)
+                start_date = end_date - timedelta(weeks=2)
+                typeReport = "fortnightly"
+            elif user_config and user_config.send_time == SendTimeType.DAILY:
+                end_date = datetime.today().date() - timedelta(days=1)
+                start_date = end_date
+                typeReport = "daily"
+            else:
+                end_date = datetime.today().date()
+                start_date = datetime.today() - timedelta(days=30).date()
+                typeReport = "monthly"
         
+        user_config = Configuration.objects.filter(user=request.user).first()
+
         transactions = Transaction.objects.filter(
             user=request.user,  
             date__range=(start_date, end_date)
@@ -653,7 +673,7 @@ class PDFgeneration(APIView):
             alignment=1, 
             spaceAfter=20
         )
-        title_text = f"Hello {request.user.username}, here is your {typeReport} report!"
+        title_text = f"Hello {request.user.username}, here is your {typeReport} report from {start_date} to {end_date}!"
         title = Paragraph(title_text, title_style)
 
         data = [["Category", "Account", "Amount", "Description", "Date", "Type"]]
@@ -710,7 +730,7 @@ class PDFgeneration(APIView):
 
         #return FileResponse
         buf.seek(0)
-        response = FileResponse(buf, as_attachment=True, filename=f"BuddyBudgetReport_{start_date}_{end_date}.pdf")
+        response = FileResponse(buf, as_attachment=True, filename="BuddyBudgetReport.pdf")
         response['Content-Type'] = 'application/pdf'
         return response
 

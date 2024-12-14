@@ -494,7 +494,7 @@ class PDFgeneration(APIView):
             int(round(blended_rgb[2]))
         )
 
-    def create_graphPI(self, start_date, end_date,user):
+    def create_graphPI(self, start_date, end_date, user):
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -548,7 +548,7 @@ class PDFgeneration(APIView):
 
         return graph_buffer
     
-    def create_graphPE(self, start_date, end_date,user):
+    def create_graphPE(self, start_date, end_date, user):
         category_total = defaultdict(float)
         category_colors = {}
 
@@ -611,8 +611,13 @@ class PDFgeneration(APIView):
 
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=letter)
-        start_date_param = request.query_params.get('start_date')
-        end_date_param = request.query_params.get('end_date')
+        
+        try:
+            start_date_param = request.query_params.get('start_date')
+            end_date_param = request.query_params.get('end_date')
+        except AttributeError:
+            start_date_param = None
+            end_date_param = None
 
         if start_date_param and end_date_param:
             try:

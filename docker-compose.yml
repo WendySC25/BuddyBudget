@@ -18,7 +18,7 @@ services:
       context: ./backend
     container_name: celery-worker
     entrypoint: []
-    command: celery -A backend worker --loglevel=debug
+    command: celery -A backend worker --loglevel=info
     volumes:
       - ./backend:/app
       - ./frontend/src/Components/Assets:/app/assets
@@ -34,7 +34,7 @@ services:
       context: ./backend
     container_name: celery-beat
     entrypoint: ["./entrypoint.sh", "celery-beat"]
-    command: ["celery", "-A", "backend", "beat", "--loglevel=DEBUG"]
+    command: ["celery", "-A", "backend", "beat", "--loglevel=info"]
     volumes:
       - ./backend:/app
     depends_on:

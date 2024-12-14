@@ -730,7 +730,7 @@ class PDFgeneration(APIView):
 
         #return FileResponse
         buf.seek(0)
-        response = FileResponse(buf, as_attachment=True, filename="BuddyBudgetReport.pdf")
+        response = FileResponse(buf, as_attachment=True, filename=f"BuddyBudgetReport_{start_date}_{end_date}.pdf")
         response['Content-Type'] = 'application/pdf'
         return response
 
@@ -945,6 +945,6 @@ class PDFgenerationA(BaseModelMixin, APIView):
 
         #return FileResponse
         buf.seek(0)
-        response = FileResponse(buf, as_attachment=True, filename="MyTransactions.pdf")
+        response = FileResponse(buf, as_attachment=True, filename=f"BuddyBudgetReport_{start_date_param}-{end_date_param}.pdf")
         response['Content-Type'] = 'application/pdf'
         return response

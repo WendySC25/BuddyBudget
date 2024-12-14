@@ -24,7 +24,7 @@ urlpatterns = [
     path('transactions_pdf', views.PDFgeneration.as_view(), name= 'PDFgeneration'),
     path('configuration', views.ConfigurationView.as_view(), name='configuration'),
     path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='delete_user'),
-    path('users_pdf', views.PDFgenerationA.as_view(), name='adminPDFgeneration'),
+    path('users_pdf', views.PDFgeneration.as_view(), name='adminPDFgeneration'),
     path('users/', views.UserListCreateView.as_view(), name='user-list-create'),
     path('users/<int:pk>/', views.UserDetailView.as_view(), name='user-detail'),
 ]

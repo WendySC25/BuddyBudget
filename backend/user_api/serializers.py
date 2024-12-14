@@ -25,9 +25,17 @@ class UserLoginSerializer(serializers.Serializer):
 		return user
 
 class UserSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = UserModel
-		fields = ['user_id', 'email', 'password', 'username', 'is_staff', 'is_active']
+    class Meta:
+        model = UserModel
+        fields = ['user_id', 'email', 'password', 'username', 'is_staff', 'is_active']
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)  
+        return super().update(instance, validated_data)
+
+    
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:

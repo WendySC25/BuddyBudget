@@ -64,7 +64,7 @@
             const endpoint = `/api/transactions/${transactionToDelete.id}/`;
             try {
                 await client.delete(endpoint, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('authToken')}` },
                 });
                 console.log(`Transaction with ID ${transactionToDelete.id} deleted successfully.`);
                 // Elimina localmente la transacción del estado
@@ -98,7 +98,6 @@
 
         const handleSavePDF = () => {
             setShowFormP(false);
-            console.log('PDF generation canceled or completed.');
         };
     
         return (
